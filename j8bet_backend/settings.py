@@ -51,6 +51,12 @@ INSTALLED_APPS = [
     'rest_framework',
 ]
 
+LOCAL_APPS = [
+    'bets',
+]
+
+INSTALLED_APPS = INSTALLED_APPS + LOCAL_APPS
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

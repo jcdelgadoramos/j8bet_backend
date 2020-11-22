@@ -53,7 +53,7 @@ LOCAL_APPS = [
     'bets',
 ]
 
-EXTERNAL_APPS = [
+THIRD_PARTY_APPS = [
     'graphene_django',
 ]
 

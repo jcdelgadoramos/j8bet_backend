@@ -7,12 +7,15 @@ class Event(models.Model):
     An Event is the situation on which a bet will be placed.
     """
 
-    description = models.TextField(null=False, blank=False)
-    rules = models.TextField(null=True, blank=True)
-    creation_datetime = models.DateTimeField(auto_now_add=True)
-    modification_datetime = models.DateTimeField(auto_now=True)
-    expiration_datetime = models.DateTimeField()
-    active = models.BooleanField(default=True)
+    name = models.CharField('Nombre', max_length=255)
+    description = models.TextField('Descripción', null=False, blank=False)
+    rules = models.TextField('Reglas', null=True, blank=True)
+    creation_datetime = models.DateTimeField(
+        'Fecha de creación', auto_now_add=True)
+    modification_datetime = models.DateTimeField(
+        'Fecha de modificación', auto_now=True)
+    expiration_datetime = models.DateTimeField('Fecha de expiración')
+    active = models.BooleanField('Activo', default=True)
 
     class Meta:
         verbose_name = 'Evento'
@@ -25,10 +28,12 @@ class Transaction(models.Model):
     A Transaction is an action describing a money transference.
     """
 
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    description = models.CharField(max_length=255)
-    modification_datetime = models.DateTimeField(auto_now=True)
-    creation_datetime = models.DateTimeField(auto_now_add=True)
+    amount = models.DecimalField('Monto', max_digits=10, decimal_places=2)
+    description = models.CharField('Descripción', max_length=255)
+    creation_datetime = models.DateTimeField(
+        'Fecha de creación', auto_now_add=True)
+    modification_datetime = models.DateTimeField(
+        'Fecha de modificación', auto_now=True)
 
     class Meta:
         verbose_name = 'Transacción'
@@ -43,12 +48,15 @@ class Quota(models.Model):
     """
 
     event = models.ForeignKey(
-        Event, verbose_name='event', on_delete=models.CASCADE)
-    probability = models.DecimalField(max_digits=6, decimal_places=5)
-    creation_datetime = models.DateTimeField(auto_now_add=True)
-    modification_datetime = models.DateTimeField(auto_now=True)
-    expiration_datetime = models.DateTimeField()
-    active = models.BooleanField(default=True)
+        Event, verbose_name='Evento', on_delete=models.CASCADE)
+    probability = models.DecimalField(
+        'Probabilidad', max_digits=6, decimal_places=5)
+    creation_datetime = models.DateTimeField(
+        'Fecha de creación', auto_now_add=True)
+    modification_datetime = models.DateTimeField(
+        'Fecha de modificación', auto_now=True)
+    expiration_datetime = models.DateTimeField('Fecha de expiración')
+    active = models.BooleanField('Activo', default=True)
 
     class Meta:
         verbose_name = 'Cuota'
@@ -64,15 +72,18 @@ class Bet(models.Model):
     """
 
     transaction = models.ForeignKey(
-        Transaction, verbose_name='transaction', on_delete=models.CASCADE)
+        Transaction, verbose_name='Transacción', on_delete=models.CASCADE)
     quota = models.ForeignKey(
-        Quota, verbose_name='quota', on_delete=models.CASCADE)
+        Quota, verbose_name='Cuota', on_delete=models.CASCADE)
     user = models.ForeignKey(
-        User, verbose_name='user', on_delete=models.CASCADE)
-    potential_earnings = models.DecimalField(max_digits=12, decimal_places=2)
-    won = models.BooleanField(null=True)
-    creation_datetime = models.DateTimeField(auto_now_add=True)
-    modification_datetime = models.DateTimeField(auto_now=True)
+        User, verbose_name='Usuario', on_delete=models.CASCADE)
+    potential_earnings = models.DecimalField(
+        'Ganancias potenciales', max_digits=12, decimal_places=2)
+    won = models.BooleanField('Ganado', null=True)
+    creation_datetime = models.DateTimeField(
+        'Fecha de creación', auto_now_add=True)
+    modification_datetime = models.DateTimeField(
+        'Fecha de modificación', auto_now=True)
     active = models.BooleanField(default=True)
 
     class Meta:
@@ -86,11 +97,13 @@ class Prize(models.Model):
     A Prize is the reward for successfully completing a Bet.
     """
 
-    bet = models.ForeignKey(Bet, verbose_name='bet', on_delete=models.CASCADE)
+    bet = models.ForeignKey(
+        Bet, verbose_name='Apuesta', on_delete=models.CASCADE)
     user = models.ForeignKey(
-        User, verbose_name='user', on_delete=models.CASCADE)
-    reward = models.DecimalField(max_digits=12, decimal_places=2)
-    creation_datetime = models.DateTimeField(auto_now_add=True)
+        User, verbose_name='Usuario', on_delete=models.CASCADE)
+    reward = models.DecimalField('Ganancia', max_digits=12, decimal_places=2)
+    creation_datetime = models.DateTimeField(
+        'Fecha de creación', auto_now_add=True)
 
     class Meta:
         verbose_name = 'Premio'

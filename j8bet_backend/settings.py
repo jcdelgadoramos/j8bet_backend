@@ -38,7 +38,6 @@ DEBUG = ENV('DEBUG')
 
 ALLOWED_HOSTS = ENV('ALLOWED_HOSTS')
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -48,8 +47,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
 ]
+
+LOCAL_APPS = [
+    'bets',
+]
+
+EXTERNAL_APPS = [
+    'graphene_django',
+]
+
+INSTALLED_APPS = INSTALLED_APPS + LOCAL_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -60,6 +68,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+GRAPHENE = {
+    'SCHEMA': 'bets.schema.schema',
+}
 
 ROOT_URLCONF = 'j8bet_backend.urls'
 

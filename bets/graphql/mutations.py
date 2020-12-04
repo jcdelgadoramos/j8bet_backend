@@ -122,3 +122,35 @@ class UpdateQuotaMutation(Mutation):
             quota.active = active
         quota.save()
         return UpdateQuotaMutation(quota=quota)
+
+
+class DeleteEventMutation(Mutation):
+    deleted = Boolean()
+
+    class Arguments:
+        """
+        Arguments for Event deletion
+        """
+
+        id = ID()
+
+    def mutate(self, info, id):
+
+        event = Event.objects.filter(id=id).delete()
+        return DeleteEventMutation(deleted=True)
+
+
+class DeleteQuotaMutation(Mutation):
+    deleted = Boolean()
+
+    class Arguments:
+        """
+        Arguments for Quota deletion
+        """
+
+        id = ID()
+
+    def mutate(self, info, id):
+
+        quota = Quota.objects.filter(id=id).delete()
+        return DeleteQuotaMutation(deleted=True)

@@ -22,16 +22,6 @@ class TransactionType(DjangoObjectType):
         fields = '__all__'
 
 
-class BetType(DjangoObjectType):
-    """
-    GraphQL object type for Bet model 
-    """
-
-    class Meta:
-        model = Bet
-        fields = '__all__'
-
-
 class QuotaType(DjangoObjectType):
     """
     GraphQL object type for Quota model
@@ -39,6 +29,16 @@ class QuotaType(DjangoObjectType):
 
     class Meta:
         model = Quota
+        fields = '__all__'
+
+
+class BetType(DjangoObjectType):
+    """
+    GraphQL object type for Bet model 
+    """
+
+    class Meta:
+        model = Bet
         fields = '__all__'
 
 

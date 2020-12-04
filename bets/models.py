@@ -16,6 +16,7 @@ class Event(models.Model):
         'Fecha de modificación', auto_now=True)
     expiration_date = models.DateTimeField('Fecha de expiración')
     active = models.BooleanField('Activo', default=True)
+    completed = models.BooleanField('Completado', null=True)
 
     class Meta:
         verbose_name = 'Evento'

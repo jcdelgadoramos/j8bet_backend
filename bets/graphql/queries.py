@@ -33,17 +33,6 @@ class TransactionQuery(ObjectType):
         return Transaction.objects.get(id=id)
 
 
-class BetQuery(ObjectType):
-    all_bets = DjangoListField(BetType)
-    bet_by_id = Field(BetType, id=ID())
-
-    def resolve_all_bets(parent, info):
-        return Bet.objects.all()
-
-    def resolve_bet_by_id(parent, info, id):
-        return Bet.objects.get(id=id)
-
-
 class QuotaQuery(ObjectType):
     all_quotas = DjangoListField(QuotaType)
     quota_by_id = Field(QuotaType, id=ID())
@@ -53,6 +42,17 @@ class QuotaQuery(ObjectType):
 
     def resolve_all_prizes(parent, info):
         return Prize.objects.all()
+
+
+class BetQuery(ObjectType):
+    all_bets = DjangoListField(BetType)
+    bet_by_id = Field(BetType, id=ID())
+
+    def resolve_all_bets(parent, info):
+        return Bet.objects.all()
+
+    def resolve_bet_by_id(parent, info, id):
+        return Bet.objects.get(id=id)
 
 
 class PrizeQuery(ObjectType):

@@ -10,16 +10,19 @@ class Event(models.Model):
     name = models.CharField('Nombre', max_length=255)
     description = models.TextField('Descripción', null=False, blank=False)
     rules = models.TextField('Reglas', null=True, blank=True)
-    creation_datetime = models.DateTimeField(
+    creation_date = models.DateTimeField(
         'Fecha de creación', auto_now_add=True)
-    modification_datetime = models.DateTimeField(
+    modification_date = models.DateTimeField(
         'Fecha de modificación', auto_now=True)
-    expiration_datetime = models.DateTimeField('Fecha de expiración')
+    expiration_date = models.DateTimeField('Fecha de expiración')
     active = models.BooleanField('Activo', default=True)
 
     class Meta:
         verbose_name = 'Evento'
         verbose_name_plural = 'Eventos'
+
+    def __str__(self):
+        return self.name
 
 
 class Transaction(models.Model):
@@ -30,14 +33,17 @@ class Transaction(models.Model):
 
     amount = models.DecimalField('Monto', max_digits=10, decimal_places=2)
     description = models.CharField('Descripción', max_length=255)
-    creation_datetime = models.DateTimeField(
+    creation_date = models.DateTimeField(
         'Fecha de creación', auto_now_add=True)
-    modification_datetime = models.DateTimeField(
+    modification_date = models.DateTimeField(
         'Fecha de modificación', auto_now=True)
 
     class Meta:
         verbose_name = 'Transacción'
         verbose_name_plural = 'Transacciones'
+
+    def __str__(self):
+        return self.amount
 
 
 class Quota(models.Model):
@@ -51,16 +57,20 @@ class Quota(models.Model):
         Event, verbose_name='Evento', on_delete=models.CASCADE)
     probability = models.DecimalField(
         'Probabilidad', max_digits=6, decimal_places=5)
-    creation_datetime = models.DateTimeField(
+    creation_date = models.DateTimeField(
         'Fecha de creación', auto_now_add=True)
-    modification_datetime = models.DateTimeField(
+    modification_date = models.DateTimeField(
         'Fecha de modificación', auto_now=True)
-    expiration_datetime = models.DateTimeField('Fecha de expiración')
+    expiration_date = models.DateTimeField('Fecha de expiración')
     active = models.BooleanField('Activo', default=True)
 
     class Meta:
         verbose_name = 'Cuota'
         verbose_name_plural = 'Cuotas'
+
+    def __str__(self):
+        return "{event} - {probability}".format(
+            event=self.event, probability=self.probability) 
 
 
 class Bet(models.Model):
@@ -80,9 +90,9 @@ class Bet(models.Model):
     potential_earnings = models.DecimalField(
         'Ganancias potenciales', max_digits=12, decimal_places=2)
     won = models.BooleanField('Ganado', null=True)
-    creation_datetime = models.DateTimeField(
+    creation_date = models.DateTimeField(
         'Fecha de creación', auto_now_add=True)
-    modification_datetime = models.DateTimeField(
+    modification_date = models.DateTimeField(
         'Fecha de modificación', auto_now=True)
     active = models.BooleanField(default=True)
 
@@ -102,7 +112,7 @@ class Prize(models.Model):
     user = models.ForeignKey(
         User, verbose_name='Usuario', on_delete=models.CASCADE)
     reward = models.DecimalField('Ganancia', max_digits=12, decimal_places=2)
-    creation_datetime = models.DateTimeField(
+    creation_date = models.DateTimeField(
         'Fecha de creación', auto_now_add=True)
 
     class Meta:

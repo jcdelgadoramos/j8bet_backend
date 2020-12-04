@@ -1,4 +1,3 @@
-import graphene
 from graphene_django import DjangoObjectType
 
 from bets.models import Event, Transaction, Bet, Quota, Prize
@@ -51,13 +50,3 @@ class PrizeType(DjangoObjectType):
     class Meta:
         model = Prize
         fields = '__all__'
-
-
-class Query(graphene.ObjectType):
-    all_events = graphene.List(EventType)
-
-    def resolve_all_events(root, info):
-        return Event.objects.all()
-
-
-schema = graphene.Schema(query=Query)

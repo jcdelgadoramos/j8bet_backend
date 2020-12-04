@@ -18,6 +18,10 @@ from bets.graphql.mutations import (
 
 
 class Queries(
+    """
+    Class joining all Queries from Bets application
+    """
+
     EventQuery,
     TransactionQuery,
     BetQuery,
@@ -29,6 +33,10 @@ class Queries(
 
 
 class Mutations(ObjectType):
+    """
+    Class joining all Mutations from Bets application
+    """
+
     create_event = CreateEventMutation.Field()
     create_quota = CreateQuotaMutation.Field()
     update_event = UpdateEventMutation.Field()

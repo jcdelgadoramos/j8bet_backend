@@ -70,7 +70,7 @@ MIDDLEWARE = [
 ]
 
 GRAPHENE = {
-    'SCHEMA': 'bets.schema.schema',
+    'SCHEMA': 'j8bet_backend.graphql.api.schema',
 }
 
 ROOT_URLCONF = 'j8bet_backend.urls'

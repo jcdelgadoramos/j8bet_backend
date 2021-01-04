@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -25,6 +26,40 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, **kwargs):
+        """
+        Function which saves an Event and controls depending objects logic.
+        """
+        if not self.active:
+            super().save()
+            return
+        self.expiration_date = datetime.now()
+        bets_to_update = list()
+        if self.completed:
+            prizes_to_create = list()
+            for quota in self.quotas:
+                for bet in quota.bets:
+                    # Reward amount calculation must include the
+                    # probability-to-quota calculation. This should
+                    # probably be done when creating a new quota
+                    prize = Prize(
+                        bet=bet, user=bet.user,
+                        reward=bet.quota.amount * probability)
+                    prizes_to_create.append(prize)
+                    bet.won = True
+                    bet.active = False
+                    bets_to_update.append(bet)
+            Prize.objects.bulk_create(prizes_to_create)
+        else:
+            for quota in self.quotas.all():
+                for bet in quota.bets.all():
+                    bet.won = False
+                    bet.active = False
+                    bets_to_update.append(bet)
+        Bet.objects.bulk_update(bets_to_update, fields=['won', 'active'])
+        self.quotas.update(active=False)
+        super().save()
+                
 
 class Transaction(models.Model):
     """
@@ -55,7 +90,8 @@ class Quota(models.Model):
     """
 
     event = models.ForeignKey(
-        Event, verbose_name='Evento', on_delete=models.CASCADE)
+        Event, verbose_name='Evento', on_delete=models.CASCADE,
+        related_name='quotas')
     probability = models.DecimalField(
         'Probabilidad', max_digits=6, decimal_places=5)
     creation_date = models.DateTimeField(
@@ -83,11 +119,14 @@ class Bet(models.Model):
     """
 
     transaction = models.ForeignKey(
-        Transaction, verbose_name='Transacción', on_delete=models.CASCADE)
+        Transaction, verbose_name='Transacción', on_delete=models.CASCADE,
+        related_name='bets')
     quota = models.ForeignKey(
-        Quota, verbose_name='Cuota', on_delete=models.CASCADE)
+        Quota, verbose_name='Cuota', on_delete=models.CASCADE,
+        related_name='bets')
     user = models.ForeignKey(
-        User, verbose_name='Usuario', on_delete=models.CASCADE)
+        User, verbose_name='Usuario', on_delete=models.CASCADE,
+        related_name='bets')
     potential_earnings = models.DecimalField(
         'Ganancias potenciales', max_digits=12, decimal_places=2)
     won = models.BooleanField('Ganado', null=True)
@@ -109,9 +148,11 @@ class Prize(models.Model):
     """
 
     bet = models.ForeignKey(
-        Bet, verbose_name='Apuesta', on_delete=models.CASCADE)
+        Bet, verbose_name='Apuesta', on_delete=models.CASCADE,
+        related_name='prizes')
     user = models.ForeignKey(
-        User, verbose_name='Usuario', on_delete=models.CASCADE)
+        User, verbose_name='Usuario', on_delete=models.CASCADE,
+        related_name='prizes')
     reward = models.DecimalField('Ganancia', max_digits=12, decimal_places=2)
     creation_date = models.DateTimeField(
         'Fecha de creación', auto_now_add=True)

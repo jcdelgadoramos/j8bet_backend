@@ -11,6 +11,7 @@ class EventAdmin(admin.ModelAdmin):
     """
 
     form = EventForm
+    list_display = ('name', 'expiration_date', 'active', 'completed',)
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):

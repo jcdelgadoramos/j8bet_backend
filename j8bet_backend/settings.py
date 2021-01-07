@@ -91,9 +91,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'j8bet_backend.wsgi.application'
-
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 

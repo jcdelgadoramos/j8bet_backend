@@ -144,8 +144,7 @@ dmypy.json
 # Installer logs
 
 # Unit test / coverage reports
-.coverage
-.cov.xml
+cov.xml
 
 # Translations
 

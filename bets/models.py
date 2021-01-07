@@ -1,6 +1,8 @@
 from datetime import datetime
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 class Event(models.Model):
     """
@@ -30,34 +32,44 @@ class Event(models.Model):
         """
         Function which saves an Event and controls depending objects logic.
         """
-        if not self.active:
+        if not self.id:
+            self.completed = None
             super().save()
             return
-        self.expiration_date = datetime.now()
+        if self.active == False:
+            self.quotas.update(active=False)
+            super().save()
+            return
         bets_to_update = list()
-        if self.completed:
+        if self.completed == True:
             prizes_to_create = list()
-            for quota in self.quotas:
-                for bet in quota.bets:
+            for quota in self.quotas.all():
+                for bet in quota.bets.filter(won=None):
                     # Reward amount calculation must include the
                     # probability-to-quota calculation. This should
                     # probably be done when creating a new quota
                     prize = Prize(
                         bet=bet, user=bet.user,
-                        reward=bet.quota.amount * probability)
+                        reward=bet.quota.probability * bet.transaction.amount)
                     prizes_to_create.append(prize)
                     bet.won = True
                     bet.active = False
                     bets_to_update.append(bet)
             Prize.objects.bulk_create(prizes_to_create)
-        else:
+            self.expiration_date = datetime.now()
+        elif self.completed == False:
             for quota in self.quotas.all():
-                for bet in quota.bets.all():
+                for bet in quota.bets.filter(won=None):
                     bet.won = False
                     bet.active = False
                     bets_to_update.append(bet)
+            self.expiration_date = datetime.now()
+        else:
+            super().save()
+            return
         Bet.objects.bulk_update(bets_to_update, fields=['won', 'active'])
         self.quotas.update(active=False)
+        self.active = False
         super().save()
                 
 
@@ -79,7 +91,7 @@ class Transaction(models.Model):
         verbose_name_plural = 'Transacciones'
 
     def __str__(self):
-        return self.amount
+        return str(self.amount)
 
 
 class Quota(models.Model):
@@ -108,6 +120,13 @@ class Quota(models.Model):
     def __str__(self):
         return "{event} - {probability}".format(
             event=self.event, probability=self.probability) 
+
+    def save(self, **kwargs):
+        """
+        Function which saves a Quota model and deactivates previous ones
+        """
+        self.event.quotas.update(active=False)
+        super().save()
 
 
 class Bet(models.Model):
@@ -140,6 +159,18 @@ class Bet(models.Model):
         verbose_name = 'Apuesta'
         verbose_name_plural = 'Apuestas'
 
+    def __str__(self):
+        return "{event} - {user} - {amount}".format(
+            event=self.quota.event, user=self.user, amount=self.transaction.amount) 
+
+    def save(self, **kwargs):
+        """
+        Function which prevents from saving a Bet with a disabled Quota.
+        """
+        if not self.quota.active:
+            raise ValidationError(_('La cuota debe estar activa'))
+        super().save()
+
 
 class Prize(models.Model):
     """
@@ -160,3 +191,7 @@ class Prize(models.Model):
     class Meta:
         verbose_name = 'Premio'
         verbose_name_plural = 'Premios'
+
+    def __str__(self):
+        return "{event} - {user} - {amount}".format(
+            event=self.bet.quota.event, user=self.user, amount=self.reward) 

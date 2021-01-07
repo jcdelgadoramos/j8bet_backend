@@ -29,6 +29,7 @@ class BetAdmin(admin.ModelAdmin):
     """
     
     form = BetForm
+    list_display = ('user', 'quota', 'potential_earnings', 'active', 'won',)
 
 
 @admin.register(Quota)
@@ -38,6 +39,7 @@ class QuotaAdmin(admin.ModelAdmin):
     """
 
     form = QuotaForm
+    list_display = ('event', 'probability', 'creation_date', 'active',)
 
 
 @admin.register(Prize)

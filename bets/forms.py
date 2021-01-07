@@ -15,6 +15,7 @@ class EventForm(ModelForm):
             'rules',
             'expiration_date',
             'active',
+            'completed',
         )
 
 

@@ -230,7 +230,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "Premio", "verbose_name_plural": "Premios", },
+            options={"verbose_name": "Premio", "verbose_name_plural": "Premios",},
         ),
         migrations.AddField(
             model_name="bet",

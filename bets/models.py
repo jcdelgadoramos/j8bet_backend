@@ -16,7 +16,9 @@ class Event(models.Model):
     description = models.TextField("Descripción", null=False, blank=False)
     rules = models.TextField("Reglas", null=True, blank=True)
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
-    modification_date = models.DateTimeField("Fecha de modificación", auto_now=True)
+    modification_date = models.DateTimeField(
+        "Fecha de modificación", auto_now=True
+    )
     expiration_date = models.DateTimeField("Fecha de expiración")
     active = models.BooleanField("Activo", default=True)
     completed = models.BooleanField("Completado", null=True)
@@ -84,7 +86,9 @@ class Transaction(models.Model):
     amount = models.DecimalField("Monto", max_digits=10, decimal_places=2)
     description = models.CharField("Descripción", max_length=255)
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
-    modification_date = models.DateTimeField("Fecha de modificación", auto_now=True)
+    modification_date = models.DateTimeField(
+        "Fecha de modificación", auto_now=True
+    )
 
     class Meta:
         verbose_name = "Transacción"
@@ -102,7 +106,9 @@ class Quota(models.Model):
     """
 
     event = models.ForeignKey(
-        Event, verbose_name="Evento", on_delete=models.CASCADE, related_name="quotas"
+        Event, verbose_name="Evento",
+        on_delete=models.CASCADE,
+        related_name="quotas"
     )
     probability = models.DecimalField(
         "Probabilidad",
@@ -111,7 +117,9 @@ class Quota(models.Model):
         validators=[MaxValueValidator(1), MinValueValidator(0)],
     )
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
-    modification_date = models.DateTimeField("Fecha de modificación", auto_now=True)
+    modification_date = models.DateTimeField(
+        "Fecha de modificación", auto_now=True
+    )
     expiration_date = models.DateTimeField("Fecha de expiración")
     active = models.BooleanField("Activo", default=True)
 
@@ -148,17 +156,25 @@ class Bet(models.Model):
         related_name="bets",
     )
     quota = models.ForeignKey(
-        Quota, verbose_name="Cuota", on_delete=models.CASCADE, related_name="bets"
+        Quota,
+        verbose_name="Cuota",
+        on_delete=models.CASCADE,
+        related_name="bets"
     )
     user = models.ForeignKey(
-        User, verbose_name="Usuario", on_delete=models.CASCADE, related_name="bets"
+        User,
+        verbose_name="Usuario",
+        on_delete=models.CASCADE,
+        related_name="bets"
     )
     potential_earnings = models.DecimalField(
         "Ganancias potenciales", max_digits=12, decimal_places=2
     )
     won = models.BooleanField("Ganado", null=True)
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
-    modification_date = models.DateTimeField("Fecha de modificación", auto_now=True)
+    modification_date = models.DateTimeField(
+        "Fecha de modificación", auto_now=True
+    )
     active = models.BooleanField(default=True)
 
     class Meta:
@@ -167,7 +183,9 @@ class Bet(models.Model):
 
     def __str__(self):
         return "{event} - {user} - {amount}".format(
-            event=self.quota.event, user=self.user, amount=self.transaction.amount
+            event=self.quota.event,
+            user=self.user,
+            amount=self.transaction.amount,
         )
 
     def save(self, **kwargs):
@@ -188,10 +206,16 @@ class Prize(models.Model):
     """
 
     bet = models.ForeignKey(
-        Bet, verbose_name="Apuesta", on_delete=models.CASCADE, related_name="prizes"
+        Bet,
+        verbose_name="Apuesta",
+        on_delete=models.CASCADE,
+        related_name="prizes",
     )
     user = models.ForeignKey(
-        User, verbose_name="Usuario", on_delete=models.CASCADE, related_name="prizes"
+        User,
+        verbose_name="Usuario",
+        on_delete=models.CASCADE,
+        related_name="prizes",
     )
     reward = models.DecimalField("Ganancia", max_digits=12, decimal_places=2)
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)

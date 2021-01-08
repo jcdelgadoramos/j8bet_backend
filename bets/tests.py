@@ -54,7 +54,9 @@ class BetModelsTest(TestCase):
         self.assertEqual(
             bet.__str__(),
             "{event} - {user} - {amount}".format(
-                event=bet.quota.event, user=bet.user, amount=bet.transaction.__str__()
+                event=bet.quota.event,
+                user=bet.user,
+                amount=bet.transaction.__str__(),
             ),
         )
         self.assertIsNone(bet.won)
@@ -114,7 +116,9 @@ class BetModelsTest(TestCase):
         self.assertEqual(
             prize.__str__(),
             "{event} - {user} - {amount}".format(
-                event=prize.bet.quota.event, user=prize.user, amount=prize.reward
+                event=prize.bet.quota.event,
+                user=prize.user,
+                amount=prize.reward,
             ),
         )
 

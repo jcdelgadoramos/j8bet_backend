@@ -50,7 +50,10 @@ class Migration(migrations.Migration):
                 ),
                 ("active", models.BooleanField(default=True)),
             ],
-            options={"verbose_name": "Apuesta", "verbose_name_plural": "Apuestas",},
+            options={
+                "verbose_name": "Apuesta",
+                "verbose_name_plural": "Apuestas",
+            },
         ),
         migrations.CreateModel(
             name="Event",
@@ -64,11 +67,16 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("name", models.CharField(max_length=255, verbose_name="Nombre")),
+                (
+                    "name",
+                    models.CharField(max_length=255, verbose_name="Nombre"),
+                ),
                 ("description", models.TextField(verbose_name="Descripción")),
                 (
                     "rules",
-                    models.TextField(blank=True, null=True, verbose_name="Reglas"),
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Reglas"
+                    ),
                 ),
                 (
                     "creation_date",
@@ -86,13 +94,19 @@ class Migration(migrations.Migration):
                     "expiration_date",
                     models.DateTimeField(verbose_name="Fecha de expiración"),
                 ),
-                ("active", models.BooleanField(default=True, verbose_name="Activo")),
+                (
+                    "active",
+                    models.BooleanField(default=True, verbose_name="Activo"),
+                ),
                 (
                     "completed",
                     models.BooleanField(null=True, verbose_name="Completado"),
                 ),
             ],
-            options={"verbose_name": "Evento", "verbose_name_plural": "Eventos",},
+            options={
+                "verbose_name": "Evento",
+                "verbose_name_plural": "Eventos",
+            },
         ),
         migrations.CreateModel(
             name="Transaction",
@@ -114,7 +128,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "description",
-                    models.CharField(max_length=255, verbose_name="Descripción"),
+                    models.CharField(
+                        max_length=255, verbose_name="Descripción"
+                    ),
                 ),
                 (
                     "creation_date",
@@ -174,7 +190,10 @@ class Migration(migrations.Migration):
                     "expiration_date",
                     models.DateTimeField(verbose_name="Fecha de expiración"),
                 ),
-                ("active", models.BooleanField(default=True, verbose_name="Activo")),
+                (
+                    "active",
+                    models.BooleanField(default=True, verbose_name="Activo"),
+                ),
                 (
                     "event",
                     models.ForeignKey(
@@ -185,7 +204,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "Cuota", "verbose_name_plural": "Cuotas",},
+            options={
+                "verbose_name": "Cuota",
+                "verbose_name_plural": "Cuotas",
+            },
         ),
         migrations.CreateModel(
             name="Prize",
@@ -230,7 +252,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "Premio", "verbose_name_plural": "Premios",},
+            options={
+                "verbose_name": "Premio",
+                "verbose_name_plural": "Premios",
+            },
         ),
         migrations.AddField(
             model_name="bet",

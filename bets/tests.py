@@ -31,7 +31,7 @@ class BetModelsTest(TestCase):
                 event=self.first_quota.event, prob=self.first_quota.probability
             ),
         )
- 
+
     def test_02_multiple_quotas(self):
         """
         This test evaluates creating Quotas from (in)active Quotas

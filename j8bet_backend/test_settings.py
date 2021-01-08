@@ -2,8 +2,7 @@ import os
 from pathlib import Path
 
 import environ
-import j8bet_backend.settings 
-
+import j8bet_backend.settings
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV = environ.Env(

@@ -4,7 +4,7 @@ from django.forms import ModelForm
 
 class EventForm(ModelForm):
     """
-    Form for Event model 
+    Form for Event model
     """
 
     class Meta:

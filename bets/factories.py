@@ -22,9 +22,7 @@ class EventFactory(factory.django.DjangoModelFactory):
     modification_date = factory.Faker(
         "date_time", tzinfo=timezone.get_current_timezone()
     )
-    expiration_date = factory.Faker(
-        "date_time", tzinfo=timezone.get_current_timezone()
-    )
+    expiration_date = factory.Faker("date_time", tzinfo=timezone.get_current_timezone())
     active = factory.Faker("pybool")
     completed = factory.Faker("pybool")
 
@@ -51,9 +49,7 @@ class QuotaFactory(factory.django.DjangoModelFactory):
     modification_date = factory.Faker(
         "date_time", tzinfo=timezone.get_current_timezone()
     )
-    expiration_date = factory.Faker(
-        "date_time", tzinfo=timezone.get_current_timezone()
-    )
+    expiration_date = factory.Faker("date_time", tzinfo=timezone.get_current_timezone())
     active = factory.Faker("pybool")
 
 

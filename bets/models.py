@@ -36,12 +36,12 @@ class Event(models.Model):
             self.completed = None
             super().save()
             return
-        if self.active == False:
+        if self.active is False:
             self.quotas.update(active=False)
             super().save()
             return
         bets_to_update = list()
-        if self.completed == True:
+        if self.completed is True:
             prizes_to_create = list()
             for quota in self.quotas.all():
                 for bet in quota.bets.filter(won=None):
@@ -59,7 +59,7 @@ class Event(models.Model):
                     bets_to_update.append(bet)
             Prize.objects.bulk_create(prizes_to_create)
             self.expiration_date = timezone.now()
-        elif self.completed == False:
+        elif self.completed is False:
             for quota in self.quotas.all():
                 for bet in quota.bets.filter(won=None):
                     bet.won = False
@@ -73,7 +73,7 @@ class Event(models.Model):
         self.quotas.update(active=False)
         self.active = False
         super().save()
- 
+
 
 class Transaction(models.Model):
     """
@@ -122,7 +122,7 @@ class Quota(models.Model):
     def __str__(self):
         return "{event} - {probability}".format(
             event=self.event, probability=self.probability
-        ) 
+        )
 
     def save(self, **kwargs):
         """
@@ -168,7 +168,7 @@ class Bet(models.Model):
     def __str__(self):
         return "{event} - {user} - {amount}".format(
             event=self.quota.event, user=self.user, amount=self.transaction.amount
-        ) 
+        )
 
     def save(self, **kwargs):
         """
@@ -203,4 +203,4 @@ class Prize(models.Model):
     def __str__(self):
         return "{event} - {user} - {amount}".format(
             event=self.bet.quota.event, user=self.user, amount=self.reward
-        ) 
+        )

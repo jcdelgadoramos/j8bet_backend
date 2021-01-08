@@ -34,7 +34,7 @@ class QuotaType(DjangoObjectType):
 
 class BetType(DjangoObjectType):
     """
-    GraphQL object type for Bet model 
+    GraphQL object type for Bet model
     """
 
     class Meta:

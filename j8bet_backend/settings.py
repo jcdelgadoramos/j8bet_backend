@@ -103,10 +103,12 @@ DATABASES = {
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", },
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator", },
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator", },
 ]
 
 
@@ -157,10 +159,10 @@ DB_BACKUP_DIR = os.path.join(BASE_DIR, "../backups")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {"all": {"format": "%(levelname)s %(asctime).16s: %(message)s",},},
+    "formatters": {"all": {"format": "%(levelname)s %(asctime).16s: %(message)s", }, },
     "filters": {
-        "require_debug_false": {"()": "django.utils.log.RequireDebugFalse",},
-        "require_debug_true": {"()": "django.utils.log.RequireDebugTrue",},
+        "require_debug_false": {"()": "django.utils.log.RequireDebugFalse", },
+        "require_debug_true": {"()": "django.utils.log.RequireDebugTrue", },
     },
     "handlers": {
         "console": {
@@ -189,7 +191,7 @@ LOGGING = {
         },
     },
     "loggers": {
-        "django": {"handlers": ["console", "django", "mail_admins"], "level": "ERROR",},
+        "django": {"handlers": ["console", "django", "mail_admins"], "level": "ERROR", },
         "django.db.backends": {
             "level": "ERROR",
             "handlers": ["console", "django", "mail_admins"],

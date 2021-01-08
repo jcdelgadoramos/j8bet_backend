@@ -50,10 +50,7 @@ class Migration(migrations.Migration):
                 ),
                 ("active", models.BooleanField(default=True)),
             ],
-            options={
-                "verbose_name": "Apuesta",
-                "verbose_name_plural": "Apuestas",
-            },
+            options={"verbose_name": "Apuesta", "verbose_name_plural": "Apuestas",},
         ),
         migrations.CreateModel(
             name="Event",
@@ -95,10 +92,7 @@ class Migration(migrations.Migration):
                     models.BooleanField(null=True, verbose_name="Completado"),
                 ),
             ],
-            options={
-                "verbose_name": "Evento",
-                "verbose_name_plural": "Eventos",
-            },
+            options={"verbose_name": "Evento", "verbose_name_plural": "Eventos",},
         ),
         migrations.CreateModel(
             name="Transaction",
@@ -135,10 +129,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "verbose_name": "Transacción",
-                "verbose_name_plural": "Transacciones",
-            },
+            options={"verbose_name": "Transacción", "verbose_name_plural": "Transacciones",},
         ),
         migrations.CreateModel(
             name="Quota",
@@ -191,10 +182,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "verbose_name": "Cuota",
-                "verbose_name_plural": "Cuotas",
-            },
+            options={"verbose_name": "Cuota", "verbose_name_plural": "Cuotas",},
         ),
         migrations.CreateModel(
             name="Prize",

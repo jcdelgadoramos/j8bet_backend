@@ -1,6 +1,7 @@
-from datetime import datetime
+from django.utils import timezone 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -56,14 +57,14 @@ class Event(models.Model):
                     bet.active = False
                     bets_to_update.append(bet)
             Prize.objects.bulk_create(prizes_to_create)
-            self.expiration_date = datetime.now()
+            self.expiration_date = timezone.now()
         elif self.completed == False:
             for quota in self.quotas.all():
                 for bet in quota.bets.filter(won=None):
                     bet.won = False
                     bet.active = False
                     bets_to_update.append(bet)
-            self.expiration_date = datetime.now()
+            self.expiration_date = timezone.now()
         else:
             super().save()
             return
@@ -105,7 +106,8 @@ class Quota(models.Model):
         Event, verbose_name='Evento', on_delete=models.CASCADE,
         related_name='quotas')
     probability = models.DecimalField(
-        'Probabilidad', max_digits=6, decimal_places=5)
+        'Probabilidad', max_digits=6, decimal_places=5, validators=[
+            MaxValueValidator(1), MinValueValidator(0)])
     creation_date = models.DateTimeField(
         'Fecha de creación', auto_now_add=True)
     modification_date = models.DateTimeField(
@@ -125,7 +127,8 @@ class Quota(models.Model):
         """
         Function which saves a Quota model and deactivates previous ones
         """
-        self.event.quotas.update(active=False)
+        if self.active:
+            self.event.quotas.update(active=False)
         super().save()
 
 
@@ -169,6 +172,8 @@ class Bet(models.Model):
         """
         if not self.quota.active:
             raise ValidationError(_('La cuota debe estar activa'))
+        self.won = None
+        self.active = True
         super().save()
 
 

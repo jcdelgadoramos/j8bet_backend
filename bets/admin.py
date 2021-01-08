@@ -1,10 +1,4 @@
-from bets.forms import (
-    BetForm,
-    EventForm,
-    PrizeForm,
-    QuotaForm,
-    TransactionForm,
-)
+from bets.forms import BetForm, EventForm, PrizeForm, QuotaForm, TransactionForm
 from bets.models import Bet, Event, Prize, Quota, Transaction
 from django.contrib import admin
 

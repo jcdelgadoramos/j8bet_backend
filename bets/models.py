@@ -106,9 +106,10 @@ class Quota(models.Model):
     """
 
     event = models.ForeignKey(
-        Event, verbose_name="Evento",
+        Event,
+        verbose_name="Evento",
         on_delete=models.CASCADE,
-        related_name="quotas"
+        related_name="quotas",
     )
     probability = models.DecimalField(
         "Probabilidad",
@@ -159,13 +160,13 @@ class Bet(models.Model):
         Quota,
         verbose_name="Cuota",
         on_delete=models.CASCADE,
-        related_name="bets"
+        related_name="bets",
     )
     user = models.ForeignKey(
         User,
         verbose_name="Usuario",
         on_delete=models.CASCADE,
-        related_name="bets"
+        related_name="bets",
     )
     potential_earnings = models.DecimalField(
         "Ganancias potenciales", max_digits=12, decimal_places=2

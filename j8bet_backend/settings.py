@@ -198,7 +198,8 @@ LOGGING = {
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "django", "mail_admins"], "level": "ERROR",
+            "handlers": ["console", "django", "mail_admins"],
+            "level": "ERROR",
         },
         "django.db.backends": {
             "level": "ERROR",

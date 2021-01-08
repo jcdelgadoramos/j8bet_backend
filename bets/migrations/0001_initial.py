@@ -204,10 +204,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "verbose_name": "Cuota",
-                "verbose_name_plural": "Cuotas",
-            },
+            options={"verbose_name": "Cuota", "verbose_name_plural": "Cuotas",},
         ),
         migrations.CreateModel(
             name="Prize",

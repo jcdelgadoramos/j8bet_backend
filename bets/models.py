@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -57,14 +57,14 @@ class Event(models.Model):
                     bet.active = False
                     bets_to_update.append(bet)
             Prize.objects.bulk_create(prizes_to_create)
-            self.expiration_date = datetime.now()
+            self.expiration_date = timezone.now()
         elif self.completed == False:
             for quota in self.quotas.all():
                 for bet in quota.bets.filter(won=None):
                     bet.won = False
                     bet.active = False
                     bets_to_update.append(bet)
-            self.expiration_date = datetime.now()
+            self.expiration_date = timezone.now()
         else:
             super().save()
             return

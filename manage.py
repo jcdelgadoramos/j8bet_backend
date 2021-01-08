@@ -12,12 +12,14 @@ def main():
     except IndexError:
         command = "help"
 
+    # Adds support for automatic Coverage when launching 'manage.py test'
     running_test = (command == 'test')
     if running_test:
         from coverage import Coverage
-        cov = Coverage(source=".")
+        cov = Coverage()
         cov.erase()
         cov.start()
+    # End
 
     try:
         from django.core.management import execute_from_command_line
@@ -29,6 +31,7 @@ def main():
         ) from exc
     execute_from_command_line(sys.argv)
 
+    # Adds support for automatic Coverage when launching 'manage.py test'
     if running_test:
         cov.stop()
         cov.save()
@@ -36,6 +39,7 @@ def main():
         covered = cov.report()
         if covered < 100:
             sys.exit(1)
+    # End
 
 if __name__ == '__main__':
     main()

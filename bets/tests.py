@@ -35,6 +35,7 @@ class BetModelsTest(TestCase):
         
         # First quota should be inactive
         self.assertFalse(self.first_quota.active)
+        self.first_quota.save()
 
         # Second quota should be active
         self.assertTrue(self.second_quota.active)

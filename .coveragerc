@@ -14,3 +14,10 @@ omit =
     */urls.py
     */factories.py
     */admin_utils.py
+fail_under = 100
+show_missing = True
+skip_covered = True
+
+[run]
+source = .
+branch = True

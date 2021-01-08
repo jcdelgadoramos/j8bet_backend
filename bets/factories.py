@@ -11,7 +11,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
-    username = factory.Faker('user_name')
+    username = factory.Faker("user_name")
 
 
 class EventFactory(factory.django.DjangoModelFactory):
@@ -19,17 +19,17 @@ class EventFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Event
 
-    name = factory.Faker('sentence', nb_words=4)
-    description = factory.Faker('paragraph')
-    rules = factory.Faker('paragraph')
+    name = factory.Faker("sentence", nb_words=4)
+    description = factory.Faker("paragraph")
+    rules = factory.Faker("paragraph")
     creation_date = factory.Faker(
-        'date_time', tzinfo=timezone.get_current_timezone())
+        "date_time", tzinfo=timezone.get_current_timezone())
     modification_date = factory.Faker(
-        'date_time', tzinfo=timezone.get_current_timezone())
+        "date_time", tzinfo=timezone.get_current_timezone())
     expiration_date = factory.Faker(
-        'date_time', tzinfo=timezone.get_current_timezone())
-    active = factory.Faker('pybool')
-    completed = factory.Faker('pybool')
+        "date_time", tzinfo=timezone.get_current_timezone())
+    active = factory.Faker("pybool")
+    completed = factory.Faker("pybool")
 
 
 class TransactionFactory(factory.django.DjangoModelFactory):
@@ -37,12 +37,12 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Transaction
 
-    amount = factory.Faker('pydecimal', min_value=0)
-    description = factory.Faker('sentence', nb_words=4)
+    amount = factory.Faker("pydecimal", min_value=0)
+    description = factory.Faker("sentence", nb_words=4)
     creation_date = factory.Faker(
-        'date_time', tzinfo=timezone.get_current_timezone())
+        "date_time", tzinfo=timezone.get_current_timezone())
     modification_date = factory.Faker(
-        'date_time', tzinfo=timezone.get_current_timezone())
+        "date_time", tzinfo=timezone.get_current_timezone())
 
 
 class QuotaFactory(factory.django.DjangoModelFactory):
@@ -51,14 +51,14 @@ class QuotaFactory(factory.django.DjangoModelFactory):
         model = Quota
 
     event = factory.SubFactory(EventFactory)
-    probability = factory.Faker('pydecimal', min_value=0, max_value=1)
+    probability = factory.Faker("pydecimal", min_value=0, max_value=1)
     creation_date = factory.Faker(
-        'date_time', tzinfo=timezone.get_current_timezone())
+        "date_time", tzinfo=timezone.get_current_timezone())
     modification_date = factory.Faker(
-        'date_time', tzinfo=timezone.get_current_timezone())
+        "date_time", tzinfo=timezone.get_current_timezone())
     expiration_date = factory.Faker(
-        'date_time', tzinfo=timezone.get_current_timezone())
-    active = factory.Faker('pybool')
+        "date_time", tzinfo=timezone.get_current_timezone())
+    active = factory.Faker("pybool")
 
 
 class BetFactory(factory.django.DjangoModelFactory):
@@ -69,13 +69,13 @@ class BetFactory(factory.django.DjangoModelFactory):
     transaction = factory.SubFactory(TransactionFactory)
     quota = factory.SubFactory(QuotaFactory)
     user = factory.SubFactory(UserFactory)
-    potential_earnings = factory.Faker('pydecimal', min_value=0)
-    won = factory.Faker('pybool')
+    potential_earnings = factory.Faker("pydecimal", min_value=0)
+    won = factory.Faker("pybool")
     creation_date = factory.Faker(
-        'date_time', tzinfo=timezone.get_current_timezone())
+        "date_time", tzinfo=timezone.get_current_timezone())
     modification_date = factory.Faker(
-        'date_time', tzinfo=timezone.get_current_timezone())
-    active = factory.Faker('pybool')
+        "date_time", tzinfo=timezone.get_current_timezone())
+    active = factory.Faker("pybool")
 
 
 class PrizeFactory(factory.django.DjangoModelFactory):
@@ -85,6 +85,6 @@ class PrizeFactory(factory.django.DjangoModelFactory):
 
     bet = factory.SubFactory(BetFactory)
     user = factory.SubFactory(UserFactory)
-    reward = factory.Faker('pydecimal', min_value=0)
+    reward = factory.Faker("pydecimal", min_value=0)
     creation_date = factory.Faker(
-        'date_time', tzinfo=timezone.get_current_timezone())
+        "date_time", tzinfo=timezone.get_current_timezone())

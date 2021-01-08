@@ -25,14 +25,18 @@ class BetModelsTest(TestCase):
         # New events should always have 'completed=None'
         self.assertIsNone(self.event.completed)
         self.assertEqual(self.event.__str__(), self.event.name)
-        self.assertEqual(self.first_quota.__str__(), "{event} - {prob}".format(
-            event=self.first_quota.event, prob=self.first_quota.probability))
+        self.assertEqual(
+            self.first_quota.__str__(),
+            "{event} - {prob}".format(
+                event=self.first_quota.event, prob=self.first_quota.probability
+            ),
+        )
         
     def test_02_multiple_quotas(self):
         """
         This test evaluates creating Quotas from (in)active Quotas
         """
-        
+ 
         # First quota should be inactive
         self.assertFalse(self.first_quota.active)
         self.first_quota.save()
@@ -47,10 +51,12 @@ class BetModelsTest(TestCase):
         bet = BetFactory(quota=self.second_quota)
         # Bet should be created, and must have 'won=None' and 'active=True'
         self.assertIsInstance(bet, Bet)
-        self.assertEqual(bet.__str__(), "{event} - {user} - {amount}".format(
-            event=bet.quota.event,
-            user=bet.user,
-            amount=bet.transaction.__str__()))
+        self.assertEqual(
+            bet.__str__(),
+            "{event} - {user} - {amount}".format(
+                event=bet.quota.event, user=bet.user, amount=bet.transaction.__str__()
+            ),
+        )
         self.assertIsNone(bet.won)
         self.assertTrue(bet.active)
 
@@ -105,11 +111,14 @@ class BetModelsTest(TestCase):
 
         # Evaluate Prize __str__ representation
         prize = Prize.objects.first()
-        self.assertEqual(prize.__str__(), "{event} - {user} - {amount}".format(
-            event=prize.bet.quota.event,
-            user=prize.user,
-            amount=prize.reward
-        ))
+        self.assertEqual(
+            prize.__str__(),
+            "{event} - {user} - {amount}".format(
+                event=prize.bet.quota.event,
+                user=prize.user,
+                amount=prize.reward
+            ),
+        )
 
     def test_05_event_saving_not_completed(self):
         """
@@ -121,7 +130,7 @@ class BetModelsTest(TestCase):
         first_bet = BetFactory(quota=first_quota)
         second_quota = QuotaFactory(event=self.event, active=True)
         second_bet = BetFactory(quota=second_quota)
-        self.event.completed = False 
+        self.event.completed = False
         self.event.save()
         first_quota.refresh_from_db()
         second_quota.refresh_from_db()
@@ -131,7 +140,7 @@ class BetModelsTest(TestCase):
         self.assertFalse(first_quota.active)
         self.assertFalse(second_quota.active)
 
-        # Both bets should be lost 
+        # Both bets should be lost
         self.assertFalse(first_bet.won)
         self.assertFalse(second_bet.won)
 

@@ -12,21 +12,21 @@ ENV = environ.Env(
     ALLOWED_HOSTS=(list, []),
     CORS_ORIGIN_WHITELIST=(list, []),
 )
-environ.Env.read_env(os.path.join(BASE_DIR, '../.env'))
+environ.Env.read_env(os.path.join(BASE_DIR, "../.env"))
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'test_db',
-        'TEST': {
-            'NAME': 'test_db',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "test_db",
+        "TEST": {
+            "NAME": "test_db",
         },
-        'USER': ENV.db().get('USER'),
-        'PASSWORD': ENV.db().get('PASSWORD'),
-        'HOST': ENV.db().get('HOST')
+        "USER": ENV.db().get("USER"),
+        "PASSWORD": ENV.db().get("PASSWORD"),
+        "HOST": ENV.db().get("HOST")
     }
 }
 
 PASSWORD_HASHERS = (
-    'django.contrib.auth.hashers.MD5PasswordHasher',
+    "django.contrib.auth.hashers.MD5PasswordHasher",
 )

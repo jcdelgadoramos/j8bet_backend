@@ -5,15 +5,13 @@ from bets.graphql.schema import (
     Mutations as BetsMutations,
 )
 
-class Queries(
-    BetsQueries,
-):
+
+class Queries(BetsQueries,):
     pass
 
 
-class Mutations (
-    BetsMutations,
-):
+class Mutations (BetsMutations,):
     pass
+
 
 schema = build_schema(Queries, mutation=Mutations)

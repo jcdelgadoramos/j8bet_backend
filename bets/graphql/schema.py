@@ -15,17 +15,12 @@ from bets.graphql.mutations import (
     UpdateEventMutation,
     UpdateQuotaMutation,
     DeleteEventMutation,
-    DeleteQuotaMutation
+    DeleteQuotaMutation,
 )
 
 
 class Queries(
-    EventQuery,
-    TransactionQuery,
-    BetQuery,
-    QuotaQuery,
-    PrizeQuery,
-    HelloQuery,
+    EventQuery, TransactionQuery, BetQuery, QuotaQuery, PrizeQuery, HelloQuery,
 ):
     """
     Class joining all Queries from Bets application

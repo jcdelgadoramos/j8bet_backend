@@ -2,6 +2,7 @@ from graphene_django import DjangoObjectType
 
 from bets.models import Event, Transaction, Bet, Quota, Prize
 
+
 class EventType(DjangoObjectType):
     """
     GraphQL object type for Event
@@ -9,7 +10,7 @@ class EventType(DjangoObjectType):
 
     class Meta:
         model = Event
-        fields = '__all__'
+        fields = "__all__"
 
 
 class TransactionType(DjangoObjectType):
@@ -19,7 +20,7 @@ class TransactionType(DjangoObjectType):
 
     class Meta:
         model = Transaction 
-        fields = '__all__'
+        fields = "__all__"
 
 
 class QuotaType(DjangoObjectType):
@@ -29,7 +30,7 @@ class QuotaType(DjangoObjectType):
 
     class Meta:
         model = Quota
-        fields = '__all__'
+        fields = "__all__"
 
 
 class BetType(DjangoObjectType):
@@ -39,7 +40,7 @@ class BetType(DjangoObjectType):
 
     class Meta:
         model = Bet
-        fields = '__all__'
+        fields = "__all__"
 
 
 class PrizeType(DjangoObjectType):
@@ -49,4 +50,4 @@ class PrizeType(DjangoObjectType):
 
     class Meta:
         model = Prize
-        fields = '__all__'
+        fields = "__all__"

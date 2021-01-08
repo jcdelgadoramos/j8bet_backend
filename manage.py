@@ -6,14 +6,14 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'j8bet_backend.settings')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "j8bet_backend.settings")
     try:
         command = sys.argv[1]
     except IndexError:
         command = "help"
 
-    # Adds support for automatic Coverage when launching 'manage.py test'
-    running_test = (command == 'test')
+    # Adds support for automatic Coverage when launching "manage.py test"
+    running_test = (command == "test")
     if running_test:
         from coverage import Coverage
         cov = Coverage()
@@ -31,15 +31,15 @@ def main():
         ) from exc
     execute_from_command_line(sys.argv)
 
-    # Adds support for automatic Coverage when launching 'manage.py test'
+    # Adds support for automatic Coverage when launching "manage.py test"
     if running_test:
         cov.stop()
         cov.save()
-        cov.xml_report(outfile='cov.xml')
+        cov.xml_report(outfile="cov.xml")
         covered = cov.report()
         if covered < 100:
             sys.exit(1)
     # End
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

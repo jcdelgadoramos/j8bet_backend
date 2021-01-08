@@ -11,7 +11,13 @@ class EventAdmin(admin.ModelAdmin):
     """
 
     form = EventForm
-    list_display = ('name', 'expiration_date', 'active', 'completed',)
+    list_display = (
+        "name",
+        "expiration_date",
+        "active",
+        "completed",
+    )
+
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
@@ -29,7 +35,13 @@ class BetAdmin(admin.ModelAdmin):
     """
     
     form = BetForm
-    list_display = ('user', 'quota', 'potential_earnings', 'active', 'won',)
+    list_display = (
+        "user",
+        "quota",
+        "potential_earnings",
+        "active",
+        "won",
+    )
 
 
 @admin.register(Quota)
@@ -39,7 +51,12 @@ class QuotaAdmin(admin.ModelAdmin):
     """
 
     form = QuotaForm
-    list_display = ('event', 'probability', 'creation_date', 'active',)
+    list_display = (
+        "event",
+        "probability",
+        "creation_date",
+        "active",
+    )
 
 
 @admin.register(Prize)

@@ -8,6 +8,7 @@ from bets.graphql.types import (
     QuotaType,
 )
 
+
 class CreateEventMutation(DjangoModelFormMutation):
     """
     ModelFormMutation for Event creation
@@ -40,7 +41,7 @@ class UpdateEventMutation(Mutation):
 
     :cvar event: EventType field
     """
-    
+ 
     class Arguments:
         """
         Arguments for Event update
@@ -58,8 +59,17 @@ class UpdateEventMutation(Mutation):
 
     event = Field(EventType)
 
-    def mutate(self, info, id, name=None, description=None,
-               rules=None, expiration_date=None, active=None, completed=None):
+    def mutate(
+        self,
+        info,
+        id,
+        name=None,
+        description=None,
+        rules=None,
+        expiration_date=None,
+        active=None,
+        completed=None
+    ):
         """
         Mutation function.
 

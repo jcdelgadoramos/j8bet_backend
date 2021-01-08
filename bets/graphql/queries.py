@@ -1,4 +1,4 @@
-from graphene import ObjectType, Field, ID , String
+from graphene import ObjectType, Field, ID, String
 from graphene_django import DjangoListField
 
 from bets.models import Event, Transaction, Bet, Quota, Prize
@@ -25,7 +25,7 @@ class EventQuery(ObjectType):
 class TransactionQuery(ObjectType):
     all_transactions = DjangoListField(TransactionType)
     transaction_by_id = Field(TransactionType, id=ID())
-    
+
     def resolve_all_transaction(parent, info):
         return Transaction.objects.all()
 
@@ -63,7 +63,7 @@ class PrizeQuery(ObjectType):
         return Prize.objects.get(id=id)
 
     def resolve_hello(parent, info, name):
-        return f'Hello {name}!'
+        return f"Hello {name}!"
 
 
 class HelloQuery(ObjectType):

@@ -6,7 +6,7 @@ from bets.graphql.types import (
     TransactionType,
 )
 from bets.models import Bet, Event, Prize, Quota, Transaction
-from graphene import ID, ObjectType, Field, String
+from graphene import ID, Field, ObjectType, String
 from graphene_django import DjangoListField
 
 

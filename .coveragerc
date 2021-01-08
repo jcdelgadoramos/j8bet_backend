@@ -1,0 +1,16 @@
+[report]
+exclude_lines =
+    def __str__
+    pragma: no cover
+omit =
+    */migrations/*
+    fabfile.py
+    */admin.py
+    */apps.py
+    */__init__.py
+    */tests.py
+    */test*.py
+    manage.py
+    */urls.py
+    */factories.py
+    */admin_utils.py

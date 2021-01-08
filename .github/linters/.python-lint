@@ -130,7 +130,8 @@ disable=print-statement,
         dict-values-not-iterating,
         import-error,
         C0330,
-        C0326
+        C0326,
+        E0213
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

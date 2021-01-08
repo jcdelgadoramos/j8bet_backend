@@ -1,8 +1,8 @@
-import environ
-
+import os
 from pathlib import Path
 
-from .settings import *
+import environ
+import j8bet_backend.settings 
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -18,15 +18,11 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "test_db",
-        "TEST": {
-            "NAME": "test_db",
-        },
+        "TEST": {"NAME": "test_db",},
         "USER": ENV.db().get("USER"),
         "PASSWORD": ENV.db().get("PASSWORD"),
-        "HOST": ENV.db().get("HOST")
+        "HOST": ENV.db().get("HOST"),
     }
 }
 
-PASSWORD_HASHERS = (
-    "django.contrib.auth.hashers.MD5PasswordHasher",
-)
+PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)

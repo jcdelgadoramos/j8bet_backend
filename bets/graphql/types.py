@@ -1,6 +1,5 @@
+from bets.models import Bet, Event, Prize, Quota, Transaction
 from graphene_django import DjangoObjectType
-
-from bets.models import Event, Transaction, Bet, Quota, Prize
 
 
 class EventType(DjangoObjectType):
@@ -19,7 +18,7 @@ class TransactionType(DjangoObjectType):
     """
 
     class Meta:
-        model = Transaction 
+        model = Transaction
         fields = "__all__"
 
 

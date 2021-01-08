@@ -1,7 +1,12 @@
+from bets.forms import (
+    BetForm,
+    EventForm,
+    PrizeForm,
+    QuotaForm,
+    TransactionForm,
+)
+from bets.models import Bet, Event, Prize, Quota, Transaction
 from django.contrib import admin
-
-from bets.models import Event, Transaction, Bet, Quota, Prize
-from bets.forms import EventForm, TransactionForm, BetForm, QuotaForm, PrizeForm
 
 
 @admin.register(Event)
@@ -33,7 +38,7 @@ class BetAdmin(admin.ModelAdmin):
     """
     Admin class for Bet model
     """
-    
+
     form = BetForm
     list_display = (
         "user",

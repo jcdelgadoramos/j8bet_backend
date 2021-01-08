@@ -1,12 +1,8 @@
-from graphene import Mutation, Field, ID, String, Boolean, DateTime
-from graphene_django.forms.mutation import DjangoModelFormMutation
-
-from bets.models import Event, Quota
 from bets.forms import EventForm, QuotaForm
-from bets.graphql.types import (
-    EventType,
-    QuotaType,
-)
+from bets.graphql.types import EventType, QuotaType
+from bets.models import Event, Quota
+from graphene import Boolean, DateTime, Field, ID, Mutation, String
+from graphene_django.forms.mutation import DjangoModelFormMutation
 
 
 class CreateEventMutation(DjangoModelFormMutation):
@@ -41,7 +37,7 @@ class UpdateEventMutation(Mutation):
 
     :cvar event: EventType field
     """
- 
+
     class Arguments:
         """
         Arguments for Event update
@@ -68,7 +64,7 @@ class UpdateEventMutation(Mutation):
         rules=None,
         expiration_date=None,
         active=None,
-        completed=None
+        completed=None,
     ):
         """
         Mutation function.

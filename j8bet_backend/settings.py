@@ -11,10 +11,10 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 import os
+from pathlib import Path
+
 import environ
 from django.conf.locale.es import formats as es_formats
-
-from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / "subdir".
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,7 +31,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, "../.env"))
 ENVIRONMENTS = ENV.json("ENVIRONMENTS", default={})
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ENV("SECRET_KEY") 
+SECRET_KEY = ENV("SECRET_KEY")
 
 # SECURITY WARNING: don"t run with debug turned on in production!
 DEBUG = ENV("DEBUG")
@@ -103,18 +103,10 @@ DATABASES = {
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
 ]
 
 
@@ -165,18 +157,10 @@ DB_BACKUP_DIR = os.path.join(BASE_DIR, "../backups")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {
-        "all": {
-            "format": "%(levelname)s %(asctime).16s: %(message)s",
-        },
-    },
+    "formatters": {"all": {"format": "%(levelname)s %(asctime).16s: %(message)s",},},
     "filters": {
-        "require_debug_false": {
-            "()": "django.utils.log.RequireDebugFalse",
-        },
-        "require_debug_true": {
-            "()": "django.utils.log.RequireDebugTrue",
-        },
+        "require_debug_false": {"()": "django.utils.log.RequireDebugFalse",},
+        "require_debug_true": {"()": "django.utils.log.RequireDebugTrue",},
     },
     "handlers": {
         "console": {
@@ -194,7 +178,7 @@ LOGGING = {
         "mail_admins": {
             "level": "ERROR",
             "class": "django.utils.log.AdminEmailHandler",
-            "filters": ["require_debug_false"]
+            "filters": ["require_debug_false"],
         },
         "commands": {
             "level": "DEBUG",
@@ -205,10 +189,7 @@ LOGGING = {
         },
     },
     "loggers": {
-        "django": {
-            "handlers": ["console", "django", "mail_admins"],
-            "level": "ERROR",
-        },
+        "django": {"handlers": ["console", "django", "mail_admins"], "level": "ERROR",},
         "django.db.backends": {
             "level": "ERROR",
             "handlers": ["console", "django", "mail_admins"],

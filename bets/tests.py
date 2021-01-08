@@ -1,8 +1,8 @@
-from django.test import TestCase
+from bets.factories import BetFactory, EventFactory, QuotaFactory
+from bets.models import Bet, Prize, Quota
 from django.core.exceptions import ValidationError
+from django.test import TestCase
 
-from bets.factories import EventFactory, QuotaFactory, BetFactory
-from bets.models import Quota, Bet, Prize
 
 class BetModelsTest(TestCase):
     """
@@ -31,12 +31,12 @@ class BetModelsTest(TestCase):
                 event=self.first_quota.event, prob=self.first_quota.probability
             ),
         )
-        
+ 
     def test_02_multiple_quotas(self):
         """
         This test evaluates creating Quotas from (in)active Quotas
         """
- 
+
         # First quota should be inactive
         self.assertFalse(self.first_quota.active)
         self.first_quota.save()
@@ -114,9 +114,7 @@ class BetModelsTest(TestCase):
         self.assertEqual(
             prize.__str__(),
             "{event} - {user} - {amount}".format(
-                event=prize.bet.quota.event,
-                user=prize.user,
-                amount=prize.reward
+                event=prize.bet.quota.event, user=prize.user, amount=prize.reward
             ),
         )
 

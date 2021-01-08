@@ -13,9 +13,10 @@ def main():
         command = "help"
 
     # Adds support for automatic Coverage when launching "manage.py test"
-    running_test = (command == "test")
+    running_test = command == "test"
     if running_test:
         from coverage import Coverage
+
         cov = Coverage()
         cov.erase()
         cov.start()
@@ -40,6 +41,7 @@ def main():
         if covered < 100:
             sys.exit(1)
     # End
+
 
 if __name__ == "__main__":
     main()

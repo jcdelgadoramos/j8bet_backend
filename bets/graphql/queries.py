@@ -1,14 +1,13 @@
+from bets.graphql.types import (
+    BetType,
+    EventType,
+    PrizeType,
+    QuotaType,
+    TransactionType,
+)
+from bets.models import Bet, Event, Prize, Quota, Transaction
 from graphene import ObjectType, Field, ID, String
 from graphene_django import DjangoListField
-
-from bets.models import Event, Transaction, Bet, Quota, Prize
-from bets.graphql.types import (
-    EventType,
-    TransactionType,
-    BetType,
-    QuotaType,
-    PrizeType,
-)
 
 
 class EventQuery(ObjectType):

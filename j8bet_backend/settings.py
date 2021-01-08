@@ -31,7 +31,10 @@ environ.Env.read_env(os.path.join(BASE_DIR, "../.env"))
 ENVIRONMENTS = ENV.json("ENVIRONMENTS", default={})
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ENV("SECRET_KEY")
+SECRET_KEY = ENV(
+    "SECRET_KEY",
+    default="-b_*v*q^&@i=tzteako$sv4qw&%z099n%#n+p=kq$e@a1*v$_=",
+)
 
 # SECURITY WARNING: don"t run with debug turned on in production!
 DEBUG = ENV("DEBUG")

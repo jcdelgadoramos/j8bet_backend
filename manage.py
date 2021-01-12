@@ -7,10 +7,10 @@ import sys
 def main():
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "j8bet_backend.settings")
-    try:
-        command = sys.argv[1]
-    except IndexError:
-        command = "help"
+    # try:
+    #     command = sys.argv[1]
+    # except IndexError:
+    #     command = "help"
 
     # Adds support for automatic Coverage when launching "manage.py test"
     # running_test = command == "test"

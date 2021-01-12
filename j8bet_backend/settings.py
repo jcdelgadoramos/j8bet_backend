@@ -31,7 +31,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, "../.env"))
 ENVIRONMENTS = ENV.json("ENVIRONMENTS", default={})
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ENV("SECRET_KEY", default="TESTING_KEY") 
+SECRET_KEY = ENV("SECRET_KEY", default="TESTING_KEY")
 
 # SECURITY WARNING: don"t run with debug turned on in production!
 DEBUG = ENV("DEBUG")
@@ -91,7 +91,7 @@ TEMPLATES = [
     },
 ]
 
-SYSTEM_ENV = os.environ.get('SYSTEM_ENV', None)
+SYSTEM_ENV = os.environ.get("SYSTEM_ENV", None)
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -99,18 +99,16 @@ SYSTEM_ENV = os.environ.get('SYSTEM_ENV', None)
 if SYSTEM_ENV == "DEVELOPMENT":
     DATABASES = {
         "default": {
-           "ENGINE": "django.db.backends.postgresql",
-           "NAME": "j8bet",
-           "USER": "j8bet",
-           "PASSWORD": "j8bet",
-           "HOST": "127.0.0.1",
-           "PORT": "5432",
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "j8bet",
+            "USER": "j8bet",
+            "PASSWORD": "j8bet",
+            "HOST": "127.0.0.1",
+            "PORT": "5432",
         }
     }
 else:
-    DATABASES = {
-        "default": ENV.db()
-    }
+    DATABASES = {"default": ENV.db()}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

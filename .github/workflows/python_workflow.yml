@@ -3,20 +3,19 @@ name: Unit Tests
 # on: [push, pull_request]
 on: [push]
 
-# services:
-#   image: postgres
-#   env:
-#     POSTGRES_USER: test_user
-#     POSTGRES_PASSWORD: test_pwd
-#     POSTGRES_BD: test_db
-#   ports:
-#     - 5432/tcp
-#   options: --health-cmd pg_isready --health_interval 10s --health-timeout 5s --health-retries 5
-
 jobs:
   build:
 #    name: Unit Tests
     runs-on: ubuntu-latest
+    services:
+      image: postgres
+      env:
+        POSTGRES_USER: test_user
+        POSTGRES_PASSWORD: test_pwd
+        POSTGRES_BD: test_db
+      ports:
+        - 5432/tcp
+      options: --health-cmd pg_isready --health_interval 10s --health-timeout 5s --health-retries 5
     strategy:
       matrix:
         python-version: [3.9]

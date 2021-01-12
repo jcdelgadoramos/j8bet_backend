@@ -26,6 +26,8 @@ ENV = environ.Env(
 )
 environ.Env.read_env(os.path.join(BASE_DIR, "../.env"))
 
+SYSTEM_ENV = os.environ.get('SYSTEM_ENV', None)
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 ENVIRONMENTS = ENV.json("ENVIRONMENTS", default={})

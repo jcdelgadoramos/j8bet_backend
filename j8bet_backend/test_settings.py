@@ -1,4 +1,5 @@
 import os
+from j8bet_backend.settings import *
 from pathlib import Path
 
 import environ
@@ -23,8 +24,9 @@ PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
 
 SYSTEM_ENV = os.environ.get('SYSTEM_ENV', None)
 
+SECRET_KEY = "TESTING_KEY"
+
 if SYSTEM_ENV == "GITHUB_WORKFLOW":
-    SECRET_KEY = "TESTING_KEY"
     DEBUG = True
     DATABASES = {
         "default": {

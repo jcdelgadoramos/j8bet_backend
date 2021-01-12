@@ -1,5 +1,5 @@
 import os
-from j8bet_backend.settings import *
+from j8bet_backend.settings import INSTALLED_APPS, MIDDLEWARE, TEMPLATES
 from pathlib import Path
 
 import environ
@@ -26,8 +26,9 @@ SYSTEM_ENV = os.environ.get('SYSTEM_ENV', None)
 
 SECRET_KEY = "TESTING_KEY"
 
+DEBUG = True
+
 if SYSTEM_ENV == "GITHUB_WORKFLOW":
-    DEBUG = True
     DATABASES = {
         "default": {
            "ENGINE": "django.db.backends.postgresql",

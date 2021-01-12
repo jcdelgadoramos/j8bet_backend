@@ -32,7 +32,7 @@ CACHES = {
 
 PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
 
-if os.environ.get("GITHUB_WORKFLOW"):
+if SYSTEM_ENV = "GITHUB_WORKFLOW":
     DEBUG = True
     SECRET_KEY = "TESTING_KEY"
     DATABASES = {

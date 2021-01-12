@@ -31,19 +31,19 @@ environ.Env.read_env(os.path.join(BASE_DIR, "../.env"))
 ENVIRONMENTS = ENV.json("ENVIRONMENTS", default={})
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SYSTEM_ENV = os.environ.get('SYSTEM_ENV', None)
-
-if SYSTEM_ENV == "GITHUB_WORKFLOW":
-    SECRET_KEY = "TESTING_KEY"
-else:
-    SECRET_KEY = ENV("SECRET_KEY")
-    # Database
-    # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-    
-    DATABASES = {
-        "default": ENV.db(),
-    }
-
+SECRET_KEY = ENV('SECRET_KEY') 
+# SYSTEM_ENV = os.environ.get('SYSTEM_ENV', None)
+# 
+# if SYSTEM_ENV == "GITHUB_WORKFLOW":
+#     SECRET_KEY = "TESTING_KEY"
+# else:
+#     SECRET_KEY = ENV("SECRET_KEY")
+#     # Database
+#     # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
+# 
+#     DATABASES = {
+#         "default": ENV.db(),
+#     }
 
 # SECURITY WARNING: don"t run with debug turned on in production!
 DEBUG = ENV("DEBUG")
@@ -103,6 +103,12 @@ TEMPLATES = [
     },
 ]
 
+# Database
+# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
+
+DATABASES = {
+    'default': ENV.db()
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

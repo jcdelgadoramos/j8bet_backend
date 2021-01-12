@@ -45,4 +45,4 @@ jobs:
         coverage run --source . manage.py test
         coverage report
       env:
-        SYSTEM_ENV: GITHUB_WORKFLOW
+        SYSTEM_ENV: DEVELOPMENT

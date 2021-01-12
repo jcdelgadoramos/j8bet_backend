@@ -97,7 +97,6 @@ SYSTEM_ENV = os.environ.get('SYSTEM_ENV', None)
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 if SYSTEM_ENV == "DEVELOPMENT":
-    SECRET_KEY = "TESTING_KEY"
     DATABASES = {
         "default": {
            "ENGINE": "django.db.backends.postgresql",

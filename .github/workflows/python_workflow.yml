@@ -1,11 +1,10 @@
 name: Unit Tests
 
-# on: [push, pull_request]
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
-#    name: Unit Tests
+    name: Unit Tests
     runs-on: ubuntu-latest
 
     services:
@@ -36,9 +35,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-#    - name: Run migrations
-#      run: |
-#        python manage.py migrate
     - name: Create directories
       run: |
         mkdir ../logs

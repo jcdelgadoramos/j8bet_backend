@@ -41,6 +41,8 @@ jobs:
         touch ../logs/comands.log
     - name: Run tests
       run: |
-        python manage.py test
+#        python manage.py test
+        coverage run --source . manage.py test --settings=j8bet_backend.test_settings
+        coverage report
       env:
         SYSTEM_ENV: GITHUB_WORKFLOW

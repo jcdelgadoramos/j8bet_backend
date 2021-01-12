@@ -35,6 +35,10 @@ jobs:
 #    - name: Run migrations
 #      run: |
 #        python manage.py migrate
+    - name: Create directories
+      run: |
+        mkdir ../logs
+        touch ../logs/comands.log
     - name: Run tests
       run: |
         python manage.py test

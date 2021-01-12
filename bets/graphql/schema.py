@@ -1,31 +1,24 @@
-from graphene import ObjectType
-
-from bets.graphql.queries import (
-    EventQuery,
-    TransactionQuery,
-    BetQuery,
-    QuotaQuery,
-    PrizeQuery,
-    HelloQuery,
-)
-
 from bets.graphql.mutations import (
     CreateEventMutation,
     CreateQuotaMutation,
+    DeleteEventMutation,
+    DeleteQuotaMutation,
     UpdateEventMutation,
     UpdateQuotaMutation,
-    DeleteEventMutation,
-    DeleteQuotaMutation
 )
+from bets.graphql.queries import (
+    BetQuery,
+    EventQuery,
+    HelloQuery,
+    PrizeQuery,
+    QuotaQuery,
+    TransactionQuery,
+)
+from graphene import ObjectType
 
 
 class Queries(
-    EventQuery,
-    TransactionQuery,
-    BetQuery,
-    QuotaQuery,
-    PrizeQuery,
-    HelloQuery,
+    EventQuery, TransactionQuery, BetQuery, QuotaQuery, PrizeQuery, HelloQuery,
 ):
     """
     Class joining all Queries from Bets application

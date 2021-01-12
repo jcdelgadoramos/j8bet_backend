@@ -1,21 +1,21 @@
+from bets.models import Bet, Event, Prize, Quota, Transaction
 from django.forms import ModelForm
 
-from bets.models import Event, Transaction, Bet, Quota, Prize
 
 class EventForm(ModelForm):
     """
-    Form for Event model 
+    Form for Event model
     """
 
     class Meta:
         model = Event
         fields = (
-            'name',
-            'description',
-            'rules',
-            'expiration_date',
-            'active',
-            'completed',
+            "name",
+            "description",
+            "rules",
+            "expiration_date",
+            "active",
+            "completed",
         )
 
 
@@ -26,10 +26,7 @@ class TransactionForm(ModelForm):
 
     class Meta:
         model = Transaction
-        fields = (
-            'amount',
-            'description',
-        )
+        fields = ("amount", "description")
 
 
 class QuotaForm(ModelForm):
@@ -39,12 +36,7 @@ class QuotaForm(ModelForm):
 
     class Meta:
         model = Quota
-        fields = (
-            'event',
-            'probability',
-            'expiration_date',
-            'active'
-        )
+        fields = ("event", "probability", "expiration_date", "active")
 
 
 class BetForm(ModelForm):
@@ -55,11 +47,11 @@ class BetForm(ModelForm):
     class Meta:
         model = Bet
         fields = (
-            'transaction',
-            'quota',
-            'user',
-            'potential_earnings',
-            'won',
+            "transaction",
+            "quota",
+            "user",
+            "potential_earnings",
+            "won",
         )
 
 
@@ -70,8 +62,4 @@ class PrizeForm(ModelForm):
 
     class Meta:
         model = Prize
-        fields = (
-            'bet',
-            'user',
-            'reward'
-        )
+        fields = ("bet", "user", "reward")

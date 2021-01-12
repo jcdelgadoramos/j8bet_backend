@@ -1,12 +1,9 @@
-from graphene import Mutation, Field, ID, String, Boolean, DateTime
+from bets.forms import EventForm, QuotaForm
+from bets.graphql.types import EventType, QuotaType
+from bets.models import Event, Quota
+from graphene import ID, Boolean, DateTime, Field, Mutation, String
 from graphene_django.forms.mutation import DjangoModelFormMutation
 
-from bets.models import Event, Quota
-from bets.forms import EventForm, QuotaForm
-from bets.graphql.types import (
-    EventType,
-    QuotaType,
-)
 
 class CreateEventMutation(DjangoModelFormMutation):
     """
@@ -40,7 +37,7 @@ class UpdateEventMutation(Mutation):
 
     :cvar event: EventType field
     """
-    
+
     class Arguments:
         """
         Arguments for Event update
@@ -58,8 +55,17 @@ class UpdateEventMutation(Mutation):
 
     event = Field(EventType)
 
-    def mutate(self, info, id, name=None, description=None,
-               rules=None, expiration_date=None, active=None, completed=None):
+    def mutate(
+        self,
+        info,
+        id,
+        name=None,
+        description=None,
+        rules=None,
+        expiration_date=None,
+        active=None,
+        completed=None,
+    ):
         """
         Mutation function.
 
@@ -136,7 +142,7 @@ class DeleteEventMutation(Mutation):
 
     def mutate(self, info, id):
 
-        event = Event.objects.filter(id=id).delete()
+        Event.objects.filter(id=id).delete()
         return DeleteEventMutation(deleted=True)
 
 
@@ -152,5 +158,5 @@ class DeleteQuotaMutation(Mutation):
 
     def mutate(self, info, id):
 
-        quota = Quota.objects.filter(id=id).delete()
+        Quota.objects.filter(id=id).delete()
         return DeleteQuotaMutation(deleted=True)

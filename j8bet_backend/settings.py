@@ -33,10 +33,10 @@ ENVIRONMENTS = ENV.json("ENVIRONMENTS", default={})
 # SECURITY WARNING: keep the secret key used in production secret!
 SYSTEM_ENV = os.environ.get('SYSTEM_ENV', None)
 
-SECRET_KEY = ENV("SECRET_KEY")
-
 if SYSTEM_ENV == "GITHUB_WORKFLOW":
     SECRET_KEY = "TESTING_KEY"
+else:
+    SECRET_KEY = ENV("SECRET_KEY")
 
 # SECURITY WARNING: don"t run with debug turned on in production!
 DEBUG = ENV("DEBUG")

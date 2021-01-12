@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 import os
 from pathlib import Path
-
 import environ
 from django.conf.locale.es import formats as es_formats
 

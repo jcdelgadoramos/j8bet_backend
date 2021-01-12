@@ -39,6 +39,7 @@ jobs:
       run: |
         mkdir ../logs
         touch ../logs/comands.log
+        touch ../.env
     - name: Run tests
       run: |
         coverage erase

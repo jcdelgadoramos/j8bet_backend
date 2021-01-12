@@ -31,19 +31,3 @@ CACHES = {
 }
 
 PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
-
-SYSTEM_ENV = os.environ.get('SYSTEM_ENV', None)
-
-if SYSTEM_ENV == "GITHUB_WORKFLOW":
-    DEBUG = True
-    SECRET_KEY = "TESTING_KEY"
-    DATABASES = {
-        "default": {
-           "ENGINE": "django.db.backends.postgresql",
-           "NAME": "test_db",
-           "USER": "test_user",
-           "PASSWORD": "test_pwd",
-           "HOST": "127.0.0.1",
-           "PORT": "5432",
-        }
-    }

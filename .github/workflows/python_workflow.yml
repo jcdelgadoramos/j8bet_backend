@@ -44,4 +44,5 @@ jobs:
     - name: Run tests
       run: |
         python manage.py test
-      env: SYSTEM_ENV: GITHUB_WORKFLOW
+      env:
+        SYSTEM_ENV: GITHUB_WORKFLOW

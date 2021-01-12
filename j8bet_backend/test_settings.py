@@ -12,17 +12,6 @@ ENV = environ.Env(
 )
 environ.Env.read_env(os.path.join(BASE_DIR, "../.env"))
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "test_db",
-        "TEST": {"NAME": "test_db",},
-        "USER": ENV.db().get("USER"),
-        "PASSWORD": ENV.db().get("PASSWORD"),
-        "HOST": ENV.db().get("HOST"),
-    }
-}
-
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -31,3 +20,29 @@ CACHES = {
 }
 
 PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
+
+SYSTEM_ENV = os.environ.get('SYSTEM_ENV', None)
+
+if SYSTEM_ENV == "GITHUB_WORKFLOW":
+    DEBUG = True
+    DATABASES = {
+        "default": {
+           "ENGINE": "django.db.backends.postgresql",
+           "NAME": "test_db",
+           "USER": "test_user",
+           "PASSWORD": "test_pwd",
+           "HOST": "127.0.0.1",
+           "PORT": "5432",
+        }
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "test_db",
+            "TEST": {"NAME": "test_db",},
+            "USER": ENV.db().get("USER"),
+            "PASSWORD": ENV.db().get("PASSWORD"),
+            "HOST": ENV.db().get("HOST"),
+        }
+    }

@@ -33,21 +33,10 @@ ENVIRONMENTS = ENV.json("ENVIRONMENTS", default={})
 # SECURITY WARNING: keep the secret key used in production secret!
 SYSTEM_ENV = os.environ.get('SYSTEM_ENV', None)
 
+SECRET_KEY = ENV("SECRET_KEY")
+
 if SYSTEM_ENV == "GITHUB_WORKFLOW":
-    DEBUG = True
     SECRET_KEY = "TESTING_KEY"
-    DATABASES = {
-        "default": {
-           "ENGINE": "django.db.backends.postgresql",
-           "NAME": "test_db",
-           "USER": "test_user",
-           "PASSWORD": "test_pwd",
-           "HOST": "127.0.0.1",
-           "PORT": "5432",
-        }
-    }
-else:
-    SECRET_KEY = ENV("SECRET_KEY")
 
 # SECURITY WARNING: don"t run with debug turned on in production!
 DEBUG = ENV("DEBUG")

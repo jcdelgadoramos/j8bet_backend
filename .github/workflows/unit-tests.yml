@@ -1,16 +1,6 @@
 name: Unit Tests 
 
-on:
-  push:
-    branches:
-      - main
-      - staging
-      - prod
-  pull_request:
-    - branches:
-      - main
-      - staging
-      - prod
+on: [push, pull_request]
 
 services:
   image: postgres

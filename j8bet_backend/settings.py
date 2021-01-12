@@ -31,19 +31,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, "../.env"))
 ENVIRONMENTS = ENV.json("ENVIRONMENTS", default={})
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ENV('SECRET_KEY') 
-# SYSTEM_ENV = os.environ.get('SYSTEM_ENV', None)
-# 
-# if SYSTEM_ENV == "GITHUB_WORKFLOW":
-#     SECRET_KEY = "TESTING_KEY"
-# else:
-#     SECRET_KEY = ENV("SECRET_KEY")
-#     # Database
-#     # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-# 
-#     DATABASES = {
-#         "default": ENV.db(),
-#     }
+SECRET_KEY = ENV("SECRET_KEY") 
 
 # SECURITY WARNING: don"t run with debug turned on in production!
 DEBUG = ENV("DEBUG")
@@ -112,13 +100,14 @@ DATABASES = {
     'default': ENV.db()
 }
 
-if SYSTEM_ENV == "GITHUB_WORKFLOW":
+if SYSTEM_ENV == "DEVELOPMENT":
+    SECRET_KEY = "TESTING_KEY"
     DATABASES = {
         "default": {
            "ENGINE": "django.db.backends.postgresql",
-           "NAME": "test_db",
-           "USER": "postgres",
-           "PASSWORD": "postgres",
+           "NAME": "j8bet",
+           "USER": "j8bet",
+           "PASSWORD": "j8bet",
            "HOST": "127.0.0.1",
            "PORT": "5432",
         }

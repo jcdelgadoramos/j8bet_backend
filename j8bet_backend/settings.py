@@ -96,10 +96,6 @@ SYSTEM_ENV = os.environ.get('SYSTEM_ENV', None)
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': ENV.db()
-}
-
 if SYSTEM_ENV == "DEVELOPMENT":
     SECRET_KEY = "TESTING_KEY"
     DATABASES = {
@@ -111,6 +107,10 @@ if SYSTEM_ENV == "DEVELOPMENT":
            "HOST": "127.0.0.1",
            "PORT": "5432",
         }
+    }
+else:
+    DATABASES = {
+        "default": ENV.db()
     }
 
 # Password validation

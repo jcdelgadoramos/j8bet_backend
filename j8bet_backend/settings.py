@@ -37,6 +37,13 @@ if SYSTEM_ENV == "GITHUB_WORKFLOW":
     SECRET_KEY = "TESTING_KEY"
 else:
     SECRET_KEY = ENV("SECRET_KEY")
+    # Database
+    # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
+    
+    DATABASES = {
+        "default": ENV.db(),
+    }
+
 
 # SECURITY WARNING: don"t run with debug turned on in production!
 DEBUG = ENV("DEBUG")
@@ -95,13 +102,6 @@ TEMPLATES = [
         },
     },
 ]
-
-# Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
-DATABASES = {
-    "default": ENV.db(),
-}
 
 
 # Password validation

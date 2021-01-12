@@ -87,7 +87,7 @@ if SYSTEM_ENV == "GITHUB_WORKFLOW":
            "NAME": "test_db",
            "USER": "test_user",
            "PASSWORD": "test_pwd",
-           "HOST": "db",
+           "HOST": "localhost",
            "PORT": "5432",
         }
     }

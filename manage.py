@@ -15,6 +15,7 @@ def main():
     # Adds support for automatic Coverage when launching "manage.py test"
     running_test = command == "test"
     if running_test:
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "j8bet_backend.test_settings")
         from coverage import Coverage
 
         cov = Coverage()

@@ -23,4 +23,23 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'test_cache',
+    }
+}
+
 PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
+
+if os.environ.get('GITHUB_WORKFLOW'):
+    DATABASES = {
+        'default': {
+           'ENGINE': 'django.db.backends.postgresql',
+           'NAME': 'test_db',
+           'USER': 'test_user',
+           'PASSWORD': 'test_pwd',
+           'HOST': '127.0.0.1',
+           'PORT': '5432',
+        }
+    }

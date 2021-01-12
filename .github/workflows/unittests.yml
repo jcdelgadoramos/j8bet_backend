@@ -42,7 +42,7 @@ jobs:
     - name: Run tests
       run: |
         coverage erase
-        coverage run --source . manage.py test --settings=j8bet_backend.test_settings
+        coverage run --source . manage.py test
         coverage report
       env:
         SYSTEM_ENV: GITHUB_WORKFLOW

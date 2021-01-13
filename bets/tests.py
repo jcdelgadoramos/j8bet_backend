@@ -191,4 +191,14 @@ class QueryTest(TestCase):
         schema = Schema(query=BetQuery)
         result = schema.execute(query)
         self.assertIsNone(result.errors)
-        self.assertEqual(str(self.first_event.id), result.data['events'][0]['id'])
+        self.assertEqual(
+            str(self.first_event.id), result.data['events'][0]['id'])
+        self.assertEqual(
+            self.first_event.name, result.data['events'][0]['name'])
+        self.assertEqual(
+            self.first_event.description,
+            result.data['events'][0]['description'])
+        self.assertEqual(
+            self.first_event.rules, result.data['events'][0]['rules'])
+        self.assertEqual(
+            self.first_event.active, result.data['events'][0]['active'])

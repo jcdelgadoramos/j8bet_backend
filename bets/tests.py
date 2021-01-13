@@ -1,7 +1,9 @@
+from bets.graphql.schema import Queries as BetQuery
 from bets.factories import BetFactory, EventFactory, QuotaFactory
 from bets.models import Bet, Prize, Quota
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from graphene import Schema
 
 
 class BetModelsTest(TestCase):
@@ -152,3 +154,41 @@ class BetModelsTest(TestCase):
 
         # No prizes should be created
         self.assertEqual(Prize.objects.count(), 0)
+
+
+class QueryTest(TestCase):
+    def setUp(self):
+        self.first_event = EventFactory(active=True)
+        self.second_event = EventFactory(active=True)
+        self.first_quota = QuotaFactory(event=self.first_event, active=True)
+        self.second_quota = QuotaFactory(event=self.first_event, active=True)
+        self.first_bet = BetFactory(quota=self.second_quota)
+        self.second_bet = BetFactory(quota=self.second_quota)
+        self.event_fields = """
+            id,
+            name,
+            description,
+            rules,
+            creationDate,
+            modificationDate,
+            expirationDate,
+            active
+        """
+        super().setUp()
+
+    def test_01_get_events(self):
+        """
+        This test evaluates retrieving events.
+        """
+
+        query = """
+            query getAllEvents {{
+                events: allEvents {{
+                    {fields}
+                }}
+            }}
+        """.format(fields=self.event_fields)
+        schema = Schema(query=BetQuery)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(str(self.first_event.id), result.data['events'][0]['id'])

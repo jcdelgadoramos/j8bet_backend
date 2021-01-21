@@ -3,12 +3,12 @@ from bets.graphql.schema import Queries as BetsQueries
 from graphene_federation import build_schema
 
 
-class Queries(BetsQueries,):
+class Query(BetsQueries,):
     pass
 
 
-class Mutations(BetsMutations,):
+class Mutation(BetsMutations,):
     pass
 
 
-schema = build_schema(Queries, mutation=Mutations)
+schema = build_schema(Query, mutation=Mutation)

@@ -1,6 +1,7 @@
 from bets.graphql.schema import Queries as BetQuery
 from bets.factories import BetFactory, EventFactory, QuotaFactory
 from bets.models import Bet, Prize, Quota
+from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from graphene import Schema
@@ -176,9 +177,24 @@ class QueryTest(TestCase):
         """
         super().setUp()
 
-    def test_01_get_events(self):
+    def test_00_hello(self):
         """
-        This test evaluates retrieving events.
+        This test evaluates the HelloQuery
+        """
+
+        query = """
+            query hello {
+                hola: hello(name: "tester")
+            }
+        """
+        schema = Schema(query=BetQuery)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual("Hello tester!", result.data["hola"])
+
+    def test_01_get_all_events(self):
+        """
+        This test evaluates retrieving all events.
         """
 
         query = """
@@ -192,13 +208,390 @@ class QueryTest(TestCase):
         result = schema.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(
-            str(self.first_event.id), result.data['events'][0]['id'])
+            self.first_event.id, int(result.data["events"][0]["id"]))
         self.assertEqual(
-            self.first_event.name, result.data['events'][0]['name'])
+            self.first_event.name, result.data["events"][0]["name"])
         self.assertEqual(
             self.first_event.description,
-            result.data['events'][0]['description'])
+            result.data["events"][0]["description"])
         self.assertEqual(
-            self.first_event.rules, result.data['events'][0]['rules'])
+            self.first_event.rules, result.data["events"][0]["rules"])
         self.assertEqual(
-            self.first_event.active, result.data['events'][0]['active'])
+            self.first_event.active, result.data["events"][0]["active"])
+        self.assertEqual(
+            self.second_event.id, int(result.data["events"][1]["id"]))
+        self.assertEqual(
+            self.second_event.name, result.data["events"][1]["name"])
+        self.assertEqual(
+            self.second_event.description,
+            result.data["events"][1]["description"])
+        self.assertEqual(
+            self.second_event.rules, result.data["events"][1]["rules"])
+        self.assertEqual(
+            self.second_event.active, result.data["events"][1]["active"])
+
+    def test_02_get_event(self):
+        """
+        This test evaluates retrieving a single event.
+        """
+
+        query = """
+            query getEventById {{
+                event: eventById(id: {id}) {{
+                    {fields}
+                }}
+            }}
+        """.format(id=self.first_event.id, fields=self.event_fields)
+        schema = Schema(query=BetQuery)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(
+            self.first_event.id, int(result.data["event"]["id"]))
+        self.assertEqual(
+            self.first_event.name, result.data["event"]["name"])
+        self.assertEqual(
+            self.first_event.description,
+            result.data["event"]["description"])
+        self.assertEqual(
+            self.first_event.rules, result.data["event"]["rules"])
+        self.assertEqual(
+            self.first_event.active, result.data["event"]["active"])
+
+    def test_03_get_all_quotas(self):
+        """
+        This test evaluates retrieving all quotas.
+        """
+
+        query = """
+            query getAllQuotas {{
+                quotas: allQuotas {{
+                    id,
+                    probability,
+                    creationDate,
+                    modificationDate,
+                    expirationDate,
+                    active,
+                    event {{
+                        {event_fields}
+                    }}
+                }}
+            }}
+        """.format(event_fields=self.event_fields)
+        schema = Schema(query=BetQuery)
+        result = schema.execute(query)
+        self.first_quota.refresh_from_db()
+        self.second_quota.refresh_from_db()
+        self.assertIsNone(result.errors)
+        self.assertEqual(
+            self.first_quota.id, int(result.data["quotas"][0]["id"]))
+        self.assertEqual(
+            float(self.first_quota.probability),
+            result.data["quotas"][0]["probability"]
+        )
+        self.assertEqual(
+            self.first_quota.active, result.data["quotas"][0]["active"])
+        self.assertEqual(
+            self.first_quota.event.id,
+            int(result.data["quotas"][0]["event"]["id"])
+        )
+        self.assertEqual(
+            self.second_quota.id, int(result.data["quotas"][1]["id"]))
+        self.assertEqual(
+            float(self.second_quota.probability),
+            result.data["quotas"][1]["probability"]
+        )
+        self.assertEqual(
+            self.second_quota.active, result.data["quotas"][1]["active"])
+        self.assertEqual(
+            self.second_quota.event.id,
+            int(result.data["quotas"][1]["event"]["id"])
+        )
+
+    def test_04_get_quota(self):
+        """
+        This test evaluates retrieving a single quota.
+        """
+
+        query = """
+            query getQuotaById {{
+                quota: quotaById(id: {id}) {{
+                    id,
+                    probability,
+                    creationDate,
+                    modificationDate,
+                    expirationDate,
+                    active,
+                    event {{
+                        {event_fields}
+                    }}
+                }}
+            }}
+        """.format(id=self.first_quota.id, event_fields=self.event_fields)
+        schema = Schema(query=BetQuery)
+        result = schema.execute(query)
+        self.first_quota.refresh_from_db()
+        self.assertIsNone(result.errors)
+        self.assertEqual(
+            self.first_quota.id, int(result.data["quota"]["id"]))
+        self.assertEqual(
+            float(self.first_quota.probability),
+            result.data["quota"]["probability"]
+        )
+        self.assertEqual(
+            self.first_quota.active, result.data["quota"]["active"])
+        self.assertEqual(
+            self.first_quota.event.id,
+            int(result.data["quota"]["event"]["id"])
+        )
+
+    def test_05_get_all_bets(self):
+        """
+        This test evaluates retrieving all bets.
+        """
+
+        query = """
+            query getAllBets {{
+                bets: allBets {{
+                    id,
+                    transaction {{
+                        id,
+                        amount,
+                        description,
+                    }},
+                    quota {{
+                        id,
+                        probability,
+                        active
+                        event {{
+                            {event_fields}
+                        }}
+                    }},
+                    potentialEarnings,
+                    won,
+                    active,
+                }}
+            }}
+        """.format(event_fields=self.event_fields)
+        schema = Schema(query=BetQuery)
+        result = schema.execute(query)
+        self.first_bet.refresh_from_db()
+        self.second_bet.refresh_from_db()
+        self.assertIsNone(result.errors)
+        self.assertEqual(
+            self.first_bet.id, int(result.data["bets"][0]["id"]))
+        self.assertEqual(
+            float(self.first_bet.potential_earnings),
+            result.data["bets"][0]["potentialEarnings"]
+        )
+        self.assertEqual(
+            self.first_bet.active, result.data["bets"][0]["active"])
+        self.assertEqual(
+            self.first_bet.won, result.data["bets"][0]["won"])
+        self.assertEqual(
+            self.first_bet.quota.id,
+            int(result.data["bets"][0]["quota"]["id"])
+        )
+        self.assertEqual(
+            self.second_bet.id, int(result.data["bets"][1]["id"]))
+        self.assertEqual(
+            float(self.second_bet.potential_earnings),
+            result.data["bets"][1]["potentialEarnings"]
+        )
+        self.assertEqual(
+            self.second_bet.active, result.data["bets"][1]["active"])
+        self.assertEqual(
+            self.second_bet.won, result.data["bets"][1]["won"])
+        self.assertEqual(
+            self.second_bet.quota.id,
+            int(result.data["bets"][1]["quota"]["id"])
+        )
+
+    def test_06_get_bet(self):
+        """
+        This test evaluates retrieving a single quota.
+        """
+
+        query = """
+            query getBetById {{
+                bet: betById(id: {id}) {{
+                    id,
+                    transaction {{
+                        id,
+                        amount,
+                        description,
+                    }},
+                    quota {{
+                        id,
+                        probability,
+                        active
+                        event {{
+                            {event_fields}
+                        }}
+                    }},
+                    potentialEarnings,
+                    won,
+                    active,
+                }}
+            }}
+        """.format(id=self.first_bet.id, event_fields=self.event_fields)
+        schema = Schema(query=BetQuery)
+        result = schema.execute(query)
+        self.first_bet.refresh_from_db()
+        self.assertIsNone(result.errors)
+        self.assertEqual(
+            self.first_bet.id, int(result.data["bet"]["id"]))
+        self.assertEqual(
+            float(self.first_bet.potential_earnings),
+            result.data["bet"]["potentialEarnings"]
+        )
+        self.assertEqual(
+            self.first_bet.active, result.data["bet"]["active"])
+        self.assertEqual(
+            self.first_bet.won, result.data["bet"]["won"])
+        self.assertEqual(
+            self.first_bet.quota.id,
+            int(result.data["bet"]["quota"]["id"])
+        )
+
+    def test_07_get_all_transactions(self):
+        """
+        This test evaluates retrieving all transactions.
+        """
+
+        query = """
+            query getAllTransactions {
+                transactions: allTransactions {
+                    id,
+                    amount,
+                    description,
+                }
+            }
+        """
+        schema = Schema(query=BetQuery)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(
+            self.first_bet.transaction.id,
+            int(result.data["transactions"][0]["id"]))
+        self.assertEqual(
+            float(self.first_bet.transaction.amount),
+            result.data["transactions"][0]["amount"]
+        )
+        self.assertEqual(
+            self.first_bet.transaction.description,
+            result.data["transactions"][0]["description"])
+        self.assertEqual(
+            self.second_bet.transaction.id,
+            int(result.data["transactions"][1]["id"]))
+        self.assertEqual(
+            float(self.second_bet.transaction.amount),
+            result.data["transactions"][1]["amount"]
+        )
+        self.assertEqual(
+            self.second_bet.transaction.description,
+            result.data["transactions"][1]["description"])
+
+    def test_08_get_transaction(self):
+        """
+        This test evaluates retrieving a single transaction.
+        """
+
+        query = """
+            query getTransaction {{
+                transaction: transactionById(id: {id}) {{
+                    id,
+                    amount,
+                    description,
+                }}
+            }}
+        """.format(id=self.first_bet.transaction.id)
+        schema = Schema(query=BetQuery)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(
+            self.first_bet.transaction.id,
+            int(result.data['transaction']["id"]))
+        self.assertEqual(
+            float(self.first_bet.transaction.amount),
+            result.data['transaction']["amount"]
+        )
+        self.assertEqual(
+            self.first_bet.transaction.description,
+            result.data['transaction']["description"])
+
+    def test_09_get_all_prizes(self):
+        """
+        This test evaluates retrieving all prizes.
+        """
+
+        self.first_event.completed = True
+        self.first_event.save()
+        self.first_prize = Prize.objects.first()
+        self.second_prize = Prize.objects.exclude(id=self.first_prize.id).first()
+        query = """
+            query getAllPrizes {
+                prizes: allPrizes {
+                    id,
+                    bet{
+                        id
+                    }
+                    reward,
+                }
+            }
+        """
+        schema = Schema(query=BetQuery)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(
+            self.first_prize.id,
+            int(result.data["prizes"][0]["id"]))
+        self.assertEqual(
+            float(self.first_prize.reward),
+            result.data["prizes"][0]["reward"]
+        )
+        self.assertEqual(
+            self.first_prize.bet.id,
+            int(result.data["prizes"][0]["bet"]["id"]))
+        self.assertEqual(
+            self.second_prize.id,
+            int(result.data["prizes"][1]["id"]))
+        self.assertEqual(
+            float(self.second_prize.reward),
+            result.data["prizes"][1]["reward"]
+        )
+        self.assertEqual(
+            self.second_prize.bet.id,
+            int(result.data["prizes"][1]["bet"]["id"]))
+
+    def test_10_get_prize(self):
+        """
+        This test evaluates retrieving a single prize.
+        """
+
+        self.first_event.completed = True
+        self.first_event.save()
+        self.first_prize = Prize.objects.first()
+        query = """
+            query getPrize {{
+                prize: prizeById(id: {id}) {{
+                    id,
+                    bet{{
+                        id
+                    }}
+                    reward,
+                }}
+            }}
+        """.format(id=self.first_prize.id)
+        schema = Schema(query=BetQuery)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(
+            self.first_prize.id,
+            int(result.data["prize"]["id"]))
+        self.assertEqual(
+            float(self.first_prize.reward),
+            result.data["prize"]["reward"]
+        )
+        self.assertEqual(
+            self.first_prize.bet.id,
+            int(result.data["prize"]["bet"]["id"]))

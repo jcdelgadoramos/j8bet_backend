@@ -1,7 +1,6 @@
-from bets.graphql.schema import Queries as BetQuery
 from bets.factories import BetFactory, EventFactory, QuotaFactory
+from bets.graphql.schema import Queries as BetQuery
 from bets.models import Bet, Prize, Quota
-from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from graphene import Schema

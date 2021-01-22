@@ -35,7 +35,7 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Transaction
 
-    amount = factory.Faker("pydecimal", min_value=0)
+    amount = factory.Faker("pydecimal", min_value=0, right_digits=2)
     description = factory.Faker("sentence", nb_words=4)
     creation_date = factory.Faker(
         "date_time", tzinfo=timezone.get_current_timezone()
@@ -50,7 +50,9 @@ class QuotaFactory(factory.django.DjangoModelFactory):
         model = Quota
 
     event = factory.SubFactory(EventFactory)
-    probability = factory.Faker("pydecimal", min_value=0, max_value=1)
+    probability = factory.Faker(
+        "pydecimal", min_value=0, max_value=1, right_digits=5
+    )
     creation_date = factory.Faker(
         "date_time", tzinfo=timezone.get_current_timezone()
     )

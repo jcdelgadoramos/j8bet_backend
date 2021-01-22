@@ -1,10 +1,11 @@
+from datetime import datetime
+
 from bets.factories import BetFactory, EventFactory, QuotaFactory
 from bets.graphql.schema import Mutations as BetMutation
 from bets.graphql.schema import Queries as BetQuery
 from bets.models import Bet, Event, Prize, Quota
-from datetime import datetime
 from django.core.exceptions import ValidationError
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
 from graphene import Schema

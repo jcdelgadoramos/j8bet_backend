@@ -50,7 +50,9 @@ class QuotaFactory(factory.django.DjangoModelFactory):
         model = Quota
 
     event = factory.SubFactory(EventFactory)
-    probability = factory.Faker("pydecimal", min_value=0, max_value=1)
+    probability = factory.Faker(
+        "pydecimal", min_value=0, max_value=1, right_digits=5
+    )
     creation_date = factory.Faker(
         "date_time", tzinfo=timezone.get_current_timezone()
     )

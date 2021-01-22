@@ -55,6 +55,7 @@ LOCAL_APPS = [
 
 THIRD_PARTY_APPS = [
     "graphene_django",
+    "django_extensions",
 ]
 
 INSTALLED_APPS = INSTALLED_APPS + LOCAL_APPS + THIRD_PARTY_APPS

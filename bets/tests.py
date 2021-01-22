@@ -1,5 +1,6 @@
 from bets.factories import BetFactory, EventFactory, QuotaFactory
-from bets.graphql.schema import Queries as BetQuery, Mutations as BetMutation
+from bets.graphql.schema import Mutations as BetMutation
+from bets.graphql.schema import Queries as BetQuery
 from bets.models import Bet, Event, Prize, Quota
 from datetime import datetime
 from django.core.exceptions import ValidationError
@@ -311,8 +312,7 @@ class QueryTest(TestCase):
         self.assertEqual(
             self.first_event.creation_date,
             datetime.strptime(
-                result.data["event"]["creationDate"],
-                "%Y-%m-%dT%H:%M:%S.%f%z",
+                result.data["event"]["creationDate"], "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
@@ -325,8 +325,7 @@ class QueryTest(TestCase):
         self.assertEqual(
             self.first_event.expiration_date,
             datetime.strptime(
-                result.data["event"]["expirationDate"],
-                "%Y-%m-%dT%H:%M:%S%z",
+                result.data["event"]["expirationDate"], "%Y-%m-%dT%H:%M:%S%z",
             ),
         )
         self.assertEqual(
@@ -463,8 +462,7 @@ class QueryTest(TestCase):
         self.assertEqual(
             self.first_quota.creation_date,
             datetime.strptime(
-                result.data["quota"]["creationDate"],
-                "%Y-%m-%dT%H:%M:%S.%f%z",
+                result.data["quota"]["creationDate"], "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
@@ -477,8 +475,7 @@ class QueryTest(TestCase):
         self.assertEqual(
             self.first_quota.expiration_date,
             datetime.strptime(
-                result.data["quota"]["expirationDate"],
-                "%Y-%m-%dT%H:%M:%S%z",
+                result.data["quota"]["expirationDate"], "%Y-%m-%dT%H:%M:%S%z",
             ),
         )
         self.assertEqual(
@@ -818,24 +815,20 @@ class MutationTest(TestCase):
             fields=self.event_fields
         )
         executed = self.client.execute(
-            not_modifying_mutation,
-            variables=dict(id=self.event.id),
+            not_modifying_mutation, variables=dict(id=self.event.id),
         )
         self.assertEqual(
-            self.event.id,
-            int(executed["data"]["updateEvent"]["event"]["id"]),
+            self.event.id, int(executed["data"]["updateEvent"]["event"]["id"]),
         )
         self.assertEqual(
-            self.event.name,
-            executed["data"]["updateEvent"]["event"]["name"],
+            self.event.name, executed["data"]["updateEvent"]["event"]["name"],
         )
         self.assertEqual(
             self.event.description,
             executed["data"]["updateEvent"]["event"]["description"],
         )
         self.assertEqual(
-            self.event.rules,
-            executed["data"]["updateEvent"]["event"]["rules"],
+            self.event.rules, executed["data"]["updateEvent"]["event"]["rules"],
         )
         self.assertEqual(
             self.event.expiration_date,
@@ -963,12 +956,10 @@ class MutationTest(TestCase):
             fields=self.event_fields
         )
         executed = self.client.execute(
-            not_modifying_mutation,
-            variables=dict(id=self.quota.id),
+            not_modifying_mutation, variables=dict(id=self.quota.id),
         )
         self.assertEqual(
-            self.quota.id,
-            int(executed["data"]["updateQuota"]["quota"]["id"]),
+            self.quota.id, int(executed["data"]["updateQuota"]["quota"]["id"]),
         )
         self.assertEqual(
             float(self.quota.probability),
@@ -1018,9 +1009,7 @@ class MutationTest(TestCase):
         executed = self.client.execute(
             mutation,
             variables=dict(
-                id=self.quota.id,
-                expirationDate=expiration_date,
-                active=False,
+                id=self.quota.id, expirationDate=expiration_date, active=False,
             ),
         )
         self.assertEqual(
@@ -1046,8 +1035,7 @@ class MutationTest(TestCase):
         """
         before_deletion_count = Quota.objects.count()
         executed = self.client.execute(
-            mutation,
-            variables=dict(id=self.quota.id),
+            mutation, variables=dict(id=self.quota.id),
         )
         self.assertTrue(executed["data"]["deleteQuota"]["deleted"])
         self.assertEqual(Quota.objects.count(), before_deletion_count - 1)
@@ -1066,8 +1054,7 @@ class MutationTest(TestCase):
         """
         before_deletion_count = Event.objects.count()
         executed = self.client.execute(
-            mutation,
-            variables=dict(id=self.event.id),
+            mutation, variables=dict(id=self.event.id),
         )
         self.assertTrue(executed["data"]["deleteEvent"]["deleted"])
         self.assertEqual(Event.objects.count(), before_deletion_count - 1)

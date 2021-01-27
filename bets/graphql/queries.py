@@ -14,10 +14,10 @@ class EventQuery(ObjectType):
     all_events = DjangoListField(EventType)
     event_by_id = Field(EventType, id=ID())
 
-    def resolve_all_events(parent, info):
+    def resolve_all_events(self, info):
         return Event.objects.all()
 
-    def resolve_event_by_id(parent, info, id):
+    def resolve_event_by_id(self, info, id):
         return Event.objects.get(id=id)
 
 
@@ -25,10 +25,10 @@ class TransactionQuery(ObjectType):
     all_transactions = DjangoListField(TransactionType)
     transaction_by_id = Field(TransactionType, id=ID())
 
-    def resolve_all_transactions(parent, info):
+    def resolve_all_transactions(self, info):
         return Transaction.objects.all()
 
-    def resolve_transaction_by_id(parent, info, id):
+    def resolve_transaction_by_id(self, info, id):
         return Transaction.objects.get(id=id)
 
 
@@ -36,10 +36,10 @@ class QuotaQuery(ObjectType):
     all_quotas = DjangoListField(QuotaType)
     quota_by_id = Field(QuotaType, id=ID())
 
-    def resolve_all_quotas(parent, info):
+    def resolve_all_quotas(self, info):
         return Quota.objects.all()
 
-    def resolve_quota_by_id(parent, info, id):
+    def resolve_quota_by_id(self, info, id):
         return Quota.objects.get(id=id)
 
 
@@ -47,10 +47,10 @@ class BetQuery(ObjectType):
     all_bets = DjangoListField(BetType)
     bet_by_id = Field(BetType, id=ID())
 
-    def resolve_all_bets(parent, info):
+    def resolve_all_bets(self, info):
         return Bet.objects.all()
 
-    def resolve_bet_by_id(parent, info, id):
+    def resolve_bet_by_id(self, info, id):
         return Bet.objects.get(id=id)
 
 
@@ -58,15 +58,15 @@ class PrizeQuery(ObjectType):
     all_prizes = DjangoListField(PrizeType)
     prize_by_id = Field(PrizeType, id=ID())
 
-    def resolve_prize_by_id(parent, info, id):
+    def resolve_prize_by_id(self, info, id):
         return Prize.objects.get(id=id)
 
-    def resolve_all_prizes(parent, info):
+    def resolve_all_prizes(self, info):
         return Prize.objects.all()
 
 
 class HelloQuery(ObjectType):
     hello = String(name=String(default_value="stranger"))
 
-    def resolve_hello(parent, info, name):
+    def resolve_hello(self, info, name):
         return f"Hello {name}!"

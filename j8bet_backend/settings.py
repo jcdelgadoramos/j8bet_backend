@@ -72,7 +72,15 @@ MIDDLEWARE = [
 
 GRAPHENE = {
     "SCHEMA": "j8bet_backend.graphql.api.schema",
+    "MIDDLWARE": [
+        "graphql_jwt.middleware.JSONWebTokenMiddleware",
+    ],
 }
+
+AUTHENTICATION_BACKENDS = [
+    "graphwl_jwt.backends.JSONWebTokenBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
 
 ROOT_URLCONF = "j8bet_backend.urls"
 

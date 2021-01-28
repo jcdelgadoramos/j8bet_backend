@@ -1,6 +1,7 @@
 from graphene import ObjectType
 from graphql_jwt import ObtainJSONWebToken, Refresh, Verify
 from users.graphql.queries import UserQuery
+from users.graphql.mutations import CreateUser
 
 
 class Query(UserQuery):
@@ -19,3 +20,4 @@ class Mutation(ObjectType):
     token_auth = ObtainJSONWebToken.Field()
     verify_token = Verify.Field()
     refresh_token = Refresh.Field()
+    create_user = CreateUser.Field()

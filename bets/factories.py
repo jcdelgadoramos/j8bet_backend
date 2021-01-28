@@ -1,14 +1,7 @@
 import factory
 from bets.models import Bet, Event, Prize, Quota, Transaction
-from django.contrib.auth.models import User
 from django.utils import timezone
-
-
-class UserFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = User
-
-    username = factory.Faker("user_name")
+from users.factories import UserFactory
 
 
 class EventFactory(factory.django.DjangoModelFactory):

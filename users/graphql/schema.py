@@ -1,5 +1,11 @@
 from graphene import ObjectType
-from graphql_jwt import ObtainJSONWebToken, Refresh, Verify
+from graphql_jwt import (
+    DeleteJSONWebTokenCookie,
+    DeleteRefreshTokenCookie,
+    ObtainJSONWebToken,
+    Refresh,
+    Verify,
+)
 from users.graphql.queries import UserQuery
 from users.graphql.mutations import CreateUser
 
@@ -21,3 +27,5 @@ class Mutation(ObjectType):
     verify_token = Verify.Field()
     refresh_token = Refresh.Field()
     create_user = CreateUser.Field()
+    delete_token_cookie = DeleteJSONWebTokenCookie.Field()
+    delete_refresh_token_cookie = DeleteRefreshTokenCookie.Field()

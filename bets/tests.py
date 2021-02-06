@@ -10,6 +10,8 @@ from django.urls import reverse
 from django.utils import timezone
 from graphene import Schema
 from graphene.test import Client
+from graphql_jwt.testcases import JSONWebTokenTestCase
+from users.factories import UserFactory
 
 
 class BetModelsTest(TestCase):
@@ -162,7 +164,7 @@ class BetModelsTest(TestCase):
         self.assertEqual(Prize.objects.count(), 0)
 
 
-class QueryTest(TestCase):
+class QueryTest(JSONWebTokenTestCase):
     def setUp(self):
         self.first_event = EventFactory(active=True)
         self.second_event = EventFactory(active=True)
@@ -180,7 +182,8 @@ class QueryTest(TestCase):
             expirationDate,
             active
         """
-        self.schema = Schema(query=BetQuery)
+        self.user = UserFactory()
+        self.client.authenticate(self.user)
         super().setUp()
 
     def test_00_hello(self):
@@ -193,7 +196,7 @@ class QueryTest(TestCase):
                 hola: hello(name: "tester")
             }
         """
-        result = self.schema.execute(query)
+        result = self.client.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual("Hello tester!", result.data["hola"])
 
@@ -211,7 +214,7 @@ class QueryTest(TestCase):
         """.format(
             fields=self.event_fields
         )
-        result = self.schema.execute(query)
+        result = self.client.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(
             self.first_event.id, int(result.data["events"][0]["id"])
@@ -302,7 +305,7 @@ class QueryTest(TestCase):
         """.format(
             id=self.first_event.id, fields=self.event_fields
         )
-        result = self.schema.execute(query)
+        result = self.client.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(self.first_event.id, int(result.data["event"]["id"]))
         self.assertEqual(self.first_event.name, result.data["event"]["name"])
@@ -355,7 +358,7 @@ class QueryTest(TestCase):
         """.format(
             event_fields=self.event_fields
         )
-        result = self.schema.execute(query)
+        result = self.client.execute(query)
         self.first_quota.refresh_from_db()
         self.second_quota.refresh_from_db()
         self.assertIsNone(result.errors)
@@ -452,7 +455,7 @@ class QueryTest(TestCase):
         """.format(
             id=self.first_quota.id, event_fields=self.event_fields
         )
-        result = self.schema.execute(query)
+        result = self.client.execute(query)
         self.first_quota.refresh_from_db()
         self.assertIsNone(result.errors)
         self.assertEqual(self.first_quota.id, int(result.data["quota"]["id"]))
@@ -516,7 +519,7 @@ class QueryTest(TestCase):
         """.format(
             event_fields=self.event_fields
         )
-        result = self.schema.execute(query)
+        result = self.client.execute(query)
         self.first_bet.refresh_from_db()
         self.second_bet.refresh_from_db()
         self.assertIsNone(result.errors)
@@ -575,7 +578,7 @@ class QueryTest(TestCase):
         """.format(
             id=self.first_bet.id, event_fields=self.event_fields
         )
-        result = self.schema.execute(query)
+        result = self.client.execute(query)
         self.first_bet.refresh_from_db()
         self.assertIsNone(result.errors)
         self.assertEqual(self.first_bet.id, int(result.data["bet"]["id"]))
@@ -603,7 +606,7 @@ class QueryTest(TestCase):
                 }
             }
         """
-        result = self.schema.execute(query)
+        result = self.client.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(
             self.first_bet.transaction.id,
@@ -646,7 +649,7 @@ class QueryTest(TestCase):
         """.format(
             id=self.first_bet.transaction.id
         )
-        result = self.schema.execute(query)
+        result = self.client.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(
             self.first_bet.transaction.id, int(result.data["transaction"]["id"])
@@ -682,7 +685,7 @@ class QueryTest(TestCase):
                 }
             }
         """
-        result = self.schema.execute(query)
+        result = self.client.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(
             self.first_prize.id, int(result.data["prizes"][0]["id"])
@@ -724,7 +727,7 @@ class QueryTest(TestCase):
         """.format(
             id=self.first_prize.id
         )
-        result = self.schema.execute(query)
+        result = self.client.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(self.first_prize.id, int(result.data["prize"]["id"]))
         self.assertEqual(
@@ -777,6 +780,7 @@ class MutationTest(TestCase):
         expiration_date = timezone.now()
         executed = self.client.execute(
             mutation,
+            context_value=self.context_value,
             variables=dict(
                 input=dict(
                     name=event_name,
@@ -816,7 +820,9 @@ class MutationTest(TestCase):
             fields=self.event_fields
         )
         executed = self.client.execute(
-            not_modifying_mutation, variables=dict(id=self.event.id),
+            not_modifying_mutation,
+            context_value=self.context_value,
+            variables=dict(id=self.event.id),
         )
         self.assertEqual(
             self.event.id, int(executed["data"]["updateEvent"]["event"]["id"]),
@@ -866,6 +872,7 @@ class MutationTest(TestCase):
         expiration_date = timezone.now()
         executed = self.client.execute(
             mutation,
+            context_value=self.context_value,
             variables=dict(
                 id=self.event.id,
                 name=event_name,
@@ -909,6 +916,7 @@ class MutationTest(TestCase):
         expiration_date = timezone.now()
         executed = self.client.execute(
             mutation,
+            context_value=self.context_value,
             variables=dict(
                 input=dict(
                     probability=probability,
@@ -957,7 +965,9 @@ class MutationTest(TestCase):
             fields=self.event_fields
         )
         executed = self.client.execute(
-            not_modifying_mutation, variables=dict(id=self.quota.id),
+            not_modifying_mutation,
+            context_value=self.context_value,
+            variables=dict(id=self.quota.id),
         )
         self.assertEqual(
             self.quota.id, int(executed["data"]["updateQuota"]["quota"]["id"]),
@@ -1009,6 +1019,7 @@ class MutationTest(TestCase):
         expiration_date = timezone.now()
         executed = self.client.execute(
             mutation,
+            context_value=self.context_value,
             variables=dict(
                 id=self.quota.id, expirationDate=expiration_date, active=False,
             ),
@@ -1036,7 +1047,9 @@ class MutationTest(TestCase):
         """
         before_deletion_count = Quota.objects.count()
         executed = self.client.execute(
-            mutation, variables=dict(id=self.quota.id),
+            mutation,
+            context_value=self.context_value,
+            variables=dict(id=self.quota.id),
         )
         self.assertTrue(executed["data"]["deleteQuota"]["deleted"])
         self.assertEqual(Quota.objects.count(), before_deletion_count - 1)
@@ -1055,7 +1068,9 @@ class MutationTest(TestCase):
         """
         before_deletion_count = Event.objects.count()
         executed = self.client.execute(
-            mutation, variables=dict(id=self.event.id),
+            mutation,
+            context_value=self.context_value,
+            variables=dict(id=self.event.id),
         )
         self.assertTrue(executed["data"]["deleteEvent"]["deleted"])
         self.assertEqual(Event.objects.count(), before_deletion_count - 1)

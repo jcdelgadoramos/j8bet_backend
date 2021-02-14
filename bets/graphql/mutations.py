@@ -1,24 +1,54 @@
 from bets.forms import EventForm, QuotaForm
+from bets.graphql.input import (
+    EventCreationInput,
+    EventUpdateInput,
+    QuotaCreationInput,
+    QuotaUpdateInput,
+)
 from bets.graphql.types import EventType, QuotaType
 from bets.models import Event, Quota
-from graphene import ID, Boolean, DateTime, Field, Mutation, String
-from graphene_django.forms.mutation import DjangoModelFormMutation
+from datetime import datetime, date
+from graphene import ID, Boolean, DateTime, Decimal, Field, Mutation, String
+from graphql_jwt.decorators import login_required
 
 
-class CreateEventMutation(DjangoModelFormMutation):
+class CreateEventMutation(Mutation):
     """
-    ModelFormMutation for Event creation
+    Mutation for Event creation
 
     :cvar event: EventType field
     """
 
     event = Field(EventType)
 
-    class Meta:
-        form_class = EventForm
+    class Arguments:
+        """
+        Arguments for Event creation 
+        """
+
+        event_input = EventCreationInput(required=True)
+
+    @login_required
+    def mutate(self, info, event_input):
+        """
+        Mutation function.
+
+        :param info: Request information
+        :param event_input: Mutation input
+        """
+
+        event = Event()
+        event.name = event_input.name
+        event.description = event_input.description
+        event.expiration_date = event_input.expiration_date
+        if event_input.active is not None:
+            event.active = event_input.active
+        event.completed = event_input.completed
+        event.save()
+        return CreateEventMutation(event=event)
 
 
-class CreateQuotaMutation(DjangoModelFormMutation):
+class CreateQuotaMutation(Mutation):
     """
     ModelFormMutation for Quota creation
 
@@ -27,8 +57,30 @@ class CreateQuotaMutation(DjangoModelFormMutation):
 
     quota = Field(QuotaType)
 
-    class Meta:
-        form_class = QuotaForm
+    class Arguments:
+        """
+        Arguments for Quota update
+        """
+
+        quota_input = QuotaCreationInput(required=True)
+
+    @login_required
+    def mutate(self, info, quota_input):
+        """
+        Mutation function.
+
+        :param info: Request information
+        :parma quota_input: Mutation input
+        """
+
+        quota = Quota()
+        quota.probability = quota_input.probability
+        quota.expiration_date = quota_input.expiration_date
+        quota.event = Event.objects.get(id=quota_input.event)
+        if quota_input.active is not None:
+            quota.active = quota_input.active
+        quota.save()
+        return CreateQuotaMutation(quota=quota)
 
 
 class UpdateEventMutation(Mutation):
@@ -38,57 +90,34 @@ class UpdateEventMutation(Mutation):
     :cvar event: EventType field
     """
 
+    event = Field(EventType)
+
     class Arguments:
         """
         Arguments for Event update
         """
 
-        id = ID()
-        name = String()
-        description = String()
-        rules = String()
-        creation_date = DateTime()
-        modification_date = DateTime()
-        expiration_date = DateTime()
-        active = Boolean()
-        completed = Boolean()
+        event_input = EventUpdateInput(required=True)
 
-    event = Field(EventType)
-
-    def mutate(
-        self,
-        info,
-        id,
-        name=None,
-        description=None,
-        rules=None,
-        expiration_date=None,
-        active=None,
-        completed=None,
-    ):
+    @login_required
+    def mutate(self, info, event_input):
         """
         Mutation function.
 
         :param info: Request information
-        :param id: Integer with Event ID
-        :param name: String with Event name
-        :param description: String with Event description
-        :param rules: String with Event rules
-        :param expiration_date: DateTime with Event expiration datetime
-        :param active: Boolean indication whether Event is active
-        :param completed: Boolean indicating Event completion
+        :param event_input: Mutation input
         """
 
-        event = Event.objects.get(id=id)
-        if name:
-            event.name = name
-        if description:
-            event.description = description
-        if expiration_date:
-            event.expiration_date = expiration_date
-        if active is not None:
-            event.active = active
-        event.completed = completed
+        event = Event.objects.get(id=event_input.id)
+        if event_input.name:
+            event.name = event_input.name
+        if event_input.expiration_date:
+            event.expiration_date = event_input.expiration_date
+        if event_input.description:
+            event.description = event_input.description
+        if event_input.active is not None:
+            event.active = event_input.active
+        event.completed = event_input.completed
         event.save()
         return UpdateEventMutation(event=event)
 
@@ -100,32 +129,29 @@ class UpdateQuotaMutation(Mutation):
     :cvar quota: QuotaType field
     """
 
+    quota = Field(QuotaType)
+
     class Arguments:
         """
         Arguments for Quota update
         """
 
-        id = ID()
-        expiration_date = DateTime()
-        active = Boolean()
+        quota_input = QuotaUpdateInput(required=True)
 
-    quota = Field(QuotaType)
-
-    def mutate(self, info, id, expiration_date=None, active=None):
+    @login_required
+    def mutate(self, info, quota_input):
         """
         Mutation function.
 
         :param info: Request information
-        :param id: Integer with Quota ID
-        :param expiration_date: DateTime with Event expiration datetime
-        :param active: Boolean indicating whether Quota is active
+        :parma quota_input: Mutation input
         """
 
-        quota = Quota.objects.get(id=id)
-        if expiration_date:
-            quota.expiration_date = expiration_date
-        if active is not None:
-            quota.active = active
+        quota = Quota.objects.get(id=quota_input.id)
+        if quota_input.expiration_date:
+            quota.expiration_date = quota_input.expiration_date
+        if quota_input.active is not None:
+            quota.active = quota_input.active
         quota.save()
         return UpdateQuotaMutation(quota=quota)
 
@@ -140,6 +166,7 @@ class DeleteEventMutation(Mutation):
 
         id = ID()
 
+    @login_required
     def mutate(self, info, id):
 
         Event.objects.filter(id=id).delete()
@@ -156,6 +183,7 @@ class DeleteQuotaMutation(Mutation):
 
         id = ID()
 
+    @login_required
     def mutate(self, info, id):
 
         Quota.objects.filter(id=id).delete()

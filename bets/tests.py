@@ -11,6 +11,7 @@ from django.utils import timezone
 from graphene import Schema
 from graphene.test import Client
 from graphql_jwt.testcases import JSONWebTokenTestCase
+from graphql.error.located_error import GraphQLLocatedError
 from users.factories import UserFactory
 
 
@@ -738,7 +739,7 @@ class QueryTest(JSONWebTokenTestCase):
         )
 
 
-class MutationTest(TestCase):
+class MutationTest(JSONWebTokenTestCase):
     def setUp(self):
         self.event = EventFactory(active=True)
         self.quota = QuotaFactory(event=self.event, active=True)
@@ -754,8 +755,8 @@ class MutationTest(TestCase):
         """
         self.request_factory = RequestFactory()
         self.context_value = self.request_factory.get(reverse("graphql"))
-        self.schema = Schema(query=BetQuery, mutation=BetMutation)
-        self.client = Client(self.schema)
+        self.user = UserFactory()
+        self.client.authenticate(self.user)
         super().setUp()
 
     def test_01_create_event(self):
@@ -764,12 +765,11 @@ class MutationTest(TestCase):
         """
 
         mutation = """
-            mutation createEvent($input: CreateEventMutationInput!) {{
-                createEvent(input: $input) {{
+            mutation createEvent($eventInput: EventCreationInput!) {{
+                createEvent(eventInput: $eventInput) {{
                     event{{
                         {fields}
                     }}
-                    clientMutationId,
                 }}
             }}
         """.format(
@@ -782,7 +782,7 @@ class MutationTest(TestCase):
             mutation,
             context_value=self.context_value,
             variables=dict(
-                input=dict(
+                eventInput=dict(
                     name=event_name,
                     description=description,
                     expirationDate=expiration_date,
@@ -790,15 +790,15 @@ class MutationTest(TestCase):
             ),
         )
         self.assertEqual(
-            event_name, executed["data"]["createEvent"]["event"]["name"]
+            event_name, executed.data["createEvent"]["event"]["name"]
         )
         self.assertEqual(
-            description, executed["data"]["createEvent"]["event"]["description"]
+            description, executed.data["createEvent"]["event"]["description"]
         )
         self.assertEqual(
             expiration_date,
             datetime.strptime(
-                executed["data"]["createEvent"]["event"]["expirationDate"],
+                executed.data["createEvent"]["event"]["expirationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
@@ -808,9 +808,9 @@ class MutationTest(TestCase):
         This test evaluates updating an Event via mutation.
         """
 
-        not_modifying_mutation = """
-            mutation updateEvent($id: ID!) {{
-                updateEvent(id: $id) {{
+        mutation = """
+            mutation updateEvent($eventInput: EventUpdateInput!) {{
+                updateEvent(eventInput: $eventInput) {{
                     event{{
                         {fields}
                     }}
@@ -820,52 +820,29 @@ class MutationTest(TestCase):
             fields=self.event_fields
         )
         executed = self.client.execute(
-            not_modifying_mutation,
+            mutation,
             context_value=self.context_value,
-            variables=dict(id=self.event.id),
+            variables=dict(eventInput=dict(id=self.event.id)),
         )
         self.assertEqual(
-            self.event.id, int(executed["data"]["updateEvent"]["event"]["id"]),
+            self.event.id, int(executed.data["updateEvent"]["event"]["id"]),
         )
         self.assertEqual(
-            self.event.name, executed["data"]["updateEvent"]["event"]["name"],
+            self.event.name, executed.data["updateEvent"]["event"]["name"],
         )
         self.assertEqual(
             self.event.description,
-            executed["data"]["updateEvent"]["event"]["description"],
+            executed.data["updateEvent"]["event"]["description"],
         )
         self.assertEqual(
-            self.event.rules, executed["data"]["updateEvent"]["event"]["rules"],
+            self.event.rules, executed.data["updateEvent"]["event"]["rules"],
         )
         self.assertEqual(
             self.event.expiration_date,
             datetime.strptime(
-                executed["data"]["updateEvent"]["event"]["expirationDate"],
+                executed.data["updateEvent"]["event"]["expirationDate"],
                 "%Y-%m-%dT%H:%M:%S%z",
             ),
-        )
-        mutation = """
-            mutation updateEvent(
-                $id: ID!,
-                $name: String!,
-                $description: String!,
-                $expirationDate: DateTime!,
-                $active: Boolean!
-            ) {{
-                updateEvent(
-                    id: $id,
-                    name: $name,
-                    description: $description,
-                    expirationDate: $expirationDate,
-                    active: $active
-                ) {{
-                    event{{
-                        {fields}
-                    }}
-                }}
-            }}
-        """.format(
-            fields=self.event_fields
         )
         event_name = "Upcoming event"
         description = "Description for the upcoming event"
@@ -874,20 +851,22 @@ class MutationTest(TestCase):
             mutation,
             context_value=self.context_value,
             variables=dict(
-                id=self.event.id,
-                name=event_name,
-                description=description,
-                expirationDate=expiration_date,
-                active=True,
+                eventInput=dict(
+                    id=self.event.id,
+                    name=event_name,
+                    description=description,
+                    expirationDate=expiration_date,
+                    active=True,
+                )
             ),
         )
         self.assertEqual(
-            event_name, executed["data"]["updateEvent"]["event"]["name"]
+            event_name, executed.data["updateEvent"]["event"]["name"]
         )
         self.assertEqual(
-            description, executed["data"]["updateEvent"]["event"]["description"]
+            description, executed.data["updateEvent"]["event"]["description"]
         )
-        self.assertTrue(executed["data"]["updateEvent"]["event"]["active"])
+        self.assertTrue(executed.data["updateEvent"]["event"]["active"])
 
     def test_03_create_quota(self):
         """
@@ -895,8 +874,8 @@ class MutationTest(TestCase):
         """
 
         mutation = """
-            mutation createQuota($input: CreateQuotaMutationInput!) {{
-                createQuota(input: $input) {{
+            mutation createQuota($quotaInput: QuotaCreationInput!) {{
+                createQuota(quotaInput: $quotaInput) {{
                     quota{{
                         id,
                         probability,
@@ -906,7 +885,6 @@ class MutationTest(TestCase):
                             {fields}
                         }}
                     }}
-                    clientMutationId,
                 }}
             }}
         """.format(
@@ -918,7 +896,7 @@ class MutationTest(TestCase):
             mutation,
             context_value=self.context_value,
             variables=dict(
-                input=dict(
+                quotaInput=dict(
                     probability=probability,
                     active=True,
                     expirationDate=expiration_date,
@@ -927,19 +905,19 @@ class MutationTest(TestCase):
             ),
         )
         self.assertEqual(
-            probability, executed["data"]["createQuota"]["quota"]["probability"]
+            probability, executed.data["createQuota"]["quota"]["probability"]
         )
-        self.assertTrue(executed["data"]["createQuota"]["quota"]["active"])
+        self.assertTrue(executed.data["createQuota"]["quota"]["active"])
         self.assertEqual(
             expiration_date,
             datetime.strptime(
-                executed["data"]["createQuota"]["quota"]["expirationDate"],
+                executed.data["createQuota"]["quota"]["expirationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
             self.event.id,
-            int(executed["data"]["createQuota"]["quota"]["event"]["id"]),
+            int(executed.data["createQuota"]["quota"]["event"]["id"]),
         )
 
     def test_04_update_quota(self):
@@ -947,9 +925,9 @@ class MutationTest(TestCase):
         This test evaluates updating a Quota via mutation.
         """
 
-        not_modifying_mutation = """
-            mutation updateQuota($id: ID!) {{
-                updateQuota(id: $id) {{
+        mutation = """
+            mutation updateQuota($quotaInput: QuotaUpdateInput!) {{
+                updateQuota(quotaInput: $quotaInput) {{
                     quota{{
                         id,
                         probability,
@@ -965,73 +943,52 @@ class MutationTest(TestCase):
             fields=self.event_fields
         )
         executed = self.client.execute(
-            not_modifying_mutation,
+            mutation,
             context_value=self.context_value,
-            variables=dict(id=self.quota.id),
+            variables=dict(quotaInput=dict(id=self.quota.id)),
         )
         self.assertEqual(
-            self.quota.id, int(executed["data"]["updateQuota"]["quota"]["id"]),
+            self.quota.id, int(executed.data["updateQuota"]["quota"]["id"]),
         )
         self.assertEqual(
             float(self.quota.probability),
-            executed["data"]["updateQuota"]["quota"]["probability"],
+            executed.data["updateQuota"]["quota"]["probability"],
         )
         self.assertEqual(
             self.quota.active,
-            executed["data"]["updateQuota"]["quota"]["active"],
+            executed.data["updateQuota"]["quota"]["active"],
         )
         self.assertEqual(
             self.quota.expiration_date,
             datetime.strptime(
-                executed["data"]["updateQuota"]["quota"]["expirationDate"],
+                executed.data["updateQuota"]["quota"]["expirationDate"],
                 "%Y-%m-%dT%H:%M:%S%z",
             ),
         )
         self.assertEqual(
             self.quota.event.id,
-            int(executed["data"]["updateQuota"]["quota"]["event"]["id"]),
-        )
-        mutation = """
-            mutation updateQuota(
-                $id: ID!,
-                $expirationDate: DateTime!,
-                $active: Boolean!,
-            ) {{
-                updateQuota(
-                    id: $id,
-                    expirationDate: $expirationDate,
-                    active: $active,
-                ) {{
-                    quota{{
-                        id,
-                        probability,
-                        active,
-                        expirationDate,
-                        event{{
-                            {fields}
-                        }}
-                    }}
-                }}
-            }}
-        """.format(
-            fields=self.event_fields
+            int(executed.data["updateQuota"]["quota"]["event"]["id"]),
         )
         expiration_date = timezone.now()
         executed = self.client.execute(
             mutation,
             context_value=self.context_value,
             variables=dict(
-                id=self.quota.id, expirationDate=expiration_date, active=False,
+                quotaInput=dict(
+                    id=self.quota.id,
+                    expirationDate=expiration_date,
+                    active=False,
+                )
             ),
         )
         self.assertEqual(
             expiration_date,
             datetime.strptime(
-                executed["data"]["updateQuota"]["quota"]["expirationDate"],
+                executed.data["updateQuota"]["quota"]["expirationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
-        self.assertFalse(executed["data"]["updateQuota"]["quota"]["active"])
+        self.assertFalse(executed.data["updateQuota"]["quota"]["active"])
 
     def test_05_delete_quota(self):
         """
@@ -1051,7 +1008,7 @@ class MutationTest(TestCase):
             context_value=self.context_value,
             variables=dict(id=self.quota.id),
         )
-        self.assertTrue(executed["data"]["deleteQuota"]["deleted"])
+        self.assertTrue(executed.data["deleteQuota"]["deleted"])
         self.assertEqual(Quota.objects.count(), before_deletion_count - 1)
 
     def test_06_delete_event(self):
@@ -1072,5 +1029,61 @@ class MutationTest(TestCase):
             context_value=self.context_value,
             variables=dict(id=self.event.id),
         )
-        self.assertTrue(executed["data"]["deleteEvent"]["deleted"])
+        self.assertTrue(executed.data["deleteEvent"]["deleted"])
         self.assertEqual(Event.objects.count(), before_deletion_count - 1)
+
+
+class NotLoggedInTest(JSONWebTokenTestCase):
+    def setUp(self):
+        self.request_factory = RequestFactory()
+        self.context_value = self.request_factory.get(reverse("graphql"))
+
+    def test_01_query(self):
+        """
+        This test evaluates the getAllEvents query without logging in.
+        """
+
+        query = """
+            query getAllEvents {
+                events: allEvents {
+                    id
+                }
+            }
+        """
+        result = self.client.execute(query)
+        self.assertEqual(
+            GraphQLLocatedError,
+            type(result.errors[0]),
+        )
+        self.assertIsNone(result.data["events"])
+
+    def test_02_mutation(self):
+        """
+        This test evaluates the createEvent query without logging in.
+        """
+
+        mutation = """
+            mutation createEvent($eventInput: EventCreationInput!) {
+                createEvent(eventInput: $eventInput) {
+                    event{
+                        id 
+                    }
+                }
+            }
+        """
+        result = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                eventInput=dict(
+                    name="Some name",
+                    description="Some description",
+                    expirationDate=datetime.now(),
+                )
+            )
+        )
+        self.assertEqual(
+            GraphQLLocatedError,
+            type(result.errors[0]),
+        )
+        self.assertIsNone(result.data["createEvent"])

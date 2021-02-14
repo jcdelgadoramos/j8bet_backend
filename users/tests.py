@@ -84,16 +84,8 @@ class CreateUserMutationTest(TestCase):
         """
 
         create_mutation = """
-            mutation creatingANewUser(
-                $username: String!,
-                $email: String!,
-                $password: String!
-            ) {
-                createUser (
-                    username: $username,
-                    email: $email,
-                    password: $password
-                ) {
+            mutation creatingANewUser($input: CreateUserMutationInput!) {
+                createUser (input: $input) {
                     user{
                         id,
                         username,
@@ -107,7 +99,9 @@ class CreateUserMutationTest(TestCase):
         email = "user@j8.com"
         executed = self.client.execute(
             create_mutation,
-            variables = dict(username=username, email=email, password=password), 
+            variables = dict(
+                input=dict(username=username, email=email, password=password)
+            )
         )
         self.assertEqual(username, executed["data"]["createUser"]["user"]["username"])
         self.assertEqual(email, executed["data"]["createUser"]["user"]["email"])

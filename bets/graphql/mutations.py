@@ -37,14 +37,7 @@ class CreateEventMutation(Mutation):
         :param event_input: Mutation input
         """
 
-        event = Event()
-        event.name = event_input.name
-        event.description = event_input.description
-        event.expiration_date = event_input.expiration_date
-        if event_input.active is not None:
-            event.active = event_input.active
-        event.completed = event_input.completed
-        event.save()
+        event = Event.objects.create(**event_input)
         return CreateEventMutation(event=event)
 
 
@@ -73,13 +66,8 @@ class CreateQuotaMutation(Mutation):
         :parma quota_input: Mutation input
         """
 
-        quota = Quota()
-        quota.probability = quota_input.probability
-        quota.expiration_date = quota_input.expiration_date
-        quota.event = Event.objects.get(id=quota_input.event)
-        if quota_input.active is not None:
-            quota.active = quota_input.active
-        quota.save()
+        quota_input["event"] = Event.objects.get(id=quota_input.event)
+        quota = Quota.objects.create(**quota_input)
         return CreateQuotaMutation(quota=quota)
 
 
@@ -108,17 +96,9 @@ class UpdateEventMutation(Mutation):
         :param event_input: Mutation input
         """
 
-        event = Event.objects.get(id=event_input.id)
-        if event_input.name:
-            event.name = event_input.name
-        if event_input.expiration_date:
-            event.expiration_date = event_input.expiration_date
-        if event_input.description:
-            event.description = event_input.description
-        if event_input.active is not None:
-            event.active = event_input.active
-        event.completed = event_input.completed
-        event.save()
+        event, _ = Event.objects.update_or_create(
+            id=event_input.id, defaults=event_input,
+        )
         return UpdateEventMutation(event=event)
 
 
@@ -147,12 +127,9 @@ class UpdateQuotaMutation(Mutation):
         :parma quota_input: Mutation input
         """
 
-        quota = Quota.objects.get(id=quota_input.id)
-        if quota_input.expiration_date:
-            quota.expiration_date = quota_input.expiration_date
-        if quota_input.active is not None:
-            quota.active = quota_input.active
-        quota.save()
+        quota, _ = Quota.objects.update_or_create(
+            id=quota_input.id, defaults=quota_input,
+        )
         return UpdateQuotaMutation(quota=quota)
 
 

@@ -84,7 +84,6 @@ GRAPHQL_JWT = {
     "JWT_REFRESH_EXPIRATION_DELTA": timedelta(days=7),
     "JWT_AUTH_HEADER_NAME": "Authorization",
     "JWT_AUTH_HEADER_PREFIX": "Bearer",
-
 }
 
 AUTHENTICATION_BACKENDS = [

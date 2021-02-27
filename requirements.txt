@@ -9,3 +9,5 @@ ipython==7.19.0
 django-extensions==3.1.0
 pyjwt==1.7.1
 django-graphql-jwt==0.3.1
+django-graphql-jwt==0.3.0
+django-graphql-auth==0.3.15

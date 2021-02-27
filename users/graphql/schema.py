@@ -1,18 +1,32 @@
 from graphene import ObjectType
-from graphql_jwt import (
-    DeleteJSONWebTokenCookie,
-    DeleteRefreshTokenCookie,
+from graphql_auth.schema import UserQuery, MeQuery
+from graphql_auth.mutations import (
+    ArchiveAccount,
+    DeleteAccount,
     ObtainJSONWebToken,
-    Refresh,
-    Verify,
+    PasswordChange,
+    PasswordReset,
+    PasswordSet,
+    RefreshToken,
+    Register,
+    RemoveSecondaryEmail,
+    ResendActivationEmail,
+    RevokeToken,
+    SendPasswordResetEmail,
+    SendSecondaryEmailActivation,
+    SwapEmails,
+    UpdateAccount,
+    VerifySecondaryEmail,
+    VerifyAccount,
+    VerifyToken,
 )
-from users.graphql.queries import UserQuery
+from users.graphql.queries import UserObjectQuery
 from users.graphql.mutations import CreateUserMutation
 
 
-class Query(UserQuery):
+class Query(MeQuery, UserObjectQuery, UserQuery):
     """
-    Class joining all Queries from User application
+    Class joining all Queries from User application with UserQuery and MeQuery
     """
 
     pass
@@ -20,12 +34,25 @@ class Query(UserQuery):
 
 class Mutation(ObjectType):
     """
-    Class joining all Mutations from User application and graphql_jwt
+    Class joining all Mutations from User application and graphql_auth
     """
 
-    token_auth = ObtainJSONWebToken.Field()
-    verify_token = Verify.Field()
-    refresh_token = Refresh.Field()
     create_user = CreateUserMutation.Field()
-    delete_token_cookie = DeleteJSONWebTokenCookie.Field()
-    delete_refresh_token_cookie = DeleteRefreshTokenCookie.Field()
+    register = Register.Field()
+    verify_account = VerifyAccount.Field()
+    resend_activation_email = ResendActivationEmail.Field()
+    send_password_reset_email = SendPasswordResetEmail.Field()
+    password_reset = PasswordReset.Field()
+    password_set = PasswordSet.Field()
+    password_change = PasswordChange.Field()
+    update_account = UpdateAccount.Field()
+    archive_account = ArchiveAccount.Field()
+    delete_account = DeleteAccount.Field()
+    send_secondary_email_activation =  SendSecondaryEmailActivation.Field()
+    verify_secondary_email = VerifySecondaryEmail.Field()
+    swap_emails = SwapEmails.Field()
+    remove_secondary_email = RemoveSecondaryEmail.Field()
+    token_auth = ObtainJSONWebToken.Field()
+    verify_token = VerifyToken.Field()
+    refresh_token = RefreshToken.Field()
+    revoke_token = RevokeToken.Field()

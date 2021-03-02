@@ -4,11 +4,12 @@ from bets.factories import BetFactory, EventFactory, QuotaFactory
 from bets.graphql.schema import Mutations as BetMutation
 from bets.graphql.schema import Queries as BetQuery
 from bets.models import Bet, Event, Prize, Quota
+from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
-from j8bet_backend.constants import BET_MANAGER, ALL_GROUPS
+from j8bet_backend.constants import ALL_GROUPS, BET_CONSUMER, BET_MANAGER
 from graphene import Schema
 from graphene.test import Client
 from graphql_jwt.testcases import JSONWebTokenTestCase
@@ -753,7 +754,7 @@ class QueryTest(JSONWebTokenTestCase):
         )
 
 
-class MutationTest(JSONWebTokenTestCase):
+class MutationAsManagerTest(JSONWebTokenTestCase):
     def setUp(self):
         self.groups = create_groups()
         self.event = EventFactory(active=True)
@@ -1047,6 +1048,65 @@ class MutationTest(JSONWebTokenTestCase):
         )
         self.assertTrue(executed.data["deleteEvent"]["deleted"])
         self.assertEqual(Event.objects.count(), before_deletion_count - 1)
+
+
+class MutationAsConsumerTest(JSONWebTokenTestCase):
+    def setUp(self):
+        self.groups = create_groups()
+        self.event = EventFactory(active=True)
+        self.quota = QuotaFactory(event=self.event, active=True)
+        self.event_fields = """
+            id,
+            name,
+            description,
+            rules,
+            creationDate,
+            modificationDate,
+            expirationDate,
+            active
+        """
+        self.request_factory = RequestFactory()
+        self.context_value = self.request_factory.get(reverse("graphql"))
+        self.user = UserFactory()
+        self.user.groups.add(self.groups[BET_CONSUMER])
+        self.client.authenticate(self.user)
+        super().setUp()
+
+    def test_01_execute_mutation(self):
+        """
+        This test tries creating an Event via mutation and should not do it.
+        """
+
+        mutation = """
+            mutation createEvent($eventInput: EventCreationInput!) {{
+                createEvent(eventInput: $eventInput) {{
+                    event{{
+                        {fields}
+                    }}
+                }}
+            }}
+        """.format(
+            fields=self.event_fields
+        )
+        event_name = "Upcoming event"
+        description = "Description for the upcoming event"
+        expiration_date = timezone.now()
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                eventInput=dict(
+                    name=event_name,
+                    description=description,
+                    expirationDate=expiration_date,
+                )
+            ),
+        )
+        self.assertEqual(
+            GraphQLLocatedError,
+            type(executed.errors[0]),
+        )
+        self.assertIsNone(executed.data["createEvent"])
 
 
 class NotLoggedInTest(JSONWebTokenTestCase):

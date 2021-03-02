@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 import os
+
+# from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -51,11 +53,14 @@ INSTALLED_APPS = [
 
 LOCAL_APPS = [
     "bets",
+    "users",
 ]
 
 THIRD_PARTY_APPS = [
     "graphene_django",
     "django_extensions",
+    "django_filters",
+    "graphql_auth",
 ]
 
 INSTALLED_APPS = INSTALLED_APPS + LOCAL_APPS + THIRD_PARTY_APPS
@@ -72,6 +77,32 @@ MIDDLEWARE = [
 
 GRAPHENE = {
     "SCHEMA": "j8bet_backend.graphql.api.schema",
+    "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware",],
+}
+
+AUTHENTICATION_BACKENDS = {
+    "graphql_auth.backends.GraphQLAuthBackend",
+    "django.contrib.auth.backends.ModelBackend",
+}
+
+GRAPHQL_JWT = {
+    # "JWT_ALLOW_ARGUMENT": True,
+    # "JWT_EXPIRATION_DELTA": timedelta(minutes=5),
+    # "JWT_REFRESH_EXPIRATION_DELTA": timedelta(days=7),
+    "JWT_AUTH_HEADER_PREFIX": "Bearer",
+    "JWT_VERIFY_EXPIRATION": True,
+    "JWT_ALLOW_ANY_CLASSES": [
+        "graphql_auth.mutations.Register",
+        "graphql_auth.mutations.VerifyAccount",
+        "graphql_auth.mutations.ResendActivationEmail",
+        "graphql_auth.mutations.SendPasswordResetEmail",
+        "graphql_auth.mutations.PasswordReset",
+        "graphql_auth.mutations.ObtainJSONWebToken",
+        "graphql_auth.mutations.VerifyToken",
+        "graphql_auth.mutations.RefreshToken",
+        "graphql_auth.mutations.RevokeToken",
+        "graphql_auth.mutations.VerifySecondaryEmail",
+    ],
 }
 
 ROOT_URLCONF = "j8bet_backend.urls"
@@ -127,6 +158,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/

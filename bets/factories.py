@@ -1,29 +1,25 @@
 import factory
 from bets.models import Bet, Event, Prize, Quota, Transaction
-from django.contrib.auth.models import User
 from django.utils import timezone
+from users.factories import UserFactory
 
 
-class UserFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = User
-
-    username = factory.Faker("user_name")
-
-
-class EventFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Event
-
-    name = factory.Faker("sentence", nb_words=4)
-    description = factory.Faker("paragraph")
-    rules = factory.Faker("paragraph")
+class AbstractDateFactory:
     creation_date = factory.Faker(
         "date_time", tzinfo=timezone.get_current_timezone()
     )
     modification_date = factory.Faker(
         "date_time", tzinfo=timezone.get_current_timezone()
     )
+
+
+class EventFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
+    class Meta:
+        model = Event
+
+    name = factory.Faker("sentence", nb_words=4)
+    description = factory.Faker("paragraph")
+    rules = factory.Faker("paragraph")
     expiration_date = factory.Faker(
         "date_time", tzinfo=timezone.get_current_timezone()
     )
@@ -31,21 +27,17 @@ class EventFactory(factory.django.DjangoModelFactory):
     completed = factory.Faker("pybool")
 
 
-class TransactionFactory(factory.django.DjangoModelFactory):
+class TransactionFactory(
+    AbstractDateFactory, factory.django.DjangoModelFactory,
+):
     class Meta:
         model = Transaction
 
     amount = factory.Faker("pydecimal", min_value=0, right_digits=2)
     description = factory.Faker("sentence", nb_words=4)
-    creation_date = factory.Faker(
-        "date_time", tzinfo=timezone.get_current_timezone()
-    )
-    modification_date = factory.Faker(
-        "date_time", tzinfo=timezone.get_current_timezone()
-    )
 
 
-class QuotaFactory(factory.django.DjangoModelFactory):
+class QuotaFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
     class Meta:
         model = Quota
 
@@ -53,19 +45,13 @@ class QuotaFactory(factory.django.DjangoModelFactory):
     probability = factory.Faker(
         "pydecimal", min_value=0, max_value=1, right_digits=5
     )
-    creation_date = factory.Faker(
-        "date_time", tzinfo=timezone.get_current_timezone()
-    )
-    modification_date = factory.Faker(
-        "date_time", tzinfo=timezone.get_current_timezone()
-    )
     expiration_date = factory.Faker(
         "date_time", tzinfo=timezone.get_current_timezone()
     )
     active = factory.Faker("pybool")
 
 
-class BetFactory(factory.django.DjangoModelFactory):
+class BetFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
     class Meta:
         model = Bet
 
@@ -74,12 +60,6 @@ class BetFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     potential_earnings = factory.Faker("pydecimal", min_value=0)
     won = factory.Faker("pybool")
-    creation_date = factory.Faker(
-        "date_time", tzinfo=timezone.get_current_timezone()
-    )
-    modification_date = factory.Faker(
-        "date_time", tzinfo=timezone.get_current_timezone()
-    )
     active = factory.Faker("pybool")
 
 

@@ -19,7 +19,7 @@ from graphql_auth.mutations import (
     VerifySecondaryEmail,
     VerifyToken,
 )
-from graphql_auth.schema import UserQuery, MeQuery
+from graphql_auth.schema import MeQuery, UserQuery
 from users.graphql.mutations import CreateUserMutation
 from users.graphql.queries import UserObjectQuery
 

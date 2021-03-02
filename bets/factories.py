@@ -27,7 +27,9 @@ class EventFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
     completed = factory.Faker("pybool")
 
 
-class TransactionFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
+class TransactionFactory(
+    AbstractDateFactory, factory.django.DjangoModelFactory,
+):
     class Meta:
         model = Transaction
 

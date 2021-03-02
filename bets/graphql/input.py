@@ -1,11 +1,5 @@
-from graphene import (
-    ID,
-    Boolean,
-    DateTime,
-    Decimal,
-    InputObjectType,
-    String,
-)
+from graphene import ID, Boolean, DateTime, Decimal, InputObjectType, String
+
 
 class EventCreationInput(InputObjectType):
     """

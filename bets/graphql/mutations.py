@@ -6,7 +6,7 @@ from bets.graphql.input import (
 )
 from bets.graphql.types import EventType, QuotaType
 from bets.models import Event, Quota
-from graphene import ID, Boolean, DateTime, Field, Mutation
+from graphene import ID, Boolean, Field, Mutation
 from j8bet_backend.decorators import bet_manager
 
 
@@ -21,7 +21,7 @@ class CreateEventMutation(Mutation):
 
     class Arguments:
         """
-        Arguments for Event creation 
+        Arguments for Event creation
         """
 
         event_input = EventCreationInput(required=True)

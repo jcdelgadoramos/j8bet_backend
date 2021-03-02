@@ -1,5 +1,4 @@
 from graphene import ObjectType
-from graphql_auth.schema import UserQuery, MeQuery
 from graphql_auth.mutations import (
     ArchiveAccount,
     DeleteAccount,
@@ -20,8 +19,9 @@ from graphql_auth.mutations import (
     VerifySecondaryEmail,
     VerifyToken,
 )
-from users.graphql.queries import UserObjectQuery
+from graphql_auth.schema import UserQuery, MeQuery
 from users.graphql.mutations import CreateUserMutation
+from users.graphql.queries import UserObjectQuery
 
 
 class Query(MeQuery, UserObjectQuery, UserQuery):

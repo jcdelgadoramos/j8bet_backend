@@ -9,7 +9,7 @@ from django.utils import timezone
 from graphql.error.located_error import GraphQLLocatedError
 from graphql_jwt.testcases import JSONWebTokenTestCase
 from j8bet_backend.constants import ALL_GROUPS, BET_CONSUMER, BET_MANAGER
-from users.factories import UserFactory, GroupFactory
+from users.factories import GroupFactory, UserFactory
 
 
 def create_groups():
@@ -1135,7 +1135,7 @@ class NotLoggedInTest(JSONWebTokenTestCase):
             mutation createEvent($eventInput: EventCreationInput!) {
                 createEvent(eventInput: $eventInput) {
                     event{
-                        id 
+                        id
                     }
                 }
             }
@@ -1149,7 +1149,7 @@ class NotLoggedInTest(JSONWebTokenTestCase):
                     description="Some description",
                     expirationDate=datetime.now(),
                 )
-            )
+            ),
         )
         self.assertEqual(
             GraphQLLocatedError, type(result.errors[0]),

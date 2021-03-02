@@ -8,8 +8,8 @@ from bets.graphql.input import (
 from bets.graphql.types import EventType, QuotaType
 from bets.models import Event, Quota
 from datetime import datetime, date
+from j8bet_backend.decorators import bet_manager
 from graphene import ID, Boolean, DateTime, Decimal, Field, Mutation, String
-from graphql_jwt.decorators import login_required
 
 
 class CreateEventMutation(Mutation):
@@ -28,7 +28,7 @@ class CreateEventMutation(Mutation):
 
         event_input = EventCreationInput(required=True)
 
-    @login_required
+    @bet_manager
     def mutate(self, info, event_input):
         """
         Mutation function.
@@ -57,7 +57,7 @@ class CreateQuotaMutation(Mutation):
 
         quota_input = QuotaCreationInput(required=True)
 
-    @login_required
+    @bet_manager
     def mutate(self, info, quota_input):
         """
         Mutation function.
@@ -87,7 +87,7 @@ class UpdateEventMutation(Mutation):
 
         event_input = EventUpdateInput(required=True)
 
-    @login_required
+    @bet_manager
     def mutate(self, info, event_input):
         """
         Mutation function.
@@ -118,7 +118,7 @@ class UpdateQuotaMutation(Mutation):
 
         quota_input = QuotaUpdateInput(required=True)
 
-    @login_required
+    @bet_manager
     def mutate(self, info, quota_input):
         """
         Mutation function.
@@ -143,7 +143,7 @@ class DeleteEventMutation(Mutation):
 
         id = ID()
 
-    @login_required
+    @bet_manager
     def mutate(self, info, id):
 
         Event.objects.filter(id=id).delete()
@@ -160,7 +160,7 @@ class DeleteQuotaMutation(Mutation):
 
         id = ID()
 
-    @login_required
+    @bet_manager
     def mutate(self, info, id):
 
         Quota.objects.filter(id=id).delete()

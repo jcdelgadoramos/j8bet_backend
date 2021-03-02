@@ -8,11 +8,25 @@ from django.core.exceptions import ValidationError
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
+from j8bet_backend.constants import BET_MANAGER, ALL_GROUPS
 from graphene import Schema
 from graphene.test import Client
 from graphql_jwt.testcases import JSONWebTokenTestCase
 from graphql.error.located_error import GraphQLLocatedError
-from users.factories import UserFactory
+from users.factories import UserFactory, GroupFactory
+
+def create_groups():
+    """
+    Function which creates the different user groups used in J8Bet.
+
+    :return: Dict with GroupFactory objects created.
+    """
+
+    groups = dict()
+    for group in ALL_GROUPS:
+        groups[group] = GroupFactory(name=group)
+
+    return groups
 
 
 class BetModelsTest(TestCase):
@@ -741,6 +755,7 @@ class QueryTest(JSONWebTokenTestCase):
 
 class MutationTest(JSONWebTokenTestCase):
     def setUp(self):
+        self.groups = create_groups()
         self.event = EventFactory(active=True)
         self.quota = QuotaFactory(event=self.event, active=True)
         self.event_fields = """
@@ -756,6 +771,7 @@ class MutationTest(JSONWebTokenTestCase):
         self.request_factory = RequestFactory()
         self.context_value = self.request_factory.get(reverse("graphql"))
         self.user = UserFactory()
+        self.user.groups.add(self.groups[BET_MANAGER])
         self.client.authenticate(self.user)
         super().setUp()
 

@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 import os
+# from datetime import timedelta
 from pathlib import Path
-from datetime import timedelta
 
 import environ
 from django.conf.locale.es import formats as es_formats
@@ -76,9 +76,7 @@ MIDDLEWARE = [
 
 GRAPHENE = {
     "SCHEMA": "j8bet_backend.graphql.api.schema",
-    "MIDDLEWARE": [
-        "graphql_jwt.middleware.JSONWebTokenMiddleware",
-    ],
+    "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware",],
 }
 
 AUTHENTICATION_BACKENDS = {

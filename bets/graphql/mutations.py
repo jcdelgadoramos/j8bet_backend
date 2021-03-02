@@ -1,4 +1,3 @@
-from bets.forms import EventForm, QuotaForm
 from bets.graphql.input import (
     EventCreationInput,
     EventUpdateInput,
@@ -7,9 +6,8 @@ from bets.graphql.input import (
 )
 from bets.graphql.types import EventType, QuotaType
 from bets.models import Event, Quota
-from datetime import datetime, date
+from graphene import ID, Boolean, DateTime, Field, Mutation
 from j8bet_backend.decorators import bet_manager
-from graphene import ID, Boolean, DateTime, Decimal, Field, Mutation, String
 
 
 class CreateEventMutation(Mutation):

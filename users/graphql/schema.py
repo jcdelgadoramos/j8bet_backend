@@ -16,8 +16,8 @@ from graphql_auth.mutations import (
     SendSecondaryEmailActivation,
     SwapEmails,
     UpdateAccount,
-    VerifySecondaryEmail,
     VerifyAccount,
+    VerifySecondaryEmail,
     VerifyToken,
 )
 from users.graphql.queries import UserObjectQuery
@@ -48,7 +48,7 @@ class Mutation(ObjectType):
     update_account = UpdateAccount.Field()
     archive_account = ArchiveAccount.Field()
     delete_account = DeleteAccount.Field()
-    send_secondary_email_activation =  SendSecondaryEmailActivation.Field()
+    send_secondary_email_activation = SendSecondaryEmailActivation.Field()
     verify_secondary_email = VerifySecondaryEmail.Field()
     swap_emails = SwapEmails.Field()
     remove_secondary_email = RemoveSecondaryEmail.Field()

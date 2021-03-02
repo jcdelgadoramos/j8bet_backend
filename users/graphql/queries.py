@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from graphene import Field, ID, List, ObjectType, String
+from graphene import ID, Field, List, ObjectType, String
 from users.graphql.types import UserType
 
 

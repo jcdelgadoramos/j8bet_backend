@@ -9,4 +9,9 @@ class UserType(DjangoObjectType):
 
     class Meta:
         model = get_user_model()
-        fields = ['id', 'username', 'password', 'email',]
+        fields = [
+            "id",
+            "username",
+            "password",
+            "email",
+        ]

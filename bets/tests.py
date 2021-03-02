@@ -1,20 +1,16 @@
 from datetime import datetime
 
 from bets.factories import BetFactory, EventFactory, QuotaFactory
-from bets.graphql.schema import Mutations as BetMutation
-from bets.graphql.schema import Queries as BetQuery
 from bets.models import Bet, Event, Prize, Quota
-from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
-from j8bet_backend.constants import ALL_GROUPS, BET_CONSUMER, BET_MANAGER
-from graphene import Schema
-from graphene.test import Client
-from graphql_jwt.testcases import JSONWebTokenTestCase
 from graphql.error.located_error import GraphQLLocatedError
+from graphql_jwt.testcases import JSONWebTokenTestCase
+from j8bet_backend.constants import ALL_GROUPS, BET_CONSUMER, BET_MANAGER
 from users.factories import UserFactory, GroupFactory
+
 
 def create_groups():
     """
@@ -972,8 +968,7 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
             executed.data["updateQuota"]["quota"]["probability"],
         )
         self.assertEqual(
-            self.quota.active,
-            executed.data["updateQuota"]["quota"]["active"],
+            self.quota.active, executed.data["updateQuota"]["quota"]["active"],
         )
         self.assertEqual(
             self.quota.expiration_date,
@@ -1103,8 +1098,7 @@ class MutationAsConsumerTest(JSONWebTokenTestCase):
             ),
         )
         self.assertEqual(
-            GraphQLLocatedError,
-            type(executed.errors[0]),
+            GraphQLLocatedError, type(executed.errors[0]),
         )
         self.assertIsNone(executed.data["createEvent"])
 
@@ -1128,8 +1122,7 @@ class NotLoggedInTest(JSONWebTokenTestCase):
         """
         result = self.client.execute(query)
         self.assertEqual(
-            GraphQLLocatedError,
-            type(result.errors[0]),
+            GraphQLLocatedError, type(result.errors[0]),
         )
         self.assertIsNone(result.data["events"])
 
@@ -1159,7 +1152,6 @@ class NotLoggedInTest(JSONWebTokenTestCase):
             )
         )
         self.assertEqual(
-            GraphQLLocatedError,
-            type(result.errors[0]),
+            GraphQLLocatedError, type(result.errors[0]),
         )
         self.assertIsNone(result.data["createEvent"])

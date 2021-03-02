@@ -7,6 +7,7 @@ from users.factories import UserFactory
 from users.graphql.schema import Mutation as UserMutation
 from users.graphql.schema import Query as UserQuery
 
+
 class QueryTest(JSONWebTokenTestCase):
     def setUp(self):
         self.user = UserFactory()
@@ -44,14 +45,12 @@ class QueryTest(JSONWebTokenTestCase):
                     email
                 }}
             }}
-        """.format(id=self.user.id)
+        """.format(
+            id=self.user.id,
+        )
         result = self.client.execute(query_by_id)
-        self.assertEqual(
-            self.user.id, int(result.data["user"]["id"])
-        )
-        self.assertEqual(
-            self.user.username, result.data["user"]["username"]
-        )
+        self.assertEqual(self.user.id, int(result.data["user"]["id"]))
+        self.assertEqual(self.user.username, result.data["user"]["username"])
         query_by_username = """
             query getUserByUsername {{
                 user: userByUsername(username: \"{username}\") {{
@@ -60,14 +59,12 @@ class QueryTest(JSONWebTokenTestCase):
                     email
                 }}
             }}
-        """.format(username=self.user.username)
+        """.format(
+            username=self.user.username,
+        )
         result = self.client.execute(query_by_username)
-        self.assertEqual(
-            self.user.id, int(result.data["user"]["id"])
-        )
-        self.assertEqual(
-            self.user.username, result.data["user"]["username"]
-        )
+        self.assertEqual(self.user.id, int(result.data["user"]["id"]))
+        self.assertEqual(self.user.username, result.data["user"]["username"])
 
 
 class CreateUserMutationTest(TestCase):
@@ -99,9 +96,11 @@ class CreateUserMutationTest(TestCase):
         email = "user@j8.com"
         executed = self.client.execute(
             create_mutation,
-            variables = dict(
+            variables=dict(
                 input=dict(username=username, email=email, password=password)
-            )
+            ),
         )
-        self.assertEqual(username, executed["data"]["createUser"]["user"]["username"])
+        self.assertEqual(
+            username, executed["data"]["createUser"]["user"]["username"],
+        )
         self.assertEqual(email, executed["data"]["createUser"]["user"]["email"])

@@ -1,9 +1,9 @@
 from graphql_jwt.decorators import user_passes_test
 from j8bet_backend.constants import (
-    APPLICATION_MANAGER,
-    BET_CONSUMER,
+    # APPLICATION_MANAGER,
+    # BET_CONSUMER,
     BET_MANAGER,
-    MANAGER_GROUPS,
+    # MANAGER_GROUPS,
 )
 
 # The following decorators will remain commented until they're used
@@ -20,8 +20,7 @@ from j8bet_backend.constants import (
 # )
 
 bet_manager = user_passes_test(
-    lambda u: u.is_authenticated and
-        u.groups.filter(name=BET_MANAGER).exists()
+    lambda u: u.is_authenticated and u.groups.filter(name=BET_MANAGER).exists()
 )
 
 # is_manager = user_passes_test(

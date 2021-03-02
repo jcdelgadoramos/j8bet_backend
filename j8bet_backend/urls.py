@@ -23,6 +23,6 @@ urlpatterns = [
     path(
         "graphql",
         csrf_exempt(GraphQLView.as_view(graphiql=True)),
-        name="graphql"
+        name="graphql",
     ),
 ]

@@ -4,7 +4,6 @@ from django.contrib.auth.models import Group
 
 
 class UserFactory(factory.django.DjangoModelFactory):
-
     class Meta:
         model = get_user_model()
 
@@ -12,6 +11,5 @@ class UserFactory(factory.django.DjangoModelFactory):
 
 
 class GroupFactory(factory.django.DjangoModelFactory):
-
     class Meta:
         model = Group

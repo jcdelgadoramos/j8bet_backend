@@ -747,6 +747,7 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
     def setUp(self):
         self.bet_manager_group = Group.objects.get(name=BET_MANAGER)
         self.user = UserFactory.create(groups=(self.bet_manager_group,))
+        self.manager = UserFactory.create(groups=(self.bet_manager_group,))
         self.event = EventFactory(active=True, manager=self.user)
         self.quota = QuotaFactory(
             event=self.event, active=True, manager=self.user
@@ -875,6 +876,27 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         )
         self.assertTrue(executed.data["updateEvent"]["event"]["active"])
 
+        # Authenticate with a different manager and test that changes are not
+        # allowed
+        self.client.authenticate(self.manager)
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                eventInput=dict(
+                    id=self.event.id,
+                    name=event_name,
+                    description=description,
+                    expirationDate=expiration_date,
+                    active=True,
+                )
+            ),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(executed.errors[0]),
+        )
+        self.assertIsNone(executed.data["updateEvent"])
+
     def test_03_create_quota(self):
         """
         This test evaluates creating a Quota via mutation.
@@ -995,6 +1017,26 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
             ),
         )
         self.assertFalse(executed.data["updateQuota"]["quota"]["active"])
+        
+        # Authenticate with a different manager and test that changes are not
+        # allowed
+        self.client.authenticate(self.manager)
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                quotaInput=dict(
+                    id=self.quota.id,
+                    expirationDate=expiration_date,
+                    active=False,
+                )
+            ),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(executed.errors[0]),
+        )
+        self.assertIsNone(executed.data["updateQuota"])
+
 
     def test_05_delete_quota(self):
         """
@@ -1017,6 +1059,19 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         self.assertTrue(executed.data["deleteQuota"]["deleted"])
         self.assertEqual(Quota.objects.count(), before_deletion_count - 1)
 
+        # Authenticate with a different manager and test that deletions are not
+        # allowed
+        self.client.authenticate(self.manager)
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(id=self.quota.id),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(executed.errors[0]),
+        )
+        self.assertIsNone(executed.data["deleteQuota"])
+
     def test_06_delete_event(self):
         """
         This test evaluates deleting an Event via mutation.
@@ -1037,6 +1092,19 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         )
         self.assertTrue(executed.data["deleteEvent"]["deleted"])
         self.assertEqual(Event.objects.count(), before_deletion_count - 1)
+
+        # Authenticate with a different manager and test that deletions are not
+        # allowed
+        self.client.authenticate(self.manager)
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(id=self.event.id),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(executed.errors[0]),
+        )
+        self.assertIsNone(executed.data["deleteEvent"])
 
 
 class MutationAsConsumerTest(JSONWebTokenTestCase):

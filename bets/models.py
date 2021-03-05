@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.conf import settings 
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -12,6 +12,12 @@ class Event(models.Model):
     An Event is the situation on which a bet will be placed.
     """
 
+    manager = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="Administrador",
+        on_delete=models.CASCADE,
+        related_name="events",
+    )
     name = models.CharField("Nombre", max_length=255)
     description = models.TextField("Descripción", null=False, blank=False)
     rules = models.TextField("Reglas", null=True, blank=True)
@@ -83,6 +89,12 @@ class Transaction(models.Model):
     A Transaction is an action describing a money transference.
     """
 
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="Apostador",
+        on_delete=models.CASCADE,
+        related_name="transactions",
+    )
     amount = models.DecimalField("Monto", max_digits=10, decimal_places=2)
     description = models.CharField("Descripción", max_length=255)
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
@@ -105,6 +117,12 @@ class Quota(models.Model):
     Event of happening.
     """
 
+    manager = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="Administrador",
+        on_delete=models.CASCADE,
+        related_name="quotas",
+    )
     event = models.ForeignKey(
         Event,
         verbose_name="Evento",
@@ -163,8 +181,8 @@ class Bet(models.Model):
         related_name="bets",
     )
     user = models.ForeignKey(
-        User,
-        verbose_name="Usuario",
+        settings.AUTH_USER_MODEL,
+        verbose_name="Apostador",
         on_delete=models.CASCADE,
         related_name="bets",
     )
@@ -213,8 +231,8 @@ class Prize(models.Model):
         related_name="prizes",
     )
     user = models.ForeignKey(
-        User,
-        verbose_name="Usuario",
+        settings.AUTH_USER_MODEL,
+        verbose_name="Apostador",
         on_delete=models.CASCADE,
         related_name="prizes",
     )

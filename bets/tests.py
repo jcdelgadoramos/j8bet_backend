@@ -2,28 +2,15 @@ from datetime import datetime
 
 from bets.factories import BetFactory, EventFactory, QuotaFactory
 from bets.models import Bet, Event, Prize, Quota
+from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
 from graphql.error.located_error import GraphQLLocatedError
 from graphql_jwt.testcases import JSONWebTokenTestCase
-from j8bet_backend.constants import ALL_GROUPS, BET_CONSUMER, BET_MANAGER
-from users.factories import GroupFactory, UserFactory
-
-
-def create_groups():
-    """
-    Function which creates the different user groups used in J8Bet.
-
-    :return: Dict with GroupFactory objects created.
-    """
-
-    groups = dict()
-    for group in ALL_GROUPS:
-        groups[group] = GroupFactory(name=group)
-
-    return groups
+from j8bet_backend.constants import BET_CONSUMER, BET_MANAGER
+from users.factories import UserFactory
 
 
 class BetModelsTest(TestCase):
@@ -32,9 +19,15 @@ class BetModelsTest(TestCase):
     """
 
     def setUp(self):
-        self.event = EventFactory(active=True)
-        self.first_quota = QuotaFactory(event=self.event, active=True)
-        self.second_quota = QuotaFactory(event=self.event, active=True)
+        self.bet_manager_group = Group.objects.get(name=BET_MANAGER)
+        self.bet_manager = UserFactory.create(groups=(self.bet_manager_group,))
+        self.event = EventFactory(active=True, manager=self.bet_manager)
+        self.first_quota = QuotaFactory(
+            event=self.event, active=True, manager=self.bet_manager
+        )
+        self.second_quota = QuotaFactory(
+            event=self.event, active=True, manager=self.bet_manager
+        )
         self.first_quota.refresh_from_db()
         self.second_quota.refresh_from_db()
         super().setUp()
@@ -752,9 +745,13 @@ class QueryTest(JSONWebTokenTestCase):
 
 class MutationAsManagerTest(JSONWebTokenTestCase):
     def setUp(self):
-        self.groups = create_groups()
-        self.event = EventFactory(active=True)
-        self.quota = QuotaFactory(event=self.event, active=True)
+        self.bet_manager_group = Group.objects.get(name=BET_MANAGER)
+        self.user = UserFactory.create(groups=(self.bet_manager_group,))
+        self.manager = UserFactory.create(groups=(self.bet_manager_group,))
+        self.event = EventFactory(active=True, manager=self.user)
+        self.quota = QuotaFactory(
+            event=self.event, active=True, manager=self.user
+        )
         self.event_fields = """
             id,
             name,
@@ -767,8 +764,6 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         """
         self.request_factory = RequestFactory()
         self.context_value = self.request_factory.get(reverse("graphql"))
-        self.user = UserFactory()
-        self.user.groups.add(self.groups[BET_MANAGER])
         self.client.authenticate(self.user)
         super().setUp()
 
@@ -880,6 +875,27 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
             description, executed.data["updateEvent"]["event"]["description"]
         )
         self.assertTrue(executed.data["updateEvent"]["event"]["active"])
+
+        # Authenticate with a different manager and test that changes are not
+        # allowed
+        self.client.authenticate(self.manager)
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                eventInput=dict(
+                    id=self.event.id,
+                    name=event_name,
+                    description=description,
+                    expirationDate=expiration_date,
+                    active=True,
+                )
+            ),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(executed.errors[0]),
+        )
+        self.assertIsNone(executed.data["updateEvent"])
 
     def test_03_create_quota(self):
         """
@@ -1002,6 +1018,25 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         )
         self.assertFalse(executed.data["updateQuota"]["quota"]["active"])
 
+        # Authenticate with a different manager and test that changes are not
+        # allowed
+        self.client.authenticate(self.manager)
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                quotaInput=dict(
+                    id=self.quota.id,
+                    expirationDate=expiration_date,
+                    active=False,
+                )
+            ),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(executed.errors[0]),
+        )
+        self.assertIsNone(executed.data["updateQuota"])
+
     def test_05_delete_quota(self):
         """
         This test evaluates deleting a Quota via mutation.
@@ -1022,6 +1057,19 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         )
         self.assertTrue(executed.data["deleteQuota"]["deleted"])
         self.assertEqual(Quota.objects.count(), before_deletion_count - 1)
+
+        # Authenticate with a different manager and test that deletions are not
+        # allowed
+        self.client.authenticate(self.manager)
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(id=self.quota.id),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(executed.errors[0]),
+        )
+        self.assertIsNone(executed.data["deleteQuota"])
 
     def test_06_delete_event(self):
         """
@@ -1044,10 +1092,22 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         self.assertTrue(executed.data["deleteEvent"]["deleted"])
         self.assertEqual(Event.objects.count(), before_deletion_count - 1)
 
+        # Authenticate with a different manager and test that deletions are not
+        # allowed
+        self.client.authenticate(self.manager)
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(id=self.event.id),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(executed.errors[0]),
+        )
+        self.assertIsNone(executed.data["deleteEvent"])
+
 
 class MutationAsConsumerTest(JSONWebTokenTestCase):
     def setUp(self):
-        self.groups = create_groups()
         self.event = EventFactory(active=True)
         self.quota = QuotaFactory(event=self.event, active=True)
         self.event_fields = """
@@ -1062,8 +1122,8 @@ class MutationAsConsumerTest(JSONWebTokenTestCase):
         """
         self.request_factory = RequestFactory()
         self.context_value = self.request_factory.get(reverse("graphql"))
-        self.user = UserFactory()
-        self.user.groups.add(self.groups[BET_CONSUMER])
+        self.bet_manager_group = Group.objects.get(name=BET_CONSUMER)
+        self.user = UserFactory.create(groups=(self.bet_manager_group,))
         self.client.authenticate(self.user)
         super().setUp()
 

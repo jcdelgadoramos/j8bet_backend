@@ -1,7 +1,7 @@
 import factory
 from bets.models import Bet, Event, Prize, Quota, Transaction
 from django.utils import timezone
-from users.factories import UserFactory
+from users.factories import UserFactory, GroupFactory
 
 
 class AbstractDateFactory:
@@ -17,6 +17,7 @@ class EventFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
     class Meta:
         model = Event
 
+    manager = factory.SubFactory(UserFactory)
     name = factory.Faker("sentence", nb_words=4)
     description = factory.Faker("paragraph")
     rules = factory.Faker("paragraph")
@@ -33,6 +34,7 @@ class TransactionFactory(
     class Meta:
         model = Transaction
 
+    user = factory.SubFactory(UserFactory)
     amount = factory.Faker("pydecimal", min_value=0, right_digits=2)
     description = factory.Faker("sentence", nb_words=4)
 
@@ -41,6 +43,7 @@ class QuotaFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
     class Meta:
         model = Quota
 
+    manager = factory.SubFactory(UserFactory)
     event = factory.SubFactory(EventFactory)
     probability = factory.Faker(
         "pydecimal", min_value=0, max_value=1, right_digits=5

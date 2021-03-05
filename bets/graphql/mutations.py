@@ -66,7 +66,7 @@ class CreateQuotaMutation(Mutation):
         :parma quota_input: Mutation input
         """
 
-        event_input['manager'] = info.context.user
+        quota_input['manager'] = info.context.user
         quota_input["event"] = Event.objects.get(id=quota_input.event)
         quota = Quota.objects.create(**quota_input)
         return CreateQuotaMutation(quota=quota)
@@ -134,7 +134,7 @@ class UpdateQuotaMutation(Mutation):
         """
 
         if not Quota.objects.filter(
-            id=event_input.id,
+            id=quota_input.id,
             manager=info.context.user
         ).count():
             raise GraphQLError("The quota must belong to the bet manager.")

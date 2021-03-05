@@ -2,6 +2,7 @@ from datetime import datetime
 
 from bets.factories import BetFactory, EventFactory, QuotaFactory
 from bets.models import Bet, Event, Prize, Quota
+from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
@@ -12,29 +13,21 @@ from j8bet_backend.constants import ALL_GROUPS, BET_CONSUMER, BET_MANAGER
 from users.factories import GroupFactory, UserFactory
 
 
-def create_groups():
-    """
-    Function which creates the different user groups used in J8Bet.
-
-    :return: Dict with GroupFactory objects created.
-    """
-
-    groups = dict()
-    for group in ALL_GROUPS:
-        groups[group] = GroupFactory(name=group)
-
-    return groups
-
-
 class BetModelsTest(TestCase):
     """
     This class contains tests performed on Models in Bets application.
     """
 
     def setUp(self):
-        self.event = EventFactory(active=True)
-        self.first_quota = QuotaFactory(event=self.event, active=True)
-        self.second_quota = QuotaFactory(event=self.event, active=True)
+        self.bet_manager_group = Group.objects.get(name=BET_MANAGER)
+        self.bet_manager = UserFactory.create(groups=(self.bet_manager_group,))
+        self.event = EventFactory(active=True, manager=self.bet_manager)
+        self.first_quota = QuotaFactory(
+            event=self.event, active=True, manager=self.bet_manager
+        )
+        self.second_quota = QuotaFactory(
+            event=self.event, active=True, manager=self.bet_manager
+        )
         self.first_quota.refresh_from_db()
         self.second_quota.refresh_from_db()
         super().setUp()
@@ -752,9 +745,12 @@ class QueryTest(JSONWebTokenTestCase):
 
 class MutationAsManagerTest(JSONWebTokenTestCase):
     def setUp(self):
-        self.groups = create_groups()
-        self.event = EventFactory(active=True)
-        self.quota = QuotaFactory(event=self.event, active=True)
+        self.bet_manager_group = Group.objects.get(name=BET_MANAGER)
+        self.user = UserFactory.create(groups=(self.bet_manager_group,))
+        self.event = EventFactory(active=True, manager=self.user)
+        self.quota = QuotaFactory(
+            event=self.event, active=True, manager=self.user
+        )
         self.event_fields = """
             id,
             name,
@@ -767,8 +763,6 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         """
         self.request_factory = RequestFactory()
         self.context_value = self.request_factory.get(reverse("graphql"))
-        self.user = UserFactory()
-        self.user.groups.add(self.groups[BET_MANAGER])
         self.client.authenticate(self.user)
         super().setUp()
 
@@ -1047,7 +1041,6 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
 
 class MutationAsConsumerTest(JSONWebTokenTestCase):
     def setUp(self):
-        self.groups = create_groups()
         self.event = EventFactory(active=True)
         self.quota = QuotaFactory(event=self.event, active=True)
         self.event_fields = """
@@ -1062,8 +1055,8 @@ class MutationAsConsumerTest(JSONWebTokenTestCase):
         """
         self.request_factory = RequestFactory()
         self.context_value = self.request_factory.get(reverse("graphql"))
-        self.user = UserFactory()
-        self.user.groups.add(self.groups[BET_CONSUMER])
+        self.bet_manager_group = Group.objects.get(name=BET_CONSUMER)
+        self.user = UserFactory.create(groups=(self.bet_manager_group,))
         self.client.authenticate(self.user)
         super().setUp()
 

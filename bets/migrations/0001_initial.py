@@ -179,10 +179,7 @@ class Migration(migrations.Migration):
                     models.BooleanField(default=True, verbose_name="Activo"),
                 ),
             ],
-            options={
-                "verbose_name": "Cuota",
-                "verbose_name_plural": "Cuotas",
-            },
+            options={"verbose_name": "Cuota", "verbose_name_plural": "Cuotas",},
         ),
         migrations.CreateModel(
             name="Transaction",

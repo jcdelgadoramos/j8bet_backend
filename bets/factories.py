@@ -1,7 +1,7 @@
 import factory
 from bets.models import Bet, Event, Prize, Quota, Transaction
 from django.utils import timezone
-from users.factories import UserFactory, GroupFactory
+from users.factories import UserFactory
 
 
 class AbstractDateFactory:

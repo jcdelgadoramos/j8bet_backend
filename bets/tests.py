@@ -9,8 +9,8 @@ from django.urls import reverse
 from django.utils import timezone
 from graphql.error.located_error import GraphQLLocatedError
 from graphql_jwt.testcases import JSONWebTokenTestCase
-from j8bet_backend.constants import ALL_GROUPS, BET_CONSUMER, BET_MANAGER
-from users.factories import GroupFactory, UserFactory
+from j8bet_backend.constants import BET_CONSUMER, BET_MANAGER
+from users.factories import UserFactory
 
 
 class BetModelsTest(TestCase):
@@ -1017,7 +1017,7 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
             ),
         )
         self.assertFalse(executed.data["updateQuota"]["quota"]["active"])
-        
+
         # Authenticate with a different manager and test that changes are not
         # allowed
         self.client.authenticate(self.manager)
@@ -1036,7 +1036,6 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
             GraphQLLocatedError, type(executed.errors[0]),
         )
         self.assertIsNone(executed.data["updateQuota"])
-
 
     def test_05_delete_quota(self):
         """

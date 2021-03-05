@@ -36,7 +36,7 @@ class CreateEventMutation(Mutation):
         :param event_input: Mutation input
         """
 
-        event_input['manager'] = info.context.user
+        event_input["manager"] = info.context.user
         event = Event.objects.create(**event_input)
         return CreateEventMutation(event=event)
 
@@ -66,7 +66,7 @@ class CreateQuotaMutation(Mutation):
         :parma quota_input: Mutation input
         """
 
-        quota_input['manager'] = info.context.user
+        quota_input["manager"] = info.context.user
         quota_input["event"] = Event.objects.get(id=quota_input.event)
         quota = Quota.objects.create(**quota_input)
         return CreateQuotaMutation(quota=quota)
@@ -98,8 +98,7 @@ class UpdateEventMutation(Mutation):
         """
 
         if not Event.objects.filter(
-            id=event_input.id,
-            manager=info.context.user
+            id=event_input.id, manager=info.context.user
         ).count():
             raise GraphQLError("The event must belong to the bet manager.")
         event, _ = Event.objects.update_or_create(
@@ -134,8 +133,7 @@ class UpdateQuotaMutation(Mutation):
         """
 
         if not Quota.objects.filter(
-            id=quota_input.id,
-            manager=info.context.user
+            id=quota_input.id, manager=info.context.user,
         ).count():
             raise GraphQLError("The quota must belong to the bet manager.")
         quota, _ = Quota.objects.update_or_create(

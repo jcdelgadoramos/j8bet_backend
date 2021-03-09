@@ -10,8 +10,7 @@ from j8bet_backend.constants import BET_CONSUMER, BET_MANAGER
 # )
 
 bet_consumer = user_passes_test(
-    lambda u: u.is_authenticated and
-        u.groups.filter(name=BET_CONSUMER).exists()
+    lambda u: u.is_authenticated and u.groups.filter(name=BET_CONSUMER).exists()
 )
 
 bet_manager = user_passes_test(

@@ -1,12 +1,12 @@
 from bets.graphql.mutations import (
+    BetPlacementByEventMutation,
+    BetPlacementByQuotaMutation,
     CreateEventMutation,
     CreateQuotaMutation,
     DeleteEventMutation,
     DeleteQuotaMutation,
     UpdateEventMutation,
     UpdateQuotaMutation,
-    BetPlacementByEventMutation,
-    BetPlacementByQuotaMutation,
 )
 from bets.graphql.queries import (
     BetQuery,

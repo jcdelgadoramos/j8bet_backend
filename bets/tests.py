@@ -1123,10 +1123,7 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         result = self.client.execute(
             mutation,
             context_value=self.context_value,
-            variables=dict(
-                quotaId=self.quota.id,
-                amount=40,
-            ),
+            variables=dict(quotaId=self.quota.id, amount=40),
         )
         self.assertEqual(
             GraphQLLocatedError, type(result.errors[0]),
@@ -1151,10 +1148,7 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         result = self.client.execute(
             mutation,
             context_value=self.context_value,
-            variables=dict(
-                eventId=self.event.id,
-                amount=40,
-            ),
+            variables=dict(eventId=self.event.id, amount=40),
         )
         self.assertEqual(
             GraphQLLocatedError, type(result.errors[0]),
@@ -1277,7 +1271,9 @@ class BetPlacement(JSONWebTokenTestCase):
     def setUp(self):
         self.disabled_event = EventFactory(active=False)
         self.enabled_event = EventFactory(active=True)
-        self.disabled_quota = QuotaFactory(event=self.enabled_event, active=True)
+        self.disabled_quota = QuotaFactory(
+            event=self.enabled_event, active=True,
+        )
         self.enabled_quota = QuotaFactory(event=self.enabled_event, active=True)
         self.bet_fields = """
             id,
@@ -1316,7 +1312,9 @@ class BetPlacement(JSONWebTokenTestCase):
                     }}
                 }}
             }}
-        """.format(fields=self.bet_fields)
+        """.format(
+            fields=self.bet_fields
+        )
         result = self.client.execute(
             mutation,
             context_value=self.context_value,
@@ -1345,14 +1343,13 @@ class BetPlacement(JSONWebTokenTestCase):
                     }}
                 }}
             }}
-        """.format(fields=self.bet_fields)
+        """.format(
+            fields=self.bet_fields
+        )
         result = self.client.execute(
             mutation,
             context_value=self.context_value,
-            variables=dict(
-                quotaId=self.disabled_quota.id,
-                amount=40,
-            ),
+            variables=dict(quotaId=self.disabled_quota.id, amount=40),
         )
         self.assertEqual(
             GraphQLLocatedError, type(result.errors[0]),
@@ -1368,14 +1365,13 @@ class BetPlacement(JSONWebTokenTestCase):
                     }}
                 }}
             }}
-        """.format(fields=self.bet_fields)
+        """.format(
+            fields=self.bet_fields
+        )
         result = self.client.execute(
             mutation,
             context_value=self.context_value,
-            variables=dict(
-                eventId=self.enabled_event.id,
-                amount=40,
-            ),
+            variables=dict(eventId=self.enabled_event.id, amount=40),
         )
         self.assertIsNone(result.errors)
         self.assertEqual(
@@ -1401,14 +1397,13 @@ class BetPlacement(JSONWebTokenTestCase):
                     }}
                 }}
             }}
-        """.format(fields=self.bet_fields)
+        """.format(
+            fields=self.bet_fields
+        )
         result = self.client.execute(
             mutation,
             context_value=self.context_value,
-            variables=dict(
-                eventId=self.disabled_event.id,
-                amount=40,
-            ),
+            variables=dict(eventId=self.disabled_event.id, amount=40),
         )
         self.assertEqual(
             GraphQLLocatedError, type(result.errors[0]),
@@ -1431,14 +1426,13 @@ class BetPlacement(JSONWebTokenTestCase):
                     }}
                 }}
             }}
-        """.format(fields=self.bet_fields)
+        """.format(
+            fields=self.bet_fields
+        )
         result = self.client.execute(
             mutation,
             context_value=self.context_value,
-            variables=dict(
-                eventId=self.enabled_event.id,
-                amount=40,
-            ),
+            variables=dict(eventId=self.enabled_event.id, amount=40),
         )
         self.assertEqual(
             GraphQLLocatedError, type(result.errors[0]),

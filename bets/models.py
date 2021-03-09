@@ -1,4 +1,5 @@
 from decimal import Decimal
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -233,7 +234,9 @@ class Bet(models.Model):
         """
         if not self.quota.active:
             raise ValidationError(_("La cuota debe estar activa"))
-        self.potential_earnings = self.transaction.amount * self.quota.coeficient
+        self.potential_earnings = (
+            self.transaction.amount * self.quota.coeficient
+        )
         self.won = None
         self.active = True
         super().save()

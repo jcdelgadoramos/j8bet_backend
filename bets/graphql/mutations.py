@@ -6,7 +6,7 @@ from bets.graphql.input import (
 )
 from bets.graphql.types import BetType, EventType, QuotaType
 from bets.models import Bet, Event, Quota, Transaction
-from graphene import ID, Boolean, Field, Decimal, Mutation
+from graphene import ID, Boolean, Decimal, Field, Mutation
 from graphql import GraphQLError
 from j8bet_backend.decorators import bet_consumer, bet_manager
 
@@ -189,7 +189,7 @@ class BetPlacementByQuotaMutation(Mutation):
 
     class Arguments:
         """
-        Arguments for Bet Placement by Quota 
+        Arguments for Bet Placement by Quota
         """
 
         quota_id = ID()

@@ -5,6 +5,8 @@ from bets.graphql.mutations import (
     DeleteQuotaMutation,
     UpdateEventMutation,
     UpdateQuotaMutation,
+    BetPlacementByEventMutation,
+    BetPlacementByQuotaMutation,
 )
 from bets.graphql.queries import (
     BetQuery,
@@ -38,3 +40,5 @@ class Mutations(ObjectType):
     update_quota = UpdateQuotaMutation.Field()
     delete_event = DeleteEventMutation.Field()
     delete_quota = DeleteQuotaMutation.Field()
+    place_bet_by_event = BetPlacementByEventMutation.Field()
+    place_bet_by_quota = BetPlacementByQuotaMutation.Field()

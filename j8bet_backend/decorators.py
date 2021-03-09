@@ -1,5 +1,5 @@
 from graphql_jwt.decorators import user_passes_test
-from j8bet_backend.constants import BET_MANAGER
+from j8bet_backend.constants import BET_CONSUMER, BET_MANAGER
 
 # The following decorators will remain commented until they're used
 # and thus been able to be included in unit testing.

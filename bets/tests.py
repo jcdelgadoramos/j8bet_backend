@@ -1105,6 +1105,62 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         )
         self.assertIsNone(executed.data["deleteEvent"])
 
+    def test_07_place_bet_from_quota(self):
+        """
+        This test evaluates placing a bet as a Bet Manager.
+        The bet should not be created.
+        """
+
+        mutation = """
+            mutation placeBet($quotaId: ID!, $amount: Decimal!) {
+                placeBetByQuota(quotaId: $quotaId, amount: $amount) {
+                    bet{
+                        id
+                    }
+                }
+            }
+        """
+        result = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                quotaId=self.quota.id,
+                amount=40,
+            ),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(result.errors[0]),
+        )
+        self.assertIsNone(result.data["placeBetByQuota"])
+
+    def test_08_place_bet_from_event(self):
+        """
+        This test evalutates placing a bet as a Bet Manager.
+        The bet should not be created.
+        """
+
+        mutation = """
+            mutation placeBet($eventId: ID!, $amount: Decimal!) {
+                placeBetByEvent(eventId: $eventId, amount: $amount) {
+                    bet{
+                        id
+                    }
+                }
+            }
+        """
+        result = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                eventId=self.event.id,
+                amount=40,
+            ),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(result.errors[0]),
+        )
+        self.assertIsNone(result.data["placeBetByEvent"])
+
 
 class MutationAsConsumerTest(JSONWebTokenTestCase):
     def setUp(self):
@@ -1122,8 +1178,8 @@ class MutationAsConsumerTest(JSONWebTokenTestCase):
         """
         self.request_factory = RequestFactory()
         self.context_value = self.request_factory.get(reverse("graphql"))
-        self.bet_manager_group = Group.objects.get(name=BET_CONSUMER)
-        self.user = UserFactory.create(groups=(self.bet_manager_group,))
+        self.bet_consumer_group = Group.objects.get(name=BET_CONSUMER)
+        self.user = UserFactory.create(groups=(self.bet_consumer_group,))
         self.client.authenticate(self.user)
         super().setUp()
 
@@ -1215,3 +1271,176 @@ class NotLoggedInTest(JSONWebTokenTestCase):
             GraphQLLocatedError, type(result.errors[0]),
         )
         self.assertIsNone(result.data["createEvent"])
+
+
+class BetPlacement(JSONWebTokenTestCase):
+    def setUp(self):
+        self.disabled_event = EventFactory(active=False)
+        self.enabled_event = EventFactory(active=True)
+        self.disabled_quota = QuotaFactory(event=self.enabled_event, active=True)
+        self.enabled_quota = QuotaFactory(event=self.enabled_event, active=True)
+        self.bet_fields = """
+            id,
+            quota{
+                id,
+                event{
+                    id,
+                    description
+                },
+                probability,
+                coeficient,
+                active,
+            }
+            potentialEarnings,
+            active,
+            won,
+        """
+        self.request_factory = RequestFactory()
+        self.context_value = self.request_factory.get(reverse("graphql"))
+        self.bet_consumer_group = Group.objects.get(name=BET_CONSUMER)
+        self.user = UserFactory.create(groups=(self.bet_consumer_group,))
+        self.client.authenticate(self.user)
+        super().setUp()
+
+    def test_01_place_bet_enabled_quota(self):
+        """
+        This test evaluates placing a bet from an enabled Quota.
+        The bet should be successfully created
+        """
+
+        mutation = """
+            mutation placeBet($quotaId: ID!, $amount: Decimal!) {{
+                placeBetByQuota(quotaId: $quotaId, amount: $amount) {{
+                    bet{{
+                        {fields}
+                    }}
+                }}
+            }}
+        """.format(fields=self.bet_fields)
+        result = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                quotaId=self.enabled_quota.id,
+                amount=40,
+            ),
+        )
+        self.assertIsNone(result.errors)
+        self.assertEqual(
+            self.enabled_quota.id,
+            int(result.data["placeBetByQuota"]["bet"]["quota"]["id"]),
+        )
+
+    def test_02_place_bet_disabled_quota(self):
+        """
+        This test evaluates placing a bet from a disabled Quota.
+        The bet should not be created.
+        """
+
+        mutation = """
+            mutation placeBet($quotaId: ID!, $amount: Decimal!) {{
+                placeBetByQuota(quotaId: $quotaId, amount: $amount) {{
+                    bet{{
+                        {fields}
+                    }}
+                }}
+            }}
+        """.format(fields=self.bet_fields)
+        result = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                quotaId=self.disabled_quota.id,
+                amount=40,
+            ),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(result.errors[0]),
+        )
+        self.assertIsNone(result.data["placeBetByQuota"])
+
+    def test_03_place_bet_enabled_event(self):
+        mutation = """
+            mutation placeBet($eventId: ID!, $amount: Decimal!) {{
+                placeBetByEvent(eventId: $eventId, amount: $amount) {{
+                    bet{{
+                        {fields}
+                    }}
+                }}
+            }}
+        """.format(fields=self.bet_fields)
+        result = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                eventId=self.enabled_event.id,
+                amount=40,
+            ),
+        )
+        self.assertIsNone(result.errors)
+        self.assertEqual(
+            self.enabled_event.id,
+            int(result.data["placeBetByEvent"]["bet"]["quota"]["event"]["id"]),
+        )
+        self.assertEqual(
+            self.enabled_quota.id,
+            int(result.data["placeBetByEvent"]["bet"]["quota"]["id"]),
+        )
+
+    def test_04_place_bet_disabled_event(self):
+        """
+        This test evaluates placing a bet from a disabled Event.
+        The bet should not be created.
+        """
+
+        mutation = """
+            mutation placeBet($eventId: ID!, $amount: Decimal!) {{
+                placeBetByEvent(eventId: $eventId, amount: $amount) {{
+                    bet{{
+                        {fields}
+                    }}
+                }}
+            }}
+        """.format(fields=self.bet_fields)
+        result = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                eventId=self.disabled_event.id,
+                amount=40,
+            ),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(result.errors[0]),
+        )
+        self.assertIsNone(result.data["placeBetByEvent"])
+
+    def test_05_place_bet_enabled_event_with_disabled_quotas(self):
+        """
+        This test evaluates placing a bet from an enabled Event
+        with no disabled Quotas. The bet should not be created.
+        """
+
+        self.enabled_quota.active = False
+        self.enabled_quota.save()
+        mutation = """
+            mutation placeBet($eventId: ID!, $amount: Decimal!) {{
+                placeBetByEvent(eventId: $eventId, amount: $amount) {{
+                    bet{{
+                        {fields}
+                    }}
+                }}
+            }}
+        """.format(fields=self.bet_fields)
+        result = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                eventId=self.enabled_event.id,
+                amount=40,
+            ),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(result.errors[0]),
+        )
+        self.assertIsNone(result.data["placeBetByEvent"])

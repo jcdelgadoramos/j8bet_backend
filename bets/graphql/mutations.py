@@ -10,8 +10,8 @@ from graphene import ID, Boolean, Decimal, Field, Mutation
 from graphql import GraphQLError
 from j8bet_backend.decorators import bet_consumer, bet_manager
 
-
 # CRUD Mutations
+
 
 class CreateEventMutation(Mutation):
     """
@@ -184,6 +184,7 @@ class DeleteQuotaMutation(Mutation):
 
 # Functional mutations
 
+
 class BetPlacementByQuotaMutation(Mutation):
     bet = Field(BetType)
 
@@ -205,14 +206,10 @@ class BetPlacementByQuotaMutation(Mutation):
 
         # TODO change the way Transactions are managed when the time comes
         transaction = Transaction.objects.create(
-            amount=amount,
-            description="Bet placement",
-            user=info.context.user,
+            amount=amount, description="Bet placement", user=info.context.user,
         )
         bet = Bet.objects.create(
-            transaction=transaction,
-            quota=quota,
-            user=info.context.user,
+            transaction=transaction, quota=quota, user=info.context.user,
         )
 
         return BetPlacementByQuotaMutation(bet=bet)
@@ -235,20 +232,18 @@ class BetPlacementByEventMutation(Mutation):
             raise GraphQLError("Not a valid event.")
         if not Quota.objects.filter(event__id=event_id, active=True).exists():
             raise GraphQLError("Event does not have any valid Quotas.")
-        quota = Quota.objects.filter(
-            event__id=event_id, active=True,
-        ).order_by("creation_date").first()
+        quota = (
+            Quota.objects.filter(event__id=event_id, active=True,)
+            .order_by("creation_date")
+            .first()
+        )
 
         # TODO change the way Transactions are managed when the time comes
         transaction = Transaction.objects.create(
-            amount=amount,
-            description="Bet placement",
-            user=info.context.user,
+            amount=amount, description="Bet placement", user=info.context.user,
         )
         bet = Bet.objects.create(
-            transaction=transaction,
-            quota=quota,
-            user=info.context.user,
+            transaction=transaction, quota=quota, user=info.context.user,
         )
 
         return BetPlacementByEventMutation(bet=bet)

@@ -1318,10 +1318,7 @@ class BetPlacement(JSONWebTokenTestCase):
         result = self.client.execute(
             mutation,
             context_value=self.context_value,
-            variables=dict(
-                quotaId=self.enabled_quota.id,
-                amount=40,
-            ),
+            variables=dict(quotaId=self.enabled_quota.id, amount=40),
         )
         self.assertIsNone(result.errors)
         self.assertEqual(

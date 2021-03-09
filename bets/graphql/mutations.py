@@ -4,12 +4,14 @@ from bets.graphql.input import (
     QuotaCreationInput,
     QuotaUpdateInput,
 )
-from bets.graphql.types import EventType, QuotaType
-from bets.models import Event, Quota
-from graphene import ID, Boolean, Field, Mutation
+from bets.graphql.types import BetType, EventType, QuotaType
+from bets.models import Bet, Event, Quota
+from graphene import ID, Boolean, Field, Decimal, Mutation
 from graphql import GraphQLError
-from j8bet_backend.decorators import bet_manager
+from j8bet_backend.decorators import bet_consumer, bet_manager
 
+
+# CRUD Mutations
 
 class CreateEventMutation(Mutation):
     """
@@ -178,3 +180,75 @@ class DeleteQuotaMutation(Mutation):
             raise GraphQLError("The quota must belong to the bet manager.")
         Quota.objects.filter(id=id, manager=info.context.user).delete()
         return DeleteQuotaMutation(deleted=True)
+
+
+# Functional mutations
+
+class BetPlacementByQuotaMutation(Mutation):
+    bet = Field(BetType)
+
+    class Arguments:
+        """
+        Arguments for Bet Placement by Quota 
+        """
+
+        quota_id = ID()
+        amount = Decimal()
+
+    @bet_consumer
+    def mutate(self, info, quota_id, amount):
+        if not Quota.objects.filter(
+            id=quota_id, active=True, event__active=True,
+        ).exists():
+            raise GraphQLError("Not a valid quota.")
+        quota = Quota.objects.filter(id=quota_id).first()
+
+        # TODO change the way Transactions are managed when the time comes
+        transaction = Transaction.objects.create(
+            amount=amount,
+            description="Bet placement",
+            user=info.context.user,
+        )
+        bet = Bet.objects.create(
+            transaction=transaction,
+            quota=quota,
+            user=info.context.user,
+        )
+
+        return BetPlacementByQuotaMutation(bet=bet)
+
+
+class BetPlacementByEventMutation(Mutation):
+    bet = Field(BetType)
+
+    class Arguments:
+        """
+        Arguments for Bet Placement by Event
+        """
+
+        event_id = ID()
+        amount = Decimal()
+
+    @bet_consumer
+    def mutate(self, info, event_id, amount):
+        if not Event.objects.filter(id=event_id, active=True).exists():
+            raise GraphQLError("Not a valid event.")
+        if not Quota.objects.filter(event__id=event_id, active=True).exists():
+            raise GraphQLError("Event does not have any valid Quotas.")
+        quota = Quota.objects.filter(
+            event__id=event_id, active=True,
+        ).order_by(creation_date).first()
+
+        # TODO change the way Transactions are managed when the time comes
+        transaction = Transaction.objects.create(
+            amount=amount,
+            description="Bet placement",
+            user=info.context.user,
+        )
+        bet = Bet.objects.create(
+            transaction=transaction,
+            quota=quota,
+            user=info.context.user,
+        )
+
+        return BetPlacementByEventMutation(bet=bet)

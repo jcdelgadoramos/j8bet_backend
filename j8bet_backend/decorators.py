@@ -9,10 +9,10 @@ from j8bet_backend.constants import BET_MANAGER
 #         u.groups.filter(name=APPLICATION_MANAGER).exists()
 # )
 
-# bet_consumer = user_passes_test(
-#     lambda u: u.is_authenticated and
-#         u.groups.filter(name=BET_CONSUMER).exists()
-# )
+bet_consumer = user_passes_test(
+    lambda u: u.is_authenticated and
+        u.groups.filter(name=BET_CONSUMER).exists()
+)
 
 bet_manager = user_passes_test(
     lambda u: u.is_authenticated and u.groups.filter(name=BET_MANAGER).exists()

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -135,6 +137,13 @@ class Quota(models.Model):
         decimal_places=5,
         validators=[MaxValueValidator(1), MinValueValidator(0)],
     )
+    coeficient = models.DecimalField(
+        "Coeficiente de ganancia",
+        max_digits=9,
+        decimal_places=5,
+        default=Decimal(1.00001),
+        validators=[MinValueValidator(1)],
+    )
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
     modification_date = models.DateTimeField(
         "Fecha de modificación", auto_now=True
@@ -151,12 +160,24 @@ class Quota(models.Model):
             event=self.event, probability=self.probability
         )
 
+    def calculate_coeficient(self):
+        """
+        Transforms a probability (numeric value from 0 to 1) into a
+        coeficient which determines the potential earnings in bets.
+        """
+        # TODO implement the coeficient calculation
+        # This calculation must not be part of the code, but instead be a
+        # formula retrieved from .env, stored on database, or something else.
+
+        self.coeficient = Decimal(1.00001)
+
     def save(self, **kwargs):
         """
         Function which saves a Quota model and deactivates previous ones
         """
         if self.active:
             self.event.quotas.update(active=False)
+        self.calculate_coeficient()
         super().save()
 
 
@@ -213,6 +234,9 @@ class Bet(models.Model):
         """
         if not self.quota.active:
             raise ValidationError(_("La cuota debe estar activa"))
+        self.potential_earnings = (
+            self.transaction.amount * self.quota.coeficient
+        )
         self.won = None
         self.active = True
         super().save()

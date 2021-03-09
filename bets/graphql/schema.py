@@ -1,4 +1,6 @@
 from bets.graphql.mutations import (
+    BetPlacementByEventMutation,
+    BetPlacementByQuotaMutation,
     CreateEventMutation,
     CreateQuotaMutation,
     DeleteEventMutation,
@@ -38,3 +40,5 @@ class Mutations(ObjectType):
     update_quota = UpdateQuotaMutation.Field()
     delete_event = DeleteEventMutation.Field()
     delete_quota = DeleteQuotaMutation.Field()
+    place_bet_by_event = BetPlacementByEventMutation.Field()
+    place_bet_by_quota = BetPlacementByQuotaMutation.Field()

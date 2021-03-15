@@ -23,6 +23,7 @@ class UserType(DjangoObjectType):
             "first_name",
             "last_name",
             "is_active",
+            "date_joined",
             "archived",
             "secondary_email",
             "verified",

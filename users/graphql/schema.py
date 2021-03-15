@@ -19,12 +19,12 @@ from graphql_auth.mutations import (
     VerifySecondaryEmail,
     VerifyToken,
 )
-from graphql_auth.schema import MeQuery, UserQuery
+from graphql_auth.schema import UserQuery
 from users.graphql.mutations import CreateUserMutation
 from users.graphql.queries import UserObjectQuery
 
 
-class Query(MeQuery, UserObjectQuery, UserQuery):
+class Query(UserObjectQuery, UserQuery):
     """
     Class joining all Queries from User application with UserQuery and MeQuery
     """

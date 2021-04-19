@@ -1,5 +1,5 @@
 import factory
-from bets.models import Bet, Event, Prize, Quota, Transaction
+from bets.models import Affair, Bet, Event, Prize, Quota, Tag, Transaction
 from django.utils import timezone
 from users.factories import UserFactory
 
@@ -13,11 +13,38 @@ class AbstractDateFactory:
     )
 
 
+class TagFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = Tag
+
+    name = factory.Faker("sentence", nb_words=4)
+
+
+class AffairFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = Affair
+
+    manager = factory.SubFactory(UserFactory)
+    description = factory.Faker("paragraph")
+
+    @factory.post_generation
+    def tags(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            for tag in extracted:
+                self.tags.add(tag)
+
+
 class EventFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
     class Meta:
         model = Event
 
     manager = factory.SubFactory(UserFactory)
+    affair = factory.SubFactory(AffairFactory)
     name = factory.Faker("sentence", nb_words=4)
     description = factory.Faker("paragraph")
     rules = factory.Faker("paragraph")

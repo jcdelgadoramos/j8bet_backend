@@ -1,5 +1,25 @@
-from bets.models import Bet, Event, Prize, Quota, Transaction
+from bets.models import Affair, Bet, Event, Prize, Quota, Tag, Transaction
 from graphene_django import DjangoObjectType
+
+
+class TagType(DjangoObjectType):
+    """
+    GraphQL object type for Tag
+    """
+
+    class Meta:
+        model = Tag
+        fields = "__all__"
+
+
+class AffairType(DjangoObjectType):
+    """
+    GraphQL object type for Affair
+    """
+
+    class Meta:
+        model = Affair
+        fields = "__all__"
 
 
 class EventType(DjangoObjectType):

@@ -12,6 +12,63 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name="Tag",
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=255, verbose_name="Nombre"),
+                ),
+                (
+                    "creation_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Fecha de creación"
+                    ),
+                ),
+                (
+                    "modification_date",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Fecha de modificación"
+                    ),
+                ),
+            ],
+        ),
+        migrations.CreateModel(
+            name="Affair",
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("description", models.TextField(verbose_name="Descripción")),
+                (
+                    "creation_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Fecha de creación"
+                    ),
+                ),
+                (
+                    "modification_date",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Fecha de modificación"
+                    ),
+                ),
+            ],
+        ),
+        migrations.CreateModel(
             name="Bet",
             fields=[
                 (

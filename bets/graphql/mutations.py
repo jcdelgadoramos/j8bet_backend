@@ -1,16 +1,47 @@
 from bets.graphql.input import (
+    AffairCreationInput,
+    AffairUpdateInput,
     EventCreationInput,
     EventUpdateInput,
     QuotaCreationInput,
     QuotaUpdateInput,
 )
-from bets.graphql.types import BetType, EventType, QuotaType
-from bets.models import Bet, Event, Quota, Transaction
+from bets.graphql.types import AffairType, BetType, EventType, QuotaType
+from bets.models import Affair, Bet, Event, Quota, Tag, Transaction
 from graphene import ID, Boolean, Decimal, Field, Mutation
 from graphql import GraphQLError
 from j8bet_backend.decorators import bet_consumer, bet_manager
 
 # CRUD Mutations
+
+class CreateAffairMutation(Mutation):
+    """
+    Mutation for Affair creation
+
+    :cvar affair: AffairType field
+    """
+
+    affair = Field(AffairType)
+
+    class Arguments:
+        """
+        Arguments for Affair creation
+        """
+
+        affair_input = AffairCreationInput(required=True)
+
+    @bet_manager
+    def mutate(self, info, affair_input):
+        """
+        Mutation function.
+
+        :param info: Request information
+        :param affair_input: Mutation input
+        """
+
+        affair_input["manager"] = info.context.user
+        affair = Affair.objects.create(**affair_input)
+        return CreateAffairMutation(affair=affair)
 
 
 class CreateEventMutation(Mutation):
@@ -39,6 +70,7 @@ class CreateEventMutation(Mutation):
         """
 
         event_input["manager"] = info.context.user
+        event_input["affair"] = Affair.objects.get(id=event_input.affair)
         event = Event.objects.create(**event_input)
         return CreateEventMutation(event=event)
 
@@ -72,6 +104,41 @@ class CreateQuotaMutation(Mutation):
         quota_input["event"] = Event.objects.get(id=quota_input.event)
         quota = Quota.objects.create(**quota_input)
         return CreateQuotaMutation(quota=quota)
+
+
+class UpdateAffairMutation(Mutation):
+    """
+    Mutation for Affair update
+
+    :cvar affair: AffairType field
+    """
+
+    affair = Field(AffairType)
+
+    class Arguments:
+        """
+        Arguments for Affair update
+        """
+
+        affair_input = AffairUpdateInput(required=True)
+
+    @bet_manager
+    def mutate(self, info, affair_input):
+        """
+        Mutate function.
+
+        :param info: Request information
+        :param affair_input: Mutation input
+        """
+
+        if not Affair.objects.filter(
+            id=affair_input.id, manager=info.context.user
+        ).count():
+            raise GraphQLError("The affair must belong to the bet manager.")
+        affair, _ = Affair.objects.update_or_create(
+            id=affair_input.id, manager=info.context.user, defaults=affair_input,
+        )
+        return UpdateAffairMutation(affair=affair)
 
 
 class UpdateEventMutation(Mutation):

@@ -105,4 +105,33 @@ class Migration(migrations.Migration):
                 verbose_name="Apostador",
             ),
         ),
+        migrations.AddField(
+            model_name="affair",
+            name="manager",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="affairs",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Administrador",
+            ),
+        ),
+        migrations.AddField(
+            model_name="affair",
+            name="tags",
+            field=models.ManyToManyField(
+                related_name="affairs",
+                to="bets.Tag",
+                verbose_name="Etiquetas",
+            ),
+        ),
+        migrations.AddField(
+            model_name="event",
+            name="affair",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="events",
+                to="bets.affair",
+                verbose_name="Situación",
+            ),
+        ),
     ]

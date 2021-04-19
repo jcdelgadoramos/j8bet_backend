@@ -1,6 +1,8 @@
 from datetime import datetime
 
-from bets.factories import BetFactory, EventFactory, QuotaFactory
+from bets.factories import (
+    AffairFactory, BetFactory, EventFactory, QuotaFactory, TagFactory,
+)
 from bets.models import Bet, Event, Prize, Quota
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
@@ -748,12 +750,23 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         self.bet_manager_group = Group.objects.get(name=BET_MANAGER)
         self.user = UserFactory.create(groups=(self.bet_manager_group,))
         self.manager = UserFactory.create(groups=(self.bet_manager_group,))
-        self.event = EventFactory(active=True, manager=self.user)
+        self.tag1 = TagFactory.create()
+        self.tag2 = TagFactory.create()
+        self.affair = AffairFactory.create(
+            manager=self.user, tags=(self.tag1, self.tag2,)
+        )
+        self.event = EventFactory(
+            active=True, manager=self.user, affair=self.affair
+        )
         self.quota = QuotaFactory(
             event=self.event, active=True, manager=self.user
         )
         self.event_fields = """
             id,
+            affair{
+                id,
+                description
+            }
             name,
             description,
             rules,
@@ -791,6 +804,7 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
             context_value=self.context_value,
             variables=dict(
                 eventInput=dict(
+                    affair=self.affair.id,
                     name=event_name,
                     description=description,
                     expirationDate=expiration_date,
@@ -1158,10 +1172,15 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
 
 class MutationAsConsumerTest(JSONWebTokenTestCase):
     def setUp(self):
-        self.event = EventFactory(active=True)
+        self.affair = AffairFactory()
+        self.event = EventFactory(active=True, affair=self.affair)
         self.quota = QuotaFactory(event=self.event, active=True)
         self.event_fields = """
             id,
+            affair{
+                id,
+                description
+            }
             name,
             description,
             rules,
@@ -1201,6 +1220,7 @@ class MutationAsConsumerTest(JSONWebTokenTestCase):
             context_value=self.context_value,
             variables=dict(
                 eventInput=dict(
+                    affair=self.affair.id,
                     name=event_name,
                     description=description,
                     expirationDate=expiration_date,
@@ -1215,6 +1235,7 @@ class MutationAsConsumerTest(JSONWebTokenTestCase):
 
 class NotLoggedInTest(JSONWebTokenTestCase):
     def setUp(self):
+        self.affair = AffairFactory()
         self.request_factory = RequestFactory()
         self.context_value = self.request_factory.get(reverse("graphql"))
 
@@ -1256,6 +1277,7 @@ class NotLoggedInTest(JSONWebTokenTestCase):
             variables=dict(
                 eventInput=dict(
                     name="Some name",
+                    affair=self.affair.id,
                     description="Some description",
                     expirationDate=datetime.now(),
                 )
@@ -1269,8 +1291,9 @@ class NotLoggedInTest(JSONWebTokenTestCase):
 
 class BetPlacement(JSONWebTokenTestCase):
     def setUp(self):
-        self.disabled_event = EventFactory(active=False)
-        self.enabled_event = EventFactory(active=True)
+        self.affair = AffairFactory()
+        self.disabled_event = EventFactory(active=False, affair=self.affair)
+        self.enabled_event = EventFactory(active=True, affair=self.affair)
         self.disabled_quota = QuotaFactory(
             event=self.enabled_event, active=True,
         )
@@ -1281,6 +1304,10 @@ class BetPlacement(JSONWebTokenTestCase):
                 id,
                 event{
                     id,
+                    affair{
+                        id,
+                        description
+                    }
                     description
                 },
                 probability,

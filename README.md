@@ -1,5 +1,7 @@
 # J8Bet (backend)
 
+[![GitHub Super-Linter](https://github.com/jcdelgadoramos/j8bet_backend/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
+
 Welcome to the J8Bet backend project.
 
 This project contains the foundation from which the frontend applications for the J8Bet platform will be built.

@@ -3,7 +3,7 @@ from datetime import datetime
 from bets.factories import (
     AffairFactory, BetFactory, EventFactory, QuotaFactory, TagFactory,
 )
-from bets.models import Bet, Event, Prize, Quota
+from bets.models import Affair, Bet, Event, Prize, Quota
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.test import RequestFactory, TestCase
@@ -173,8 +173,12 @@ class BetModelsTest(TestCase):
 
 class QueryTest(JSONWebTokenTestCase):
     def setUp(self):
-        self.first_event = EventFactory(active=True)
-        self.second_event = EventFactory(active=True)
+        self.first_tag = TagFactory()
+        self.second_tag = TagFactory()
+        self.first_affair = AffairFactory(tags=[self.first_tag, self.second_tag])
+        self.second_affair = AffairFactory(tags=[self.first_tag,])
+        self.first_event = EventFactory(active=True, affair=self.first_affair)
+        self.second_event = EventFactory(active=True, affair=self.first_affair)
         self.first_quota = QuotaFactory(event=self.first_event, active=True)
         self.second_quota = QuotaFactory(event=self.first_event, active=True)
         self.first_bet = BetFactory(quota=self.second_quota)
@@ -207,7 +211,252 @@ class QueryTest(JSONWebTokenTestCase):
         self.assertIsNone(result.errors)
         self.assertEqual("Hello tester!", result.data["hola"])
 
-    def test_01_get_all_events(self):
+    def test_01_get_all_tags(self):
+        """
+        This test evaluates retrieving all tags.
+        """
+
+        query = """
+            query getAllTags {
+                tags: allTags {
+                    id,
+                    name,
+                    creationDate,
+                    modificationDate
+                }
+            }
+        """
+        result = self.client.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(
+            self.first_tag.id, int(result.data["tags"][0]["id"])
+        )
+        self.assertEqual(
+            self.first_tag.name, result.data["tags"][0]["name"],
+        )
+        self.assertEqual(
+            self.first_tag.creation_date,
+            datetime.strptime(
+                result.data["tags"][0]["creationDate"],
+                "%Y-%m-%dT%H:%M:%S.%f%z",
+            ),
+        )
+        self.assertEqual(
+            self.first_tag.modification_date,
+            datetime.strptime(
+                result.data["tags"][0]["modificationDate"],
+                "%Y-%m-%dT%H:%M:%S.%f%z",
+            ),
+        )
+        self.assertEqual(
+            self.second_tag.id, int(result.data["tags"][1]["id"])
+        )
+        self.assertEqual(
+            self.second_tag.name,
+            result.data["tags"][1]["name"],
+        )
+        self.assertEqual(
+            self.second_tag.creation_date,
+            datetime.strptime(
+                result.data["tags"][1]["creationDate"],
+                "%Y-%m-%dT%H:%M:%S.%f%z",
+            ),
+        )
+        self.assertEqual(
+            self.second_tag.modification_date,
+            datetime.strptime(
+                result.data["tags"][1]["modificationDate"],
+                "%Y-%m-%dT%H:%M:%S.%f%z",
+            ),
+        )
+
+    def test_02_get_tag(self):
+        """
+        This test evaluates retrieving a single tag.
+        """
+
+        query_by_id = """
+            query getTagById {{
+                tag: tagById(id: {id}) {{
+                    id,
+                    name,
+                    creationDate,
+                    modificationDate
+                }}
+            }}
+        """.format(
+            id=self.first_tag.id
+        )
+        result = self.client.execute(query_by_id)
+        self.assertIsNone(result.errors)
+        self.assertEqual(self.first_tag.id, int(result.data["tag"]["id"]))
+        self.assertEqual(
+            self.first_tag.name, result.data["tag"]["name"]
+        )
+        self.assertEqual(
+            self.first_tag.creation_date,
+            datetime.strptime(
+                result.data["tag"]["creationDate"], "%Y-%m-%dT%H:%M:%S.%f%z",
+            ),
+        )
+        self.assertEqual(
+            self.first_tag.modification_date,
+            datetime.strptime(
+                result.data["tag"]["modificationDate"],
+                "%Y-%m-%dT%H:%M:%S.%f%z",
+            ),
+        )
+        query_by_name = """
+            query getTagsByName {{
+                tags: tagsByName(name: \"{name}\") {{
+                    id,
+                    name,
+                    creationDate,
+                    modificationDate
+                }}
+            }}
+        """.format(
+            name=self.second_tag.name
+        )
+        result = self.client.execute(query_by_name)
+        self.assertIsNone(result.errors)
+        self.assertEqual(self.second_tag.id, int(result.data["tags"][0]["id"]))
+        self.assertEqual(
+            self.second_tag.name, result.data["tags"][0]["name"]
+        )
+        self.assertEqual(
+            self.second_tag.creation_date,
+            datetime.strptime(
+                result.data["tags"][0]["creationDate"], "%Y-%m-%dT%H:%M:%S.%f%z",
+            ),
+        )
+        self.assertEqual(
+            self.second_tag.modification_date,
+            datetime.strptime(
+                result.data["tags"][0]["modificationDate"],
+                "%Y-%m-%dT%H:%M:%S.%f%z",
+            ),
+        )
+
+    def test_03_get_all_affairs(self):
+        """
+        This test evaluates retrieving all affairs.
+        """
+
+        query = """
+            query getAllAffairs {
+                affairs: allAffairs {
+                    id,
+                    description,
+                    tags{
+                        name
+                    }
+                    creationDate,
+                    modificationDate
+                }
+            }
+        """
+        result = self.client.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(
+            self.first_affair.id, int(result.data["affairs"][0]["id"])
+        )
+        self.assertEqual(
+            self.first_affair.description,
+            result.data["affairs"][0]["description"],
+        )
+        self.assertEqual(
+            self.first_affair.creation_date,
+            datetime.strptime(
+                result.data["affairs"][0]["creationDate"],
+                "%Y-%m-%dT%H:%M:%S.%f%z",
+            ),
+        )
+        self.assertEqual(
+            self.first_affair.modification_date,
+            datetime.strptime(
+                result.data["affairs"][0]["modificationDate"],
+                "%Y-%m-%dT%H:%M:%S.%f%z",
+            ),
+        )
+        self.assertEqual(
+            self.first_tag.name,
+            result.data["affairs"][0]["tags"][0]["name"],
+        )
+        self.assertEqual(
+            self.second_tag.name,
+            result.data["affairs"][0]["tags"][1]["name"],
+        )
+        self.assertEqual(
+            self.second_affair.id, int(result.data["affairs"][1]["id"])
+        )
+        self.assertEqual(
+            self.second_affair.description,
+            result.data["affairs"][1]["description"],
+        )
+        self.assertEqual(
+            self.second_affair.creation_date,
+            datetime.strptime(
+                result.data["affairs"][1]["creationDate"],
+                "%Y-%m-%dT%H:%M:%S.%f%z",
+            ),
+        )
+        self.assertEqual(
+            self.second_affair.modification_date,
+            datetime.strptime(
+                result.data["affairs"][1]["modificationDate"],
+                "%Y-%m-%dT%H:%M:%S.%f%z",
+            ),
+        )
+
+    def test_04_get_affair(self):
+        """
+        This test evaluates retrieving a single affair.
+        """
+
+        query = """
+            query getAffairById {{
+                affair: affairById(id: {id}) {{
+                    id,
+                    description,
+                    tags {{
+                        id,
+                        name,
+                        creationDate,
+                        modificationDate
+                    }}
+                    creationDate,
+                    modificationDate
+                }}
+            }}
+        """.format(
+            id=self.first_affair.id
+        )
+        result = self.client.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(self.first_affair.id, int(result.data["affair"]["id"]))
+        self.assertEqual(
+            self.first_affair.description, result.data["affair"]["description"]
+        )
+        self.assertEqual(
+            self.first_affair.creation_date,
+            datetime.strptime(
+                result.data["affair"]["creationDate"], "%Y-%m-%dT%H:%M:%S.%f%z",
+            ),
+        )
+        self.assertEqual(
+            self.first_affair.modification_date,
+            datetime.strptime(
+                result.data["affair"]["modificationDate"],
+                "%Y-%m-%dT%H:%M:%S.%f%z",
+            ),
+        )
+        self.assertEqual(
+            self.first_tag.name,
+            result.data["affair"]["tags"][0]["name"],
+        )
+
+    def test_05_get_all_events(self):
         """
         This test evaluates retrieving all events.
         """
@@ -298,7 +547,7 @@ class QueryTest(JSONWebTokenTestCase):
             self.second_event.active, result.data["events"][1]["active"]
         )
 
-    def test_02_get_event(self):
+    def test_06_get_event(self):
         """
         This test evaluates retrieving a single event.
         """
@@ -343,7 +592,7 @@ class QueryTest(JSONWebTokenTestCase):
             self.first_event.active, result.data["event"]["active"]
         )
 
-    def test_03_get_all_quotas(self):
+    def test_07_get_all_quotas(self):
         """
         This test evaluates retrieving all quotas.
         """
@@ -440,7 +689,7 @@ class QueryTest(JSONWebTokenTestCase):
             int(result.data["quotas"][1]["event"]["id"]),
         )
 
-    def test_04_get_quota(self):
+    def test_08_get_quota(self):
         """
         This test evaluates retrieving a single quota.
         """
@@ -496,7 +745,7 @@ class QueryTest(JSONWebTokenTestCase):
             self.first_quota.event.id, int(result.data["quota"]["event"]["id"])
         )
 
-    def test_05_get_all_bets(self):
+    def test_09_get_all_bets(self):
         """
         This test evaluates retrieving all bets.
         """
@@ -555,7 +804,7 @@ class QueryTest(JSONWebTokenTestCase):
             self.second_bet.quota.id, int(result.data["bets"][1]["quota"]["id"])
         )
 
-    def test_06_get_bet(self):
+    def test_10_get_bet(self):
         """
         This test evaluates retrieving a single quota.
         """
@@ -599,7 +848,7 @@ class QueryTest(JSONWebTokenTestCase):
             self.first_bet.quota.id, int(result.data["bet"]["quota"]["id"])
         )
 
-    def test_07_get_all_transactions(self):
+    def test_11_get_all_transactions(self):
         """
         This test evaluates retrieving all transactions.
         """
@@ -640,7 +889,7 @@ class QueryTest(JSONWebTokenTestCase):
             result.data["transactions"][1]["description"],
         )
 
-    def test_08_get_transaction(self):
+    def test_12_get_transaction(self):
         """
         This test evaluates retrieving a single transaction.
         """
@@ -670,7 +919,7 @@ class QueryTest(JSONWebTokenTestCase):
             result.data["transaction"]["description"],
         )
 
-    def test_09_get_all_prizes(self):
+    def test_13_get_all_prizes(self):
         """
         This test evaluates retrieving all prizes.
         """
@@ -713,7 +962,7 @@ class QueryTest(JSONWebTokenTestCase):
             self.second_prize.bet.id, int(result.data["prizes"][1]["bet"]["id"])
         )
 
-    def test_10_get_prize(self):
+    def test_14_get_prize(self):
         """
         This test evaluates retrieving a single prize.
         """
@@ -750,11 +999,12 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         self.bet_manager_group = Group.objects.get(name=BET_MANAGER)
         self.user = UserFactory.create(groups=(self.bet_manager_group,))
         self.manager = UserFactory.create(groups=(self.bet_manager_group,))
-        self.tag1 = TagFactory.create()
-        self.tag2 = TagFactory.create()
+        self.first_tag = TagFactory.create()
+        self.second_tag = TagFactory.create()
         self.affair = AffairFactory.create(
-            manager=self.user, tags=(self.tag1, self.tag2,)
+            manager=self.user, tags=(self.first_tag, self.second_tag,)
         )
+        self.another_affair = AffairFactory.create()
         self.event = EventFactory(
             active=True, manager=self.user, affair=self.affair
         )
@@ -780,7 +1030,200 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         self.client.authenticate(self.user)
         super().setUp()
 
-    def test_01_create_event(self):
+    def test_01_create_affair(self):
+        """
+        This test evaluates creating an Affair via mutation.
+        """
+
+        mutation = """
+            mutation createAffair($affairInput: AffairCreationInput!) {
+                createAffair(affairInput: $affairInput) {
+                    affair{
+                        description,
+                        tags {
+                            name
+                        }
+                    }
+                }
+            }
+        """
+        description = "Description for the upcoming affair"
+        first_tag = "Some tag"
+        second_tag = "Another tag"
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                affairInput=dict(
+                    description=description,
+                    tags=[first_tag, second_tag]
+                )
+            ),
+        )
+        self.assertEqual(
+            description, executed.data["createAffair"]["affair"]["description"]
+        )
+        self.assertEqual(
+            first_tag,
+            executed.data["createAffair"]["affair"]["tags"][0]["name"]
+        )
+        self.assertEqual(
+            second_tag,
+            executed.data["createAffair"]["affair"]["tags"][1]["name"]
+        )
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                affairInput=dict(
+                    description=description,
+                    tags=[self.first_tag.id, self.second_tag.id]
+                )
+            ),
+        )
+        self.assertEqual(
+            description, executed.data["createAffair"]["affair"]["description"]
+        )
+        self.assertEqual(
+            self.first_tag.name,
+            executed.data["createAffair"]["affair"]["tags"][0]["name"]
+        )
+        self.assertEqual(
+            self.second_tag.name,
+            executed.data["createAffair"]["affair"]["tags"][1]["name"]
+        )
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                affairInput=dict(
+                    description=description,
+                    tags=[900,]
+                )
+            ),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(executed.errors[0]),
+        )
+        self.assertIsNone(executed.data["createAffair"])
+
+    def test_02_update_affair(self):
+        """
+        This test evaluates updating an Affair via mutation.
+        """
+
+        mutation = """
+            mutation updateAffair($affairInput: AffairUpdateInput!) {
+                updateAffair(affairInput: $affairInput) {
+                    affair{
+                        id,
+                        description,
+                        tags {
+                            name
+                        }
+                    }
+                }
+            }
+        """
+        description = "Description for the upcoming affair"
+        first_tag = "Some tag"
+        second_tag = "Another tag"
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                affairInput=dict(
+                    id=self.affair.id,
+                    description=description,
+                    tags=[first_tag, second_tag]
+                )
+            ),
+        )
+        self.assertEqual(
+            self.affair.id, int(executed.data["updateAffair"]["affair"]["id"]),
+        )
+        self.assertEqual(
+            description, executed.data["updateAffair"]["affair"]["description"]
+        )
+        self.assertEqual(
+            first_tag,
+            executed.data["updateAffair"]["affair"]["tags"][0]["name"]
+        )
+        self.assertEqual(
+            second_tag,
+            executed.data["updateAffair"]["affair"]["tags"][1]["name"]
+        )
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                affairInput=dict(
+                    id=self.affair.id,
+                    description=description,
+                    tags=[self.first_tag.id, self.second_tag.id]
+                )
+            ),
+        )
+        self.assertEqual(
+            self.affair.id, int(executed.data["updateAffair"]["affair"]["id"]),
+        )
+        self.assertEqual(
+            description, executed.data["updateAffair"]["affair"]["description"]
+        )
+        self.assertEqual(
+            self.first_tag.name,
+            executed.data["updateAffair"]["affair"]["tags"][0]["name"]
+        )
+        self.assertEqual(
+            self.second_tag.name,
+            executed.data["updateAffair"]["affair"]["tags"][1]["name"]
+        )
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                affairInput=dict(
+                    id=self.affair.id,
+                    tags=[]
+                )
+            ),
+        )
+        self.assertEqual(
+            self.affair.id, int(executed.data["updateAffair"]["affair"]["id"]),
+        )
+        self.assertEqual(
+            0, len(executed.data["updateAffair"]["affair"]["tags"])
+        )
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                affairInput=dict(
+                    id=self.affair.id,
+                    description=description,
+                    tags=[900,]
+                )
+            ),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(executed.errors[0]),
+        )
+        self.assertIsNone(executed.data["updateAffair"])
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(
+                affairInput=dict(
+                    id=self.another_affair.id,
+                )
+            ),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(executed.errors[0]),
+        )
+        self.assertIsNone(executed.data["updateAffair"]) 
+
+    def test_03_create_event(self):
         """
         This test evaluates creating an Event via mutation.
         """
@@ -825,7 +1268,7 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
             ),
         )
 
-    def test_02_update_event(self):
+    def test_04_update_event(self):
         """
         This test evaluates updating an Event via mutation.
         """
@@ -911,7 +1354,7 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         )
         self.assertIsNone(executed.data["updateEvent"])
 
-    def test_03_create_quota(self):
+    def test_05_create_quota(self):
         """
         This test evaluates creating a Quota via mutation.
         """
@@ -963,7 +1406,7 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
             int(executed.data["createQuota"]["quota"]["event"]["id"]),
         )
 
-    def test_04_update_quota(self):
+    def test_06_update_quota(self):
         """
         This test evaluates updating a Quota via mutation.
         """
@@ -1051,7 +1494,41 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         )
         self.assertIsNone(executed.data["updateQuota"])
 
-    def test_05_delete_quota(self):
+    def test_07_delete_affair(self):
+        """
+        This test evaluates deleting an Affair via mutation.
+        """
+
+        mutation = """
+            mutation deleteAffair($id: ID!) {
+                deleteAffair(id: $id) {
+                    deleted
+                }
+            }
+        """
+        before_deletion_count = Affair.objects.count()
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(id=self.affair.id),
+        )
+        self.assertTrue(executed.data["deleteAffair"]["deleted"])
+        self.assertEqual(Affair.objects.count(), before_deletion_count - 1)
+
+        # Authenticate with a different manager and test that deletions are not
+        # allowed
+        self.client.authenticate(self.manager)
+        executed = self.client.execute(
+            mutation,
+            context_value=self.context_value,
+            variables=dict(id=self.affair.id),
+        )
+        self.assertEqual(
+            GraphQLLocatedError, type(executed.errors[0]),
+        )
+        self.assertIsNone(executed.data["deleteAffair"])
+
+    def test_08_delete_quota(self):
         """
         This test evaluates deleting a Quota via mutation.
         """
@@ -1085,7 +1562,7 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         )
         self.assertIsNone(executed.data["deleteQuota"])
 
-    def test_06_delete_event(self):
+    def test_09_delete_event(self):
         """
         This test evaluates deleting an Event via mutation.
         """
@@ -1119,7 +1596,7 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         )
         self.assertIsNone(executed.data["deleteEvent"])
 
-    def test_07_place_bet_from_quota(self):
+    def test_10_place_bet_from_quota(self):
         """
         This test evaluates placing a bet as a Bet Manager.
         The bet should not be created.
@@ -1144,7 +1621,7 @@ class MutationAsManagerTest(JSONWebTokenTestCase):
         )
         self.assertIsNone(result.data["placeBetByQuota"])
 
-    def test_08_place_bet_from_event(self):
+    def test_11_place_bet_from_event(self):
         """
         This test evalutates placing a bet as a Bet Manager.
         The bet should not be created.

@@ -1,4 +1,13 @@
-from graphene import ID, Boolean, DateTime, Decimal, InputObjectType, String
+from graphene import (
+    ID,
+    Boolean,
+    DateTime,
+    Decimal,
+    InputObjectType,
+    List,
+    Scalar,
+    String,
+)
 
 
 class AffairCreationInput(InputObjectType):
@@ -7,6 +16,7 @@ class AffairCreationInput(InputObjectType):
     """
 
     description = String(required=True)
+    tags = List(ID)
     creation_date = DateTime()
     modification_date = DateTime()
 
@@ -18,6 +28,7 @@ class AffairUpdateInput(InputObjectType):
 
     id = ID(required=True)
     description = String()
+    tags = List(ID)
 
 
 class EventCreationInput(InputObjectType):

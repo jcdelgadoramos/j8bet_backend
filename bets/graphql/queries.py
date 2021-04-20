@@ -1,14 +1,47 @@
 from bets.graphql.types import (
+    AffairType,
     BetType,
     EventType,
     PrizeType,
     QuotaType,
+    TagType,
     TransactionType,
 )
-from bets.models import Bet, Event, Prize, Quota, Transaction
+from bets.models import Affair, Bet, Event, Prize, Quota, Tag, Transaction
 from graphene import ID, Field, ObjectType, String
 from graphene_django import DjangoListField
 from graphql_jwt.decorators import login_required
+
+
+class TagQuery(ObjectType):
+    all_tags = DjangoListField(TagType)
+    tags_by_name = DjangoListField(TagType, name=String())
+    tag_by_id = Field(TagType, id=ID())
+
+    @login_required
+    def resolve_all_tags(self, info):
+        return Tag.objects.all()
+
+    @login_required
+    def resolve_tags_by_name(self, info, name):
+        return Tag.objects.filter(name__icontains=name)
+
+    @login_required
+    def resolve_tag_by_id(self, info, id):
+        return Tag.objects.get(id=id)
+
+
+class AffairQuery(ObjectType):
+    all_affairs = DjangoListField(AffairType)
+    affair_by_id = Field(AffairType, id=ID())
+
+    @login_required
+    def resolve_all_affairs(self, info):
+        return Affair.objects.all()
+
+    @login_required
+    def resolve_affair_by_id(self, info, id):
+        return Affair.objects.get(id=id)
 
 
 class EventQuery(ObjectType):

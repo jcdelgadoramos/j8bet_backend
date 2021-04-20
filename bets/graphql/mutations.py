@@ -1,16 +1,60 @@
 from bets.graphql.input import (
+    AffairCreationInput,
+    AffairUpdateInput,
     EventCreationInput,
     EventUpdateInput,
     QuotaCreationInput,
     QuotaUpdateInput,
 )
-from bets.graphql.types import BetType, EventType, QuotaType
-from bets.models import Bet, Event, Quota, Transaction
+from bets.graphql.types import AffairType, BetType, EventType, QuotaType
+from bets.models import Affair, Bet, Event, Quota, Tag, Transaction
 from graphene import ID, Boolean, Decimal, Field, Mutation
 from graphql import GraphQLError
 from j8bet_backend.decorators import bet_consumer, bet_manager
 
 # CRUD Mutations
+
+class CreateAffairMutation(Mutation):
+    """
+    Mutation for Affair creation
+
+    :cvar affair: AffairType field
+    """
+
+    affair = Field(AffairType)
+
+    class Arguments:
+        """
+        Arguments for Affair creation
+        """
+
+        affair_input = AffairCreationInput(required=True)
+
+    @bet_manager
+    def mutate(self, info, affair_input):
+        """
+        Mutation function.
+
+        :param info: Request information
+        :param affair_input: Mutation input
+        """
+
+        affair_input["manager"] = info.context.user
+        tags = list()
+        for tag_entry in affair_input.tags:
+            try:
+                tags.append(Tag.objects.get(id=int(tag_entry)))
+            except ValueError:
+                tag, _ = Tag.objects.get_or_create(name=tag_entry)
+                tags.append(tag)
+            except Tag.DoesNotExist:
+                raise GraphQLError(
+                    f"The tag with ID {tag_entry} does not exist."
+                )
+        affair_input.pop("tags")
+        affair = Affair.objects.create(**affair_input)
+        affair.tags.set(tags)
+        return CreateAffairMutation(affair=affair)
 
 
 class CreateEventMutation(Mutation):
@@ -39,6 +83,7 @@ class CreateEventMutation(Mutation):
         """
 
         event_input["manager"] = info.context.user
+        event_input["affair"] = Affair.objects.get(id=event_input.affair)
         event = Event.objects.create(**event_input)
         return CreateEventMutation(event=event)
 
@@ -72,6 +117,55 @@ class CreateQuotaMutation(Mutation):
         quota_input["event"] = Event.objects.get(id=quota_input.event)
         quota = Quota.objects.create(**quota_input)
         return CreateQuotaMutation(quota=quota)
+
+
+class UpdateAffairMutation(Mutation):
+    """
+    Mutation for Affair update
+
+    :cvar affair: AffairType field
+    """
+
+    affair = Field(AffairType)
+
+    class Arguments:
+        """
+        Arguments for Affair update
+        """
+
+        affair_input = AffairUpdateInput(required=True)
+
+    @bet_manager
+    def mutate(self, info, affair_input):
+        """
+        Mutate function.
+
+        :param info: Request information
+        :param affair_input: Mutation input
+        """
+
+        if not Affair.objects.filter(
+            id=affair_input.id, manager=info.context.user
+        ).count():
+            raise GraphQLError("The affair must belong to the bet manager.")
+        tags = list()
+        if affair_input.tags:
+            for tag_entry in affair_input.tags:
+                try:
+                    tags.append(Tag.objects.get(id=int(tag_entry)))
+                except ValueError:
+                    tag, _ = Tag.objects.get_or_create(name=tag_entry)
+                    tags.append(tag)
+                except Tag.DoesNotExist:
+                    raise GraphQLError(
+                        f"The tag with ID {tag_entry} does not exist."
+                    )
+        affair_input.pop("tags")
+        affair, _ = Affair.objects.update_or_create(
+            id=affair_input.id, manager=info.context.user, defaults=affair_input,
+        )
+        affair.tags.set(tags)
+        return UpdateAffairMutation(affair=affair)
 
 
 class UpdateEventMutation(Mutation):
@@ -142,6 +236,25 @@ class UpdateQuotaMutation(Mutation):
             id=quota_input.id, manager=info.context.user, defaults=quota_input,
         )
         return UpdateQuotaMutation(quota=quota)
+
+
+class DeleteAffairMutation(Mutation):
+    deleted = Boolean()
+
+    class Arguments:
+        """
+        Arguments for Affair deletion
+        """
+
+        id = ID()
+
+    @bet_manager
+    def mutate(self, info, id):
+
+        if not Affair.objects.filter(id=id, manager=info.context.user).count():
+            raise GraphQLError("The affair must belong to the bet manager.")
+        Affair.objects.filter(id=id, manager=info.context.user).delete()
+        return DeleteAffairMutation(deleted=True)
 
 
 class DeleteEventMutation(Mutation):

@@ -8,15 +8,61 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
+class Tag(models.Model):
+    """
+    Class for Tag model.
+    A Tag is a keyword/keyphrase which is used to classify affairs.
+    """
+
+
+    name = models.CharField("Nombre", max_length=255)
+    creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
+    modification_date = models.DateTimeField(
+        "Fecha de modificación", auto_now=True
+    )
+
+
+class Affair(models.Model):
+    """
+    Class for Affair model.
+    An Affair is the general description of a situation on which
+    Events are plausible to happen.
+    """ 
+
+    manager = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="Administrador",
+        on_delete=models.CASCADE,
+        related_name="affairs",
+    )
+    tags = models.ManyToManyField(
+        Tag,
+        verbose_name="Etiquetas",
+        related_name="affairs",
+    )
+    description = models.TextField("Descripción", null=False, blank=False)
+    creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
+    modification_date = models.DateTimeField(
+        "Fecha de modificación", auto_now=True
+    )
+
+
 class Event(models.Model):
     """
     Class for Event model.
-    An Event is the situation on which a bet will be placed.
+    An Event is the specific situation proposed regarding an affair
+    on which a bet will be placed.
     """
 
     manager = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name="Administrador",
+        on_delete=models.CASCADE,
+        related_name="events",
+    )
+    affair = models.ForeignKey(
+        Affair,
+        verbose_name="Situación",
         on_delete=models.CASCADE,
         related_name="events",
     )

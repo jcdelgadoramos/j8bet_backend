@@ -27,7 +27,11 @@ class Affair(models.Model):
     Class for Affair model.
     An Affair is the general description of a situation on which
     Events are plausible to happen.
-    """ 
+    """
+
+    class Meta:
+        verbose_name = "Asunto"
+        verbose_name_plural = "Asuntos"
 
     manager = models.ForeignKey(
         settings.AUTH_USER_MODEL,

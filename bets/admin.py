@@ -47,6 +47,10 @@ class TransactionAdmin(admin.ModelAdmin):
     """
 
     form = TransactionForm
+    list_display = (
+        "user",
+        "amount",
+    )
 
 
 @admin.register(Bet)

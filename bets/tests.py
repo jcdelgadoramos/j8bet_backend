@@ -3,12 +3,22 @@ from datetime import datetime
 from bets.factories import (
     AffairFactory, BetFactory, EventFactory, QuotaFactory, TagFactory,
 )
+from bets.graphql.nodes import (
+    AffairNode,
+    BetNode,
+    EventNode,
+    PrizeNode,
+    QuotaNode,
+    TagNode,
+    TransactionNode,
+)
 from bets.models import Affair, Bet, Event, Prize, Quota
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
+from graphene.relay import Node
 from graphql.error.located_error import GraphQLLocatedError
 from graphql_jwt.testcases import JSONWebTokenTestCase
 from j8bet_backend.constants import BET_CONSUMER, BET_MANAGER
@@ -219,53 +229,59 @@ class QueryTest(JSONWebTokenTestCase):
         query = """
             query getAllTags {
                 tags: allTags {
-                    id,
-                    name,
-                    creationDate,
-                    modificationDate
+                    edges {
+                        node {
+                            id,
+                            name,
+                            creationDate,
+                            modificationDate
+                        }
+                    }
                 }
             }
         """
         result = self.client.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(
-            self.first_tag.id, int(result.data["tags"][0]["id"])
+            self.first_tag.id,
+            int(Node.from_global_id(result.data["tags"]["edges"][0]["node"]["id"])[1])
         )
         self.assertEqual(
-            self.first_tag.name, result.data["tags"][0]["name"],
+            self.first_tag.name, result.data["tags"]["edges"][0]["node"]["name"],
         )
         self.assertEqual(
             self.first_tag.creation_date,
             datetime.strptime(
-                result.data["tags"][0]["creationDate"],
+                result.data["tags"]["edges"][0]["node"]["creationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
             self.first_tag.modification_date,
             datetime.strptime(
-                result.data["tags"][0]["modificationDate"],
+                result.data["tags"]["edges"][0]["node"]["modificationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
-            self.second_tag.id, int(result.data["tags"][1]["id"])
+            self.second_tag.id,
+            int(Node.from_global_id(result.data["tags"]["edges"][1]["node"]["id"])[1])
         )
         self.assertEqual(
             self.second_tag.name,
-            result.data["tags"][1]["name"],
+            result.data["tags"]["edges"][1]["node"]["name"],
         )
         self.assertEqual(
             self.second_tag.creation_date,
             datetime.strptime(
-                result.data["tags"][1]["creationDate"],
+                result.data["tags"]["edges"][1]["node"]["creationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
             self.second_tag.modification_date,
             datetime.strptime(
-                result.data["tags"][1]["modificationDate"],
+                result.data["tags"]["edges"][1]["node"]["modificationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
@@ -277,7 +293,7 @@ class QueryTest(JSONWebTokenTestCase):
 
         query_by_id = """
             query getTagById {{
-                tag: tagById(id: {id}) {{
+                tag: tagById(id: "{id}") {{
                     id,
                     name,
                     creationDate,
@@ -285,11 +301,14 @@ class QueryTest(JSONWebTokenTestCase):
                 }}
             }}
         """.format(
-            id=self.first_tag.id
+            id=Node.to_global_id(TagNode.__name__, self.first_tag.id)
         )
         result = self.client.execute(query_by_id)
         self.assertIsNone(result.errors)
-        self.assertEqual(self.first_tag.id, int(result.data["tag"]["id"]))
+        self.assertEqual(
+            self.first_tag.id,
+            int(Node.from_global_id(result.data["tag"]["id"])[1])
+        )
         self.assertEqual(
             self.first_tag.name, result.data["tag"]["name"]
         )
@@ -308,11 +327,15 @@ class QueryTest(JSONWebTokenTestCase):
         )
         query_by_name = """
             query getTagsByName {{
-                tags: tagsByName(name: \"{name}\") {{
-                    id,
-                    name,
-                    creationDate,
-                    modificationDate
+                tags: allTags (name: \"{name}\") {{
+                    edges {{
+                        node {{
+                            id,
+                            name,
+                            creationDate,
+                            modificationDate
+                        }}
+                    }}
                 }}
             }}
         """.format(
@@ -320,20 +343,23 @@ class QueryTest(JSONWebTokenTestCase):
         )
         result = self.client.execute(query_by_name)
         self.assertIsNone(result.errors)
-        self.assertEqual(self.second_tag.id, int(result.data["tags"][0]["id"]))
         self.assertEqual(
-            self.second_tag.name, result.data["tags"][0]["name"]
+            self.second_tag.id,
+            int(Node.from_global_id(result.data["tags"]["edges"][0]["node"]["id"])[1])
+        )
+        self.assertEqual(
+            self.second_tag.name, result.data["tags"]["edges"][0]["node"]["name"]
         )
         self.assertEqual(
             self.second_tag.creation_date,
             datetime.strptime(
-                result.data["tags"][0]["creationDate"], "%Y-%m-%dT%H:%M:%S.%f%z",
+                result.data["tags"]["edges"][0]["node"]["creationDate"], "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
             self.second_tag.modification_date,
             datetime.strptime(
-                result.data["tags"][0]["modificationDate"],
+                result.data["tags"]["edges"][0]["node"]["modificationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
@@ -346,65 +372,71 @@ class QueryTest(JSONWebTokenTestCase):
         query = """
             query getAllAffairs {
                 affairs: allAffairs {
-                    id,
-                    description,
-                    tags{
-                        name
+                    edges {
+                        node {
+                            id,
+                            description,
+                            creationDate,
+                            modificationDate,
+                            tags {
+                                name
+                            }
+                        }
                     }
-                    creationDate,
-                    modificationDate
                 }
             }
         """
         result = self.client.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(
-            self.first_affair.id, int(result.data["affairs"][0]["id"])
+            self.first_affair.id,
+            int(Node.from_global_id(result.data["affairs"]["edges"][0]["node"]["id"])[1])
         )
         self.assertEqual(
             self.first_affair.description,
-            result.data["affairs"][0]["description"],
+            result.data["affairs"]["edges"][0]["node"]["description"],
         )
         self.assertEqual(
             self.first_affair.creation_date,
             datetime.strptime(
-                result.data["affairs"][0]["creationDate"],
+                result.data["affairs"]["edges"][0]["node"]["creationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
             self.first_affair.modification_date,
             datetime.strptime(
-                result.data["affairs"][0]["modificationDate"],
+                result.data["affairs"]["edges"][0]["node"]["modificationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
             self.first_tag.name,
-            result.data["affairs"][0]["tags"][0]["name"],
+            result.data["affairs"]["edges"][0]["node"]["tags"][0]["name"],
         )
         self.assertEqual(
             self.second_tag.name,
-            result.data["affairs"][0]["tags"][1]["name"],
+            result.data["affairs"]["edges"][0]["node"]["tags"][1]["name"],
         )
         self.assertEqual(
-            self.second_affair.id, int(result.data["affairs"][1]["id"])
+            self.second_affair.id,
+            int(Node.from_global_id(result.data["affairs"]["edges"][1]["node"]["id"])[1])
         )
         self.assertEqual(
             self.second_affair.description,
-            result.data["affairs"][1]["description"],
+            result.data["affairs"]["edges"][1]["node"]["description"],
         )
         self.assertEqual(
             self.second_affair.creation_date,
             datetime.strptime(
-                result.data["affairs"][1]["creationDate"],
+                result.data["affairs"]["edges"][1]["node"]["creationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
             self.second_affair.modification_date,
             datetime.strptime(
-                result.data["affairs"][1]["modificationDate"],
+                result.data["affairs"]["edges"][1]["node"]["modificationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
@@ -416,7 +448,7 @@ class QueryTest(JSONWebTokenTestCase):
 
         query = """
             query getAffairById {{
-                affair: affairById(id: {id}) {{
+                affair: affairById(id: "{id}") {{
                     id,
                     description,
                     tags {{
@@ -430,11 +462,14 @@ class QueryTest(JSONWebTokenTestCase):
                 }}
             }}
         """.format(
-            id=self.first_affair.id
+            id=Node.to_global_id(AffairNode.__name__, self.first_affair.id)
         )
         result = self.client.execute(query)
         self.assertIsNone(result.errors)
-        self.assertEqual(self.first_affair.id, int(result.data["affair"]["id"]))
+        self.assertEqual(
+            self.first_affair.id,
+            int(Node.from_global_id(result.data["affair"]["id"])[1])
+        )
         self.assertEqual(
             self.first_affair.description, result.data["affair"]["description"]
         )
@@ -464,7 +499,11 @@ class QueryTest(JSONWebTokenTestCase):
         query = """
             query getAllEvents {{
                 events: allEvents {{
-                    {fields}
+                    edges {{
+                        node {{
+                            {fields}
+                        }}
+                    }}
                 }}
             }}
         """.format(
@@ -473,78 +512,80 @@ class QueryTest(JSONWebTokenTestCase):
         result = self.client.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(
-            self.first_event.id, int(result.data["events"][0]["id"])
+            self.first_event.id,
+            int(Node.from_global_id(result.data["events"]["edges"][0]["node"]["id"])[1])
         )
         self.assertEqual(
-            self.first_event.name, result.data["events"][0]["name"]
+            self.first_event.name, result.data["events"]["edges"][0]["node"]["name"]
         )
         self.assertEqual(
             self.first_event.description,
-            result.data["events"][0]["description"],
+            result.data["events"]["edges"][0]["node"]["description"],
         )
         self.assertEqual(
-            self.first_event.rules, result.data["events"][0]["rules"]
+            self.first_event.rules, result.data["events"]["edges"][0]["node"]["rules"]
         )
         self.assertEqual(
             self.first_event.creation_date,
             datetime.strptime(
-                result.data["events"][0]["creationDate"],
+                result.data["events"]["edges"][0]["node"]["creationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
             self.first_event.modification_date,
             datetime.strptime(
-                result.data["events"][0]["modificationDate"],
+                result.data["events"]["edges"][0]["node"]["modificationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
             self.first_event.expiration_date,
             datetime.strptime(
-                result.data["events"][0]["expirationDate"],
+                result.data["events"]["edges"][0]["node"]["expirationDate"],
                 "%Y-%m-%dT%H:%M:%S%z",
             ),
         )
         self.assertEqual(
-            self.first_event.active, result.data["events"][0]["active"]
+            self.first_event.active, result.data["events"]["edges"][0]["node"]["active"]
         )
         self.assertEqual(
-            self.second_event.id, int(result.data["events"][1]["id"])
+            self.second_event.id,
+            int(Node.from_global_id(result.data["events"]["edges"][1]["node"]["id"])[1])
         )
         self.assertEqual(
-            self.second_event.name, result.data["events"][1]["name"]
+            self.second_event.name, result.data["events"]["edges"][1]["node"]["name"]
         )
         self.assertEqual(
             self.second_event.description,
-            result.data["events"][1]["description"],
+            result.data["events"]["edges"][1]["node"]["description"],
         )
         self.assertEqual(
-            self.second_event.rules, result.data["events"][1]["rules"]
+            self.second_event.rules, result.data["events"]["edges"][1]["node"]["rules"]
         )
         self.assertEqual(
             self.second_event.creation_date,
             datetime.strptime(
-                result.data["events"][1]["creationDate"],
+                result.data["events"]["edges"][1]["node"]["creationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
             self.second_event.modification_date,
             datetime.strptime(
-                result.data["events"][1]["modificationDate"],
+                result.data["events"]["edges"][1]["node"]["modificationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
             self.second_event.expiration_date,
             datetime.strptime(
-                result.data["events"][1]["expirationDate"],
+                result.data["events"]["edges"][1]["node"]["expirationDate"],
                 "%Y-%m-%dT%H:%M:%S%z",
             ),
         )
         self.assertEqual(
-            self.second_event.active, result.data["events"][1]["active"]
+            self.second_event.active, result.data["events"]["edges"][1]["node"]["active"]
         )
 
     def test_06_get_event(self):
@@ -554,16 +595,20 @@ class QueryTest(JSONWebTokenTestCase):
 
         query = """
             query getEventById {{
-                event: eventById(id: {id}) {{
+                event: eventById(id: "{id}") {{
                     {fields}
                 }}
             }}
         """.format(
-            id=self.first_event.id, fields=self.event_fields
+            id=Node.to_global_id(EventNode.__name__, self.first_event.id),
+            fields=self.event_fields,
         )
         result = self.client.execute(query)
         self.assertIsNone(result.errors)
-        self.assertEqual(self.first_event.id, int(result.data["event"]["id"]))
+        self.assertEqual(
+            self.first_event.id, 
+            int(Node.from_global_id(result.data["event"]["id"])[1])
+        )
         self.assertEqual(self.first_event.name, result.data["event"]["name"])
         self.assertEqual(
             self.first_event.description, result.data["event"]["description"]
@@ -600,14 +645,18 @@ class QueryTest(JSONWebTokenTestCase):
         query = """
             query getAllQuotas {{
                 quotas: allQuotas {{
-                    id,
-                    probability,
-                    creationDate,
-                    modificationDate,
-                    expirationDate,
-                    active,
-                    event {{
-                        {event_fields}
+                    edges {{
+                        node {{
+                            id,
+                            probability,
+                            creationDate,
+                            modificationDate,
+                            expirationDate,
+                            active,
+                            event {{
+                                {event_fields}
+                            }}
+                        }}
                     }}
                 }}
             }}
@@ -619,74 +668,76 @@ class QueryTest(JSONWebTokenTestCase):
         self.second_quota.refresh_from_db()
         self.assertIsNone(result.errors)
         self.assertEqual(
-            self.first_quota.id, int(result.data["quotas"][0]["id"])
+            self.first_quota.id,
+            int(Node.from_global_id(result.data["quotas"]["edges"][0]["node"]["id"])[1])
         )
         self.assertEqual(
             float(self.first_quota.probability),
-            result.data["quotas"][0]["probability"],
+            result.data["quotas"]["edges"][0]["node"]["probability"],
         )
         self.assertEqual(
             self.first_quota.creation_date,
             datetime.strptime(
-                result.data["quotas"][0]["creationDate"],
+                result.data["quotas"]["edges"][0]["node"]["creationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
             self.first_quota.modification_date,
             datetime.strptime(
-                result.data["quotas"][0]["modificationDate"],
+                result.data["quotas"]["edges"][0]["node"]["modificationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
             self.first_quota.expiration_date,
             datetime.strptime(
-                result.data["quotas"][0]["expirationDate"],
+                result.data["quotas"]["edges"][0]["node"]["expirationDate"],
                 "%Y-%m-%dT%H:%M:%S%z",
             ),
         )
         self.assertEqual(
-            self.first_quota.active, result.data["quotas"][0]["active"]
+            self.first_quota.active, result.data["quotas"]["edges"][0]["node"]["active"]
         )
         self.assertEqual(
             self.first_quota.event.id,
-            int(result.data["quotas"][0]["event"]["id"]),
+            int(result.data["quotas"]["edges"][0]["node"]["event"]["id"]),
         )
         self.assertEqual(
-            self.second_quota.id, int(result.data["quotas"][1]["id"])
+            self.second_quota.id,
+            int(Node.from_global_id(result.data["quotas"]["edges"][1]["node"]["id"])[1])
         )
         self.assertEqual(
             float(self.second_quota.probability),
-            result.data["quotas"][1]["probability"],
+            result.data["quotas"]["edges"][1]["node"]["probability"],
         )
         self.assertEqual(
             self.second_quota.creation_date,
             datetime.strptime(
-                result.data["quotas"][1]["creationDate"],
+                result.data["quotas"]["edges"][1]["node"]["creationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
             self.second_quota.modification_date,
             datetime.strptime(
-                result.data["quotas"][1]["modificationDate"],
+                result.data["quotas"]["edges"][1]["node"]["modificationDate"],
                 "%Y-%m-%dT%H:%M:%S.%f%z",
             ),
         )
         self.assertEqual(
             self.second_quota.expiration_date,
             datetime.strptime(
-                result.data["quotas"][1]["expirationDate"],
+                result.data["quotas"]["edges"][1]["node"]["expirationDate"],
                 "%Y-%m-%dT%H:%M:%S%z",
             ),
         )
         self.assertEqual(
-            self.second_quota.active, result.data["quotas"][1]["active"]
+            self.second_quota.active, result.data["quotas"]["edges"][1]["node"]["active"]
         )
         self.assertEqual(
             self.second_quota.event.id,
-            int(result.data["quotas"][1]["event"]["id"]),
+            int(result.data["quotas"]["edges"][1]["node"]["event"]["id"]),
         )
 
     def test_08_get_quota(self):
@@ -696,7 +747,7 @@ class QueryTest(JSONWebTokenTestCase):
 
         query = """
             query getQuotaById {{
-                quota: quotaById(id: {id}) {{
+                quota: quotaById(id: "{id}") {{
                     id,
                     probability,
                     creationDate,
@@ -709,12 +760,16 @@ class QueryTest(JSONWebTokenTestCase):
                 }}
             }}
         """.format(
-            id=self.first_quota.id, event_fields=self.event_fields
+            id=Node.to_global_id(QuotaNode.__name__, self.first_quota.id),
+            event_fields=self.event_fields
         )
         result = self.client.execute(query)
         self.first_quota.refresh_from_db()
         self.assertIsNone(result.errors)
-        self.assertEqual(self.first_quota.id, int(result.data["quota"]["id"]))
+        self.assertEqual(
+            self.first_quota.id,
+            int(Node.from_global_id(result.data["quota"]["id"])[1])
+        )
         self.assertEqual(
             float(self.first_quota.probability),
             result.data["quota"]["probability"],
@@ -753,23 +808,27 @@ class QueryTest(JSONWebTokenTestCase):
         query = """
             query getAllBets {{
                 bets: allBets {{
-                    id,
-                    transaction {{
-                        id,
-                        amount,
-                        description,
-                    }},
-                    quota {{
-                        id,
-                        probability,
-                        active
-                        event {{
-                            {event_fields}
+                    edges {{
+                        node {{
+                            id,
+                            transaction {{
+                                id,
+                                amount,
+                                description,
+                            }},
+                            quota {{
+                                id,
+                                probability,
+                                active
+                                event {{
+                                    {event_fields}
+                                }}
+                            }},
+                            potentialEarnings,
+                            won,
+                            active,
                         }}
-                    }},
-                    potentialEarnings,
-                    won,
-                    active,
+                    }}
                 }}
             }}
         """.format(
@@ -779,29 +838,37 @@ class QueryTest(JSONWebTokenTestCase):
         self.first_bet.refresh_from_db()
         self.second_bet.refresh_from_db()
         self.assertIsNone(result.errors)
-        self.assertEqual(self.first_bet.id, int(result.data["bets"][0]["id"]))
+        self.assertEqual(
+            self.first_bet.id,
+            int(Node.from_global_id(result.data["bets"]["edges"][0]["node"]["id"])[1])
+        )
         self.assertEqual(
             float(self.first_bet.potential_earnings),
-            result.data["bets"][0]["potentialEarnings"],
+            result.data["bets"]["edges"][0]["node"]["potentialEarnings"],
         )
         self.assertEqual(
-            self.first_bet.active, result.data["bets"][0]["active"]
+            self.first_bet.active, result.data["bets"]["edges"][0]["node"]["active"]
         )
-        self.assertEqual(self.first_bet.won, result.data["bets"][0]["won"])
+        self.assertEqual(self.first_bet.won, result.data["bets"]["edges"][0]["node"]["won"])
         self.assertEqual(
-            self.first_bet.quota.id, int(result.data["bets"][0]["quota"]["id"])
+            self.first_bet.quota.id,
+            int(result.data["bets"]["edges"][0]["node"]["quota"]["id"])
         )
-        self.assertEqual(self.second_bet.id, int(result.data["bets"][1]["id"]))
+        self.assertEqual(
+            self.second_bet.id,
+            int(Node.from_global_id(result.data["bets"]["edges"][1]["node"]["id"])[1])
+        )
         self.assertEqual(
             float(self.second_bet.potential_earnings),
-            result.data["bets"][1]["potentialEarnings"],
+            result.data["bets"]["edges"][1]["node"]["potentialEarnings"],
         )
         self.assertEqual(
-            self.second_bet.active, result.data["bets"][1]["active"]
+            self.second_bet.active, result.data["bets"]["edges"][1]["node"]["active"]
         )
-        self.assertEqual(self.second_bet.won, result.data["bets"][1]["won"])
+        self.assertEqual(self.second_bet.won, result.data["bets"]["edges"][1]["node"]["won"])
         self.assertEqual(
-            self.second_bet.quota.id, int(result.data["bets"][1]["quota"]["id"])
+            self.second_bet.quota.id,
+            int(result.data["bets"]["edges"][1]["node"]["quota"]["id"])
         )
 
     def test_10_get_bet(self):
@@ -811,7 +878,7 @@ class QueryTest(JSONWebTokenTestCase):
 
         query = """
             query getBetById {{
-                bet: betById(id: {id}) {{
+                bet: betById(id: "{id}") {{
                     id,
                     transaction {{
                         id,
@@ -832,12 +899,16 @@ class QueryTest(JSONWebTokenTestCase):
                 }}
             }}
         """.format(
-            id=self.first_bet.id, event_fields=self.event_fields
+            id=Node.to_global_id(BetNode.__name__, self.first_bet.id),
+            event_fields=self.event_fields
         )
         result = self.client.execute(query)
         self.first_bet.refresh_from_db()
         self.assertIsNone(result.errors)
-        self.assertEqual(self.first_bet.id, int(result.data["bet"]["id"]))
+        self.assertEqual(
+            self.first_bet.id,
+            int(Node.from_global_id(result.data["bet"]["id"])[1])
+        )
         self.assertEqual(
             float(self.first_bet.potential_earnings),
             result.data["bet"]["potentialEarnings"],
@@ -856,9 +927,13 @@ class QueryTest(JSONWebTokenTestCase):
         query = """
             query getAllTransactions {
                 transactions: allTransactions {
-                    id,
-                    amount,
-                    description,
+                    edges {
+                        node {
+                            id,
+                            amount,
+                            description,
+                        }
+                    }
                 }
             }
         """
@@ -866,27 +941,27 @@ class QueryTest(JSONWebTokenTestCase):
         self.assertIsNone(result.errors)
         self.assertEqual(
             self.first_bet.transaction.id,
-            int(result.data["transactions"][0]["id"]),
+            int(Node.from_global_id(result.data["transactions"]["edges"][0]["node"]["id"])[1]),
         )
         self.assertEqual(
             float(self.first_bet.transaction.amount),
-            result.data["transactions"][0]["amount"],
+            result.data["transactions"]["edges"][0]["node"]["amount"],
         )
         self.assertEqual(
             self.first_bet.transaction.description,
-            result.data["transactions"][0]["description"],
+            result.data["transactions"]["edges"][0]["node"]["description"],
         )
         self.assertEqual(
             self.second_bet.transaction.id,
-            int(result.data["transactions"][1]["id"]),
+            int(Node.from_global_id(result.data["transactions"]["edges"][1]["node"]["id"])[1]),
         )
         self.assertEqual(
             float(self.second_bet.transaction.amount),
-            result.data["transactions"][1]["amount"],
+            result.data["transactions"]["edges"][1]["node"]["amount"],
         )
         self.assertEqual(
             self.second_bet.transaction.description,
-            result.data["transactions"][1]["description"],
+            result.data["transactions"]["edges"][1]["node"]["description"],
         )
 
     def test_12_get_transaction(self):
@@ -896,19 +971,22 @@ class QueryTest(JSONWebTokenTestCase):
 
         query = """
             query getTransaction {{
-                transaction: transactionById(id: {id}) {{
+                transaction: transactionById(id: "{id}") {{
                     id,
                     amount,
                     description,
                 }}
             }}
         """.format(
-            id=self.first_bet.transaction.id
+            id=Node.to_global_id(
+                TransactionNode.__name__, self.first_bet.transaction.id
+            )
         )
         result = self.client.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(
-            self.first_bet.transaction.id, int(result.data["transaction"]["id"])
+            self.first_bet.transaction.id,
+            int(Node.from_global_id(result.data["transaction"]["id"])[1])
         )
         self.assertEqual(
             float(self.first_bet.transaction.amount),
@@ -933,33 +1011,39 @@ class QueryTest(JSONWebTokenTestCase):
         query = """
             query getAllPrizes {
                 prizes: allPrizes {
-                    id,
-                    bet{
-                        id
+                    edges {
+                        node {
+                            id,
+                            bet{
+                                id
+                            }
+                            reward,
+                        }
                     }
-                    reward,
                 }
             }
         """
         result = self.client.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(
-            self.first_prize.id, int(result.data["prizes"][0]["id"])
+            self.first_prize.id,
+            int(Node.from_global_id(result.data["prizes"]["edges"][0]["node"]["id"])[1])
         )
         self.assertEqual(
-            float(self.first_prize.reward), result.data["prizes"][0]["reward"]
+            float(self.first_prize.reward), result.data["prizes"]["edges"][0]["node"]["reward"]
         )
         self.assertEqual(
-            self.first_prize.bet.id, int(result.data["prizes"][0]["bet"]["id"])
+            self.first_prize.bet.id, int(result.data["prizes"]["edges"][0]["node"]["bet"]["id"])
         )
         self.assertEqual(
-            self.second_prize.id, int(result.data["prizes"][1]["id"])
+            self.second_prize.id,
+            int(Node.from_global_id(result.data["prizes"]["edges"][1]["node"]["id"])[1])
         )
         self.assertEqual(
-            float(self.second_prize.reward), result.data["prizes"][1]["reward"]
+            float(self.second_prize.reward), result.data["prizes"]["edges"][1]["node"]["reward"]
         )
         self.assertEqual(
-            self.second_prize.bet.id, int(result.data["prizes"][1]["bet"]["id"])
+            self.second_prize.bet.id, int(result.data["prizes"]["edges"][1]["node"]["bet"]["id"])
         )
 
     def test_14_get_prize(self):
@@ -972,7 +1056,7 @@ class QueryTest(JSONWebTokenTestCase):
         self.first_prize = Prize.objects.first()
         query = """
             query getPrize {{
-                prize: prizeById(id: {id}) {{
+                prize: prizeById(id: "{id}") {{
                     id,
                     bet{{
                         id
@@ -981,11 +1065,14 @@ class QueryTest(JSONWebTokenTestCase):
                 }}
             }}
         """.format(
-            id=self.first_prize.id
+            id=Node.to_global_id(PrizeNode.__name__, self.first_prize.id)
         )
         result = self.client.execute(query)
         self.assertIsNone(result.errors)
-        self.assertEqual(self.first_prize.id, int(result.data["prize"]["id"]))
+        self.assertEqual(
+            self.first_prize.id,
+            int(Node.from_global_id(result.data["prize"]["id"])[1])
+        )
         self.assertEqual(
             float(self.first_prize.reward), result.data["prize"]["reward"]
         )
@@ -1722,9 +1809,14 @@ class NotLoggedInTest(JSONWebTokenTestCase):
         """
 
         query = """
-            query getAllEvents {
-                events: allEvents {
-                    id
+            query getAllAffairs {
+                affairs: allAffairs {
+                    edges{
+                        node{
+                            id,
+                            description 
+                        }
+                    }
                 }
             }
         """
@@ -1732,7 +1824,7 @@ class NotLoggedInTest(JSONWebTokenTestCase):
         self.assertEqual(
             GraphQLLocatedError, type(result.errors[0]),
         )
-        self.assertIsNone(result.data["events"])
+        self.assertIsNone(result.data["affairs"]["edges"][0]["node"])
 
     def test_02_mutation(self):
         """

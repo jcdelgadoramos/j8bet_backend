@@ -41,7 +41,7 @@ class TransactionForm(ModelForm):
 
     class Meta:
         model = Transaction
-        fields = ("amount", "description")
+        fields = ("user", "amount", "description")
 
 
 class QuotaForm(ModelForm):

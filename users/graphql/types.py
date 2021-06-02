@@ -9,7 +9,7 @@ class UserType(DjangoObjectType):
     """
     Relay Node for User
     """
-    
+
     archived = Boolean()
     secondary_email = String()
     verified = Boolean()
@@ -17,11 +17,11 @@ class UserType(DjangoObjectType):
     class Meta:
         model = get_user_model()
         filter_fields = {
-            "username": ['exact', 'icontains', 'istartswith'],
-            "email": ['exact', 'icontains', 'istartswith'],
-            "first_name": ['exact', 'icontains', 'istartswith'],
-            "last_name": ['exact', 'icontains', 'istartswith'],
-            "secondary_email": ['exact', 'icontains', 'istartswith'],
+            "username": ["exact", "icontains", "istartswith"],
+            "email": ["exact", "icontains", "istartswith"],
+            "first_name": ["exact", "icontains", "istartswith"],
+            "last_name": ["exact", "icontains", "istartswith"],
+            "secondary_email": ["exact", "icontains", "istartswith"],
         }
         interfaces = (Node,)
         fields = [
@@ -38,7 +38,7 @@ class UserType(DjangoObjectType):
             "verified",
             "groups",
         ]
-    
+
     def resolve_archived(self, info):
         return self.status.archived
 
@@ -56,8 +56,6 @@ class GroupType(DjangoObjectType):
 
     class Meta:
         model = Group
-        filter_fields = ["name",]
+        filter_fields = ["name"]
         interfaces = (Node,)
-        fields = [
-            "name",
-        ]
+        fields = ["name"]

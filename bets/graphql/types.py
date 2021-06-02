@@ -1,8 +1,8 @@
 from bets.models import Affair, Bet, Event, Prize, Quota, Tag, Transaction
 from graphene_django import DjangoObjectType
 from graphene.relay import Node
-
 from graphql_jwt.decorators import login_required
+
 
 @login_required
 def login_required_resolver(attname, default_value, root, info, **args):
@@ -20,7 +20,7 @@ class TagType(DjangoObjectType):
 
     class Meta:
         model = Tag
-        filter_fields = ["name",]
+        filter_fields = ["name"]
         interfaces = (Node,)
         default_resolver = login_required_resolver
 
@@ -33,7 +33,7 @@ class AffairType(DjangoObjectType):
     class Meta:
         model = Affair
         filter_fields = {
-            "description": ['exact', 'icontains', 'istartswith'],
+            "description": ["exact", "icontains", "istartswith"],
         }
         interfaces = (Node,)
         default_resolver = login_required_resolver
@@ -47,11 +47,11 @@ class EventType(DjangoObjectType):
     class Meta:
         model = Event
         filter_fields = {
-            "id": ['exact'],
-            "name": ['exact', 'icontains', 'istartswith'],
-            "description": ['exact', 'icontains', 'istartswith'],
-            "active": ['exact'],
-            "completed": ['exact'],
+            "id": ["exact"],
+            "name": ["exact", "icontains", "istartswith"],
+            "description": ["exact", "icontains", "istartswith"],
+            "active": ["exact"],
+            "completed": ["exact"],
         }
         interfaces = (Node,)
         default_resolver = login_required_resolver
@@ -64,7 +64,7 @@ class TransactionType(DjangoObjectType):
 
     class Meta:
         model = Transaction
-        filter_fields = ["description",]
+        filter_fields = ["description"]
         interfaces = (Node,)
         default_resolver = login_required_resolver
 
@@ -76,7 +76,7 @@ class QuotaType(DjangoObjectType):
 
     class Meta:
         model = Quota
-        filter_fields = ["active",]
+        filter_fields = ["active"]
         interfaces = (Node,)
         default_resolver = login_required_resolver
 
@@ -88,7 +88,7 @@ class BetType(DjangoObjectType):
 
     class Meta:
         model = Bet
-        filter_fields = ["won", "active",]
+        filter_fields = ["won", "active"]
         interfaces = (Node,)
         default_resolver = login_required_resolver
 
@@ -100,6 +100,6 @@ class PrizeType(DjangoObjectType):
 
     class Meta:
         model = Prize
-        filter_fields = ["creation_date",]
+        filter_fields = ["creation_date"]
         interfaces = (Node,)
         default_resolver = login_required_resolver

@@ -6,8 +6,7 @@ from bets.graphql.input import (
     QuotaCreationInput,
     QuotaUpdateInput,
 )
-# from bets.graphql.types import AffairType, BetType, EventType, QuotaType
-from bets.graphql.nodes import AffairNode, BetNode, EventNode, QuotaNode
+from bets.graphql.types import AffairType, BetType, EventType, QuotaType
 from bets.models import Affair, Bet, Event, Quota, Tag, Transaction
 from graphene import ID, Boolean, Decimal, Field, Mutation
 from graphql import GraphQLError
@@ -22,7 +21,7 @@ class CreateAffairMutation(Mutation):
     :cvar affair: AffairType field
     """
 
-    affair = Field(AffairNode)
+    affair = Field(AffairType)
 
     class Arguments:
         """
@@ -65,7 +64,7 @@ class CreateEventMutation(Mutation):
     :cvar event: EventType field
     """
 
-    event = Field(EventNode)
+    event = Field(EventType)
 
     class Arguments:
         """
@@ -96,7 +95,7 @@ class CreateQuotaMutation(Mutation):
     :cvar quota: QuotaType field
     """
 
-    quota = Field(QuotaNode)
+    quota = Field(QuotaType)
 
     class Arguments:
         """
@@ -127,7 +126,7 @@ class UpdateAffairMutation(Mutation):
     :cvar affair: AffairType field
     """
 
-    affair = Field(AffairNode)
+    affair = Field(AffairType)
 
     class Arguments:
         """
@@ -176,7 +175,7 @@ class UpdateEventMutation(Mutation):
     :cvar event: EventType field
     """
 
-    event = Field(EventNode)
+    event = Field(EventType)
 
     class Arguments:
         """
@@ -211,7 +210,7 @@ class UpdateQuotaMutation(Mutation):
     :cvar quota: QuotaType field
     """
 
-    quota = Field(QuotaNode)
+    quota = Field(QuotaType)
 
     class Arguments:
         """
@@ -300,7 +299,7 @@ class DeleteQuotaMutation(Mutation):
 
 
 class BetPlacementByQuotaMutation(Mutation):
-    bet = Field(BetNode)
+    bet = Field(BetType)
 
     class Arguments:
         """
@@ -330,7 +329,7 @@ class BetPlacementByQuotaMutation(Mutation):
 
 
 class BetPlacementByEventMutation(Mutation):
-    bet = Field(BetNode)
+    bet = Field(BetType)
 
     class Arguments:
         """

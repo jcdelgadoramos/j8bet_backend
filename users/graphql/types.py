@@ -39,6 +39,7 @@ class UserType(DjangoObjectType):
     def resolve_verified(self, info):
         return self.status.verified
 
+
 class GroupType(DjangoObjectType):
     """
     GraphQL object type for Group

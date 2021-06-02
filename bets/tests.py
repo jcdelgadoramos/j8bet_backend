@@ -7,14 +7,14 @@ from bets.factories import (
     QuotaFactory,
     TagFactory,
 )
-from bets.graphql.nodes import (
-    AffairNode,
-    BetNode,
-    EventNode,
-    PrizeNode,
-    QuotaNode,
-    TagNode,
-    TransactionNode,
+from bets.graphql.types import (
+    AffairType,
+    BetType,
+    EventType,
+    PrizeType,
+    QuotaType,
+    TagType,
+    TransactionType,
 )
 from bets.models import Affair, Bet, Event, Prize, Quota
 from django.contrib.auth.models import Group
@@ -320,7 +320,7 @@ class QueryTest(JSONWebTokenTestCase):
                 }}
             }}
         """.format(
-            id=Node.to_global_id(TagNode.__name__, self.first_tag.id)
+            id=Node.to_global_id(TagType.__name__, self.first_tag.id)
         )
         result = self.client.execute(query_by_id)
         self.assertIsNone(result.errors)
@@ -506,7 +506,7 @@ class QueryTest(JSONWebTokenTestCase):
                 }}
             }}
         """.format(
-            id=Node.to_global_id(AffairNode.__name__, self.first_affair.id)
+            id=Node.to_global_id(AffairType.__name__, self.first_affair.id)
         )
         result = self.client.execute(query)
         self.assertIsNone(result.errors)
@@ -659,7 +659,7 @@ class QueryTest(JSONWebTokenTestCase):
                 }}
             }}
         """.format(
-            id=Node.to_global_id(EventNode.__name__, self.first_event.id),
+            id=Node.to_global_id(EventType.__name__, self.first_event.id),
             fields=self.event_fields,
         )
         result = self.client.execute(query)
@@ -839,7 +839,7 @@ class QueryTest(JSONWebTokenTestCase):
                 }}
             }}
         """.format(
-            id=Node.to_global_id(QuotaNode.__name__, self.first_quota.id),
+            id=Node.to_global_id(QuotaType.__name__, self.first_quota.id),
             event_fields=self.event_fields,
         )
         result = self.client.execute(query)
@@ -1003,7 +1003,7 @@ class QueryTest(JSONWebTokenTestCase):
                 }}
             }}
         """.format(
-            id=Node.to_global_id(BetNode.__name__, self.first_bet.id),
+            id=Node.to_global_id(BetType.__name__, self.first_bet.id),
             event_fields=self.event_fields,
         )
         result = self.client.execute(query)
@@ -1092,7 +1092,7 @@ class QueryTest(JSONWebTokenTestCase):
             }}
         """.format(
             id=Node.to_global_id(
-                TransactionNode.__name__, self.first_bet.transaction.id
+                TransactionType.__name__, self.first_bet.transaction.id
             )
         )
         result = self.client.execute(query)
@@ -1198,7 +1198,7 @@ class QueryTest(JSONWebTokenTestCase):
                 }}
             }}
         """.format(
-            id=Node.to_global_id(PrizeNode.__name__, self.first_prize.id)
+            id=Node.to_global_id(PrizeType.__name__, self.first_prize.id)
         )
         result = self.client.execute(query)
         self.assertIsNone(result.errors)

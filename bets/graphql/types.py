@@ -1,5 +1,4 @@
 from bets.models import Affair, Bet, Event, Prize, Quota, Tag, Transaction
-from graphene import ID
 from graphene_django import DjangoObjectType
 from graphene.relay import Node
 

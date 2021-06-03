@@ -1,6 +1,6 @@
 from bets.models import Affair, Bet, Event, Prize, Quota, Tag, Transaction
-from graphene_django import DjangoObjectType
 from graphene.relay import Node
+from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import login_required
 
 

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
-from graphene import Schema
+from graphene import Node, Schema
 from graphene.test import Client
 from graphql_jwt.testcases import JSONWebTokenTestCase
 from j8bet_backend.constants import BET_CONSUMER
@@ -33,7 +33,8 @@ class QueryTest(JSONWebTokenTestCase):
         result = self.client.execute(query)
         self.assertEqual(len(result.data["users"]), 2)
         self.assertIn(
-            self.user.username, [user["username"] for user in result.data["users"]]
+            self.user.username,
+            [user["username"] for user in result.data["users"]],
         )
 
     def test_02_get_single_user(self):
@@ -53,7 +54,9 @@ class QueryTest(JSONWebTokenTestCase):
             id=self.user.id,
         )
         result = self.client.execute(query_by_id)
-        self.assertEqual(self.user.id, int(result.data["user"]["id"]))
+        self.assertEqual(
+            self.user.id, int(Node.from_global_id(result.data["user"]["id"])[1])
+        )
         self.assertEqual(self.user.username, result.data["user"]["username"])
         query_by_username = """
             query getUserByUsername {{
@@ -67,7 +70,9 @@ class QueryTest(JSONWebTokenTestCase):
             username=self.user.username,
         )
         result = self.client.execute(query_by_username)
-        self.assertEqual(self.user.id, int(result.data["user"]["id"]))
+        self.assertEqual(
+            self.user.id, int(Node.from_global_id(result.data["user"]["id"])[1])
+        )
         self.assertEqual(self.user.username, result.data["user"]["username"])
 
     def test_03_me(self):
@@ -76,22 +81,24 @@ class QueryTest(JSONWebTokenTestCase):
         """
 
         query = """
-            query{
-                me{
+            query {
+                me {
                     username,
                     archived,
                     verified,
                     secondaryEmail,
-                    groups{
-                        name,
+                    groups {
+                        edges {
+                            node {
+                                name
+                            }
+                        }
                     }
                 }
             }
         """
         result = self.client.execute(query)
-        self.assertEqual(
-            self.user.username, result.data["me"]["username"]
-        )
+        self.assertEqual(self.user.username, result.data["me"]["username"])
         self.assertEqual(
             self.user.status.archived, result.data["me"]["archived"]
         )
@@ -104,7 +111,7 @@ class QueryTest(JSONWebTokenTestCase):
         )
         self.assertEqual(
             self.user.groups.first().name,
-            result.data["me"]["groups"][0]["name"],
+            result.data["me"]["groups"]["edges"][0]["node"]["name"],
         )
         self.client.logout()
         result = self.client.execute(query)
@@ -145,6 +152,7 @@ class CreateUserMutationTest(TestCase):
             ),
         )
         self.assertEqual(
-            username, executed["data"]["createUser"]["user"]["username"],
+            username,
+            executed["data"]["createUser"]["user"]["username"],
         )
         self.assertEqual(email, executed["data"]["createUser"]["user"]["email"])

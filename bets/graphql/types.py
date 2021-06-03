@@ -1,72 +1,105 @@
 from bets.models import Affair, Bet, Event, Prize, Quota, Tag, Transaction
+from graphene.relay import Node
 from graphene_django import DjangoObjectType
+from graphql_jwt.decorators import login_required
+
+
+@login_required
+def login_required_resolver(attname, default_value, root, info, **args):
+    """
+    Prevents resolver from being accessed without proper authentication
+    """
+
+    return getattr(root, attname, default_value)
 
 
 class TagType(DjangoObjectType):
     """
-    GraphQL object type for Tag
+    Relay Node for Tag
     """
 
     class Meta:
         model = Tag
-        fields = "__all__"
+        filter_fields = ["name"]
+        interfaces = (Node,)
+        default_resolver = login_required_resolver
 
 
 class AffairType(DjangoObjectType):
     """
-    GraphQL object type for Affair
+    Relay Node for Affair
     """
 
     class Meta:
         model = Affair
-        fields = "__all__"
+        filter_fields = {
+            "description": ["exact", "icontains", "istartswith"],
+        }
+        interfaces = (Node,)
+        default_resolver = login_required_resolver
 
 
 class EventType(DjangoObjectType):
     """
-    GraphQL object type for Event
+    Relay Node for Event
     """
 
     class Meta:
         model = Event
-        fields = "__all__"
+        filter_fields = {
+            "id": ["exact"],
+            "name": ["exact", "icontains", "istartswith"],
+            "description": ["exact", "icontains", "istartswith"],
+            "active": ["exact"],
+            "completed": ["exact"],
+        }
+        interfaces = (Node,)
+        default_resolver = login_required_resolver
 
 
 class TransactionType(DjangoObjectType):
     """
-    GraphQL object type for Transaction
+    Relay Node for Transaction
     """
 
     class Meta:
         model = Transaction
-        fields = "__all__"
+        filter_fields = ["description"]
+        interfaces = (Node,)
+        default_resolver = login_required_resolver
 
 
 class QuotaType(DjangoObjectType):
     """
-    GraphQL object type for Quota model
+    Relay Node for Quota model
     """
 
     class Meta:
         model = Quota
-        fields = "__all__"
+        filter_fields = ["active"]
+        interfaces = (Node,)
+        default_resolver = login_required_resolver
 
 
 class BetType(DjangoObjectType):
     """
-    GraphQL object type for Bet model
+    Relay Node for Bet model
     """
 
     class Meta:
         model = Bet
-        fields = "__all__"
+        filter_fields = ["won", "active"]
+        interfaces = (Node,)
+        default_resolver = login_required_resolver
 
 
 class PrizeType(DjangoObjectType):
     """
-    GraphQL object type for Prize model
+    Relay Node for Prize model
     """
 
     class Meta:
         model = Prize
-        fields = "__all__"
+        filter_fields = ["creation_date"]
+        interfaces = (Node,)
+        default_resolver = login_required_resolver

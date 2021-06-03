@@ -1,6 +1,28 @@
-from bets.forms import BetForm, EventForm, PrizeForm, QuotaForm, TransactionForm
-from bets.models import Bet, Event, Prize, Quota, Transaction
+from bets.forms import (
+    AffairForm,
+    BetForm,
+    EventForm,
+    PrizeForm,
+    QuotaForm,
+    TransactionForm,
+)
+from bets.models import Affair, Bet, Event, Prize, Quota, Transaction
 from django.contrib import admin
+
+
+@admin.register(Affair)
+class AffairAdmin(admin.ModelAdmin):
+    """
+    Admin class for Affair model
+    """
+
+    form = AffairForm
+    list_display = (
+        "manager",
+        "description",
+        "creation_date",
+        "modification_date",
+    )
 
 
 @admin.register(Event)
@@ -25,6 +47,10 @@ class TransactionAdmin(admin.ModelAdmin):
     """
 
     form = TransactionForm
+    list_display = (
+        "user",
+        "amount",
+    )
 
 
 @admin.register(Bet)

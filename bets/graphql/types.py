@@ -22,7 +22,6 @@ class TagType(DjangoObjectType):
         model = Tag
         filter_fields = ["name"]
         interfaces = (Node,)
-        default_resolver = login_required_resolver
 
 
 class AffairType(DjangoObjectType):
@@ -36,7 +35,6 @@ class AffairType(DjangoObjectType):
             "description": ["exact", "icontains", "istartswith"],
         }
         interfaces = (Node,)
-        default_resolver = login_required_resolver
 
 
 class EventType(DjangoObjectType):
@@ -54,7 +52,6 @@ class EventType(DjangoObjectType):
             "completed": ["exact"],
         }
         interfaces = (Node,)
-        default_resolver = login_required_resolver
 
 
 class TransactionType(DjangoObjectType):
@@ -78,7 +75,6 @@ class QuotaType(DjangoObjectType):
         model = Quota
         filter_fields = ["active"]
         interfaces = (Node,)
-        default_resolver = login_required_resolver
 
 
 class BetType(DjangoObjectType):

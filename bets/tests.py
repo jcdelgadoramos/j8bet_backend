@@ -214,7 +214,6 @@ class QueryTest(JSONWebTokenTestCase):
             active
         """
         self.user = UserFactory()
-        self.client.authenticate(self.user)
         super().setUp()
 
     def test_00_hello(self):
@@ -222,6 +221,7 @@ class QueryTest(JSONWebTokenTestCase):
         This test evaluates the HelloQuery
         """
 
+        self.client.authenticate(self.user)
         query = """
             query hello {
                 hola: hello(name: "tester")
@@ -887,6 +887,7 @@ class QueryTest(JSONWebTokenTestCase):
         This test evaluates retrieving all bets.
         """
 
+        self.client.authenticate(self.user)
         query = """
             query getAllBets {{
                 bets: allBets {{
@@ -980,6 +981,7 @@ class QueryTest(JSONWebTokenTestCase):
         This test evaluates retrieving a single quota.
         """
 
+        self.client.authenticate(self.user)
         query = """
             query getBetById {{
                 bet: betById(id: "{id}") {{
@@ -1029,6 +1031,7 @@ class QueryTest(JSONWebTokenTestCase):
         This test evaluates retrieving all transactions.
         """
 
+        self.client.authenticate(self.user)
         query = """
             query getAllTransactions {
                 transactions: allTransactions {
@@ -1082,6 +1085,7 @@ class QueryTest(JSONWebTokenTestCase):
         This test evaluates retrieving a single transaction.
         """
 
+        self.client.authenticate(self.user)
         query = """
             query getTransaction {{
                 transaction: transactionById(id: "{id}") {{
@@ -1115,6 +1119,7 @@ class QueryTest(JSONWebTokenTestCase):
         This test evaluates retrieving all prizes.
         """
 
+        self.client.authenticate(self.user)
         self.first_event.completed = True
         self.first_event.save()
         self.first_prize = Prize.objects.first()
@@ -1184,6 +1189,7 @@ class QueryTest(JSONWebTokenTestCase):
         This test evaluates retrieving a single prize.
         """
 
+        self.client.authenticate(self.user)
         self.first_event.completed = True
         self.first_event.save()
         self.first_prize = Prize.objects.first()
@@ -2007,6 +2013,9 @@ class MutationAsConsumerTest(JSONWebTokenTestCase):
 class NotLoggedInTest(JSONWebTokenTestCase):
     def setUp(self):
         self.affair = AffairFactory()
+        self.event = EventFactory(affair=self.affair)
+        self.quota = QuotaFactory(event=self.event, active=True)
+        self.bet = BetFactory(quota=self.quota)
         self.request_factory = RequestFactory()
         self.context_value = self.request_factory.get(reverse("graphql"))
 
@@ -2016,12 +2025,12 @@ class NotLoggedInTest(JSONWebTokenTestCase):
         """
 
         query = """
-            query getAllAffairs {
-                affairs: allAffairs {
+            query getAllBets {
+                bets: allBets {
                     edges{
                         node{
                             id,
-                            description 
+                            potentialEarnings
                         }
                     }
                 }
@@ -2032,7 +2041,7 @@ class NotLoggedInTest(JSONWebTokenTestCase):
             GraphQLLocatedError,
             type(result.errors[0]),
         )
-        self.assertIsNone(result.data["affairs"]["edges"][0]["node"])
+        self.assertIsNone(result.data["bets"]["edges"][0]["node"])
 
     def test_02_mutation(self):
         """
@@ -2043,7 +2052,8 @@ class NotLoggedInTest(JSONWebTokenTestCase):
             mutation createEvent($eventInput: EventCreationInput!) {
                 createEvent(eventInput: $eventInput) {
                     event{
-                        id
+                        id,
+                        description
                     }
                 }
             }

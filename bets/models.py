@@ -261,7 +261,7 @@ class Bet(models.Model):
         related_name="bets",
     )
     potential_earnings = models.DecimalField(
-        "Ganancias potenciales", max_digits=12, decimal_places=2
+        "Ganancias potenciales", max_digits=12, decimal_places=2, default=1,
     )
     won = models.BooleanField("Ganado", null=True)
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
@@ -290,7 +290,7 @@ class Bet(models.Model):
         # self.potential_earnings = (
         #     self.transaction.amount * self.quota.coeficient
         # ).quantize("0,01")
-        self.potential_earnings = Decimal(2.04)
+        # self.potential_earnings = Decimal(2.04)
         self.won = None
         self.active = True
         super().save()

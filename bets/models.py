@@ -287,9 +287,10 @@ class Bet(models.Model):
         """
         if not self.quota.active:
             raise ValidationError(_("La cuota debe estar activa"))
-        self.potential_earnings = (
-            self.transaction.amount * self.quota.coeficient
-        ).quantize("0,01")
+        # self.potential_earnings = (
+        #     self.transaction.amount * self.quota.coeficient
+        # ).quantize("0,01")
+        self.potential_earnings = Decimal(2.04)
         self.won = None
         self.active = True
         super().save()

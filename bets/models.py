@@ -289,7 +289,7 @@ class Bet(models.Model):
             raise ValidationError(_("La cuota debe estar activa"))
         self.potential_earnings = (
             self.transaction.amount * self.quota.coeficient
-        )
+        ).quantize(Decimal(".01"))
         self.won = None
         self.active = True
         super().save()

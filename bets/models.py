@@ -222,7 +222,7 @@ class Quota(models.Model):
         # This calculation must not be part of the code, but instead be a
         # formula retrieved from .env, stored on database, or something else.
 
-        self.coeficient = Decimal(1.00001)
+        pass
 
     def save(self, **kwargs):
         """
@@ -290,9 +290,6 @@ class Bet(models.Model):
         self.potential_earnings = (
             self.transaction.amount * self.quota.coeficient
         )
-        print("==============================================")
-        print(self.potential_earnings)
-        print("==============================================")
         self.won = None
         self.active = True
         super().save()

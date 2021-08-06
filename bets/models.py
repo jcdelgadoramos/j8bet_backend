@@ -261,7 +261,7 @@ class Bet(models.Model):
         related_name="bets",
     )
     potential_earnings = models.DecimalField(
-        "Ganancias potenciales", max_digits=12, decimal_places=2, default=1,
+        "Ganancias potenciales", max_digits=12, decimal_places=2,
     )
     won = models.BooleanField("Ganado", null=True)
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
@@ -287,10 +287,9 @@ class Bet(models.Model):
         """
         if not self.quota.active:
             raise ValidationError(_("La cuota debe estar activa"))
-        # self.potential_earnings = (
-        #     self.transaction.amount * self.quota.coeficient
-        # ).quantize("0,01")
-        # self.potential_earnings = Decimal(2.04)
+        self.potential_earnings = (
+            self.transaction.amount * self.quota.coeficient
+        )
         self.won = None
         self.active = True
         super().save()

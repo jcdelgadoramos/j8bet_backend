@@ -14,7 +14,6 @@ class AbstractDateFactory:
 
 
 class TagFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
-
     class Meta:
         model = Tag
 
@@ -22,7 +21,6 @@ class TagFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
 
 
 class AffairFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
-
     class Meta:
         model = Affair
 
@@ -56,7 +54,8 @@ class EventFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
 
 
 class TransactionFactory(
-    AbstractDateFactory, factory.django.DjangoModelFactory,
+    AbstractDateFactory,
+    factory.django.DjangoModelFactory,
 ):
     class Meta:
         model = Transaction

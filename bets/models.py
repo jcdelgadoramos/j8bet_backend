@@ -13,13 +13,15 @@ class Tag(models.Model):
     Class for Tag model.
     A Tag is a keyword/keyphrase which is used to classify affairs.
     """
-
-
     name = models.CharField("Nombre", max_length=255)
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
     modification_date = models.DateTimeField(
         "Fecha de modificación", auto_now=True
     )
+
+    class Meta:
+        verbose_name = "Etiqueta"
+        verbose_name_plural = "Etiquetas"
 
 
 class Affair(models.Model):

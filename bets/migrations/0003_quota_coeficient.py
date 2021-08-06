@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             field=models.DecimalField(
                 decimal_places=5,
                 default=Decimal(
-                    "1.000010000000000065512040237081237137317657470703125"
+                    "1.00001"
                 ),
                 max_digits=9,
                 validators=[django.core.validators.MinValueValidator(1)],

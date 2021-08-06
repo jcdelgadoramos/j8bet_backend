@@ -290,6 +290,9 @@ class Bet(models.Model):
         self.potential_earnings = (
             self.transaction.amount * self.quota.coeficient
         )
+        print("==============================================")
+        print(self.potential_earnings)
+        print("==============================================")
         self.won = None
         self.active = True
         super().save()

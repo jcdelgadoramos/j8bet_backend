@@ -6,16 +6,22 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bets', '0003_quota_coeficient'),
+        ("bets", "0003_quota_coeficient"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='affair',
-            options={'verbose_name': 'Asunto', 'verbose_name_plural': 'Asuntos'},
+            name="affair",
+            options={
+                "verbose_name": "Asunto",
+                "verbose_name_plural": "Asuntos",
+            },
         ),
         migrations.AlterModelOptions(
-            name='tag',
-            options={'verbose_name': 'Etiqueta', 'verbose_name_plural': 'Etiquetas'},
+            name="tag",
+            options={
+                "verbose_name": "Etiqueta",
+                "verbose_name_plural": "Etiquetas",
+            },
         ),
     ]

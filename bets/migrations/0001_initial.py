@@ -84,7 +84,7 @@ class Migration(migrations.Migration):
                     "potential_earnings",
                     models.DecimalField(
                         decimal_places=2,
-                        max_digits=12,
+                        max_digits=14,
                         verbose_name="Ganancias potenciales",
                     ),
                 ),

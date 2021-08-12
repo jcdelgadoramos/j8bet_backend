@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 
 from bets.factories import (
     AffairFactory,
@@ -201,8 +202,12 @@ class QueryTest(JSONWebTokenTestCase):
         self.second_event = EventFactory(active=True, affair=self.first_affair)
         self.first_quota = QuotaFactory(event=self.first_event, active=True)
         self.second_quota = QuotaFactory(event=self.first_event, active=True)
-        self.first_bet = BetFactory(quota=self.second_quota)
-        self.second_bet = BetFactory(quota=self.second_quota)
+        self.first_bet = BetFactory(
+            quota=self.second_quota, coeficient=Decimal(2.5),
+        )
+        self.second_bet = BetFactory(
+            quota=self.second_quota, coeficient=Decimal(2.5),
+        )
         self.event_fields = """
             id,
             name,

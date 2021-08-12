@@ -194,8 +194,9 @@ class Quota(models.Model):
         "Coeficiente de ganancia",
         max_digits=9,
         decimal_places=5,
-        default=Decimal(1.00001),
         validators=[MinValueValidator(1)],
+        blank=True,
+        null=True,
     )
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
     modification_date = models.DateTimeField(

@@ -18,9 +18,7 @@ class Migration(migrations.Migration):
             name="coeficient",
             field=models.DecimalField(
                 decimal_places=5,
-                default=Decimal(
-                    "1.00001"
-                ),
+                default=Decimal("1.00001"),
                 max_digits=9,
                 validators=[django.core.validators.MinValueValidator(1)],
                 verbose_name="Coeficiente de ganancia",

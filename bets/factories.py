@@ -1,5 +1,6 @@
 import factory
 from bets.models import Affair, Bet, Event, Prize, Quota, Tag, Transaction
+from decimal import Decimal
 from django.utils import timezone
 from users.factories import UserFactory
 
@@ -77,7 +78,7 @@ class QuotaFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
     # coeficient = factory.Faker(
     #     "pydecimal", min_value=1, max_value=200, right_digits=2
     # )
-    coeficient = 2.5
+    coeficient = Decimal(2.5)
     expiration_date = factory.Faker(
         "date_time", tzinfo=timezone.get_current_timezone()
     )

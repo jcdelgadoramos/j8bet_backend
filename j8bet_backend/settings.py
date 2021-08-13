@@ -266,3 +266,5 @@ LOGIN_URL = "/login/"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

@@ -150,7 +150,7 @@ class Transaction(models.Model):
         on_delete=models.CASCADE,
         related_name="transactions",
     )
-    amount = models.DecimalField("Monto", max_digits=10, decimal_places=2)
+    amount = models.DecimalField("Monto", max_digits=16, decimal_places=6)
     description = models.CharField("Descripción", max_length=255)
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
     modification_date = models.DateTimeField(
@@ -186,14 +186,15 @@ class Quota(models.Model):
     )
     probability = models.DecimalField(
         "Probabilidad",
-        max_digits=6,
-        decimal_places=5,
+        max_digits=16,
+        decimal_places=6,
         validators=[MaxValueValidator(1), MinValueValidator(0)],
     )
     coeficient = models.DecimalField(
         "Coeficiente de ganancia",
-        max_digits=9,
-        decimal_places=5,
+        max_digits=16,
+        decimal_places=6,
+        default=Decimal(1.00001),
         validators=[MinValueValidator(1)],
         blank=True,
         null=True,
@@ -262,7 +263,7 @@ class Bet(models.Model):
         related_name="bets",
     )
     potential_earnings = models.DecimalField(
-        "Ganancias potenciales", max_digits=14, decimal_places=2,
+        "Ganancias potenciales", max_digits=16, decimal_places=6,
     )
     won = models.BooleanField("Ganado", null=True)
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
@@ -314,7 +315,7 @@ class Prize(models.Model):
         on_delete=models.CASCADE,
         related_name="prizes",
     )
-    reward = models.DecimalField("Ganancia", max_digits=12, decimal_places=2)
+    reward = models.DecimalField("Ganancia", max_digits=16, decimal_places=6)
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
 
     class Meta:

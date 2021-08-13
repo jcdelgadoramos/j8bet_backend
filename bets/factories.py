@@ -72,9 +72,10 @@ class QuotaFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
 
     manager = factory.SubFactory(UserFactory)
     event = factory.SubFactory(EventFactory)
-    probability = factory.Faker(
-        "pydecimal", min_value=0, max_value=1, right_digits=5
-    )
+    # probability = factory.Faker(
+    #     "pydecimal", min_value=0, max_value=1, right_digits=5
+    # )
+    probability = Decimal(0.35)
     # coeficient = factory.Faker(
     #     "pydecimal", min_value=1, max_value=200, right_digits=2
     # )

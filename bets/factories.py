@@ -14,7 +14,6 @@ class AbstractDateFactory:
 
 
 class TagFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
-
     class Meta:
         model = Tag
 
@@ -22,7 +21,6 @@ class TagFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
 
 
 class AffairFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
-
     class Meta:
         model = Affair
 
@@ -56,7 +54,8 @@ class EventFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
 
 
 class TransactionFactory(
-    AbstractDateFactory, factory.django.DjangoModelFactory,
+    AbstractDateFactory,
+    factory.django.DjangoModelFactory,
 ):
     class Meta:
         model = Transaction
@@ -74,6 +73,9 @@ class QuotaFactory(AbstractDateFactory, factory.django.DjangoModelFactory):
     event = factory.SubFactory(EventFactory)
     probability = factory.Faker(
         "pydecimal", min_value=0, max_value=1, right_digits=5
+    )
+    coeficient = factory.Faker(
+        "pydecimal", min_value=1, max_value=200, right_digits=2
     )
     expiration_date = factory.Faker(
         "date_time", tzinfo=timezone.get_current_timezone()

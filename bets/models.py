@@ -14,12 +14,15 @@ class Tag(models.Model):
     A Tag is a keyword/keyphrase which is used to classify affairs.
     """
 
-
     name = models.CharField("Nombre", max_length=255)
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)
     modification_date = models.DateTimeField(
         "Fecha de modificación", auto_now=True
     )
+
+    class Meta:
+        verbose_name = "Etiqueta"
+        verbose_name_plural = "Etiquetas"
 
 
 class Affair(models.Model):
@@ -191,7 +194,7 @@ class Quota(models.Model):
         "Coeficiente de ganancia",
         max_digits=9,
         decimal_places=5,
-        default=Decimal(1.00001),
+        default=1.00001,
         validators=[MinValueValidator(1)],
     )
     creation_date = models.DateTimeField("Fecha de creación", auto_now_add=True)

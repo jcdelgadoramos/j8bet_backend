@@ -30,7 +30,7 @@ Create a role and database for the project:
 ```bash
 sudo su - postgres
 psql
-create user j8bet with encripted passowrd 'j8bet';
+create user j8bet with encrypted passowrd 'j8bet';
 create database j8bet;
 grant all privileges on database j8bet to j8bet;
 \q
